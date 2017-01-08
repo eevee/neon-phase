@@ -46,6 +46,10 @@ function Actor:init(position)
     -- should this be done on enter, maybe?
     -- TODO shouldn't the anchor really be part of the sprite?  hm, but then
     -- how would our bounding box change?
+    -- FIXME should show a more useful error if this is missing
+    if not game.sprites[self.sprite_name] then
+        error(("No such sprite named %s"):format(self.sprite_name))
+    end
     self.sprite = game.sprites[self.sprite_name]:instantiate()
 
     -- FIXME i could get rid of this if i just said shapes are relative to the

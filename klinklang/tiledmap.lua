@@ -2,12 +2,14 @@
 Read a map in Tiled's JSON format.
 ]]
 
+local anim8 = require 'vendor.anim8'
 local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 local json = require 'vendor.dkjson'
 
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
+local SpriteSet = require 'klinklang.sprite'
 
 
 -- I hate silent errors
@@ -34,6 +36,18 @@ local function relative_path(a, b)
     return a .. b
 end
 
+
+--------------------------------------------------------------------------------
+-- TileProxy
+--
+-- Not a real tile object, but a little wrapper that can read its properties
+-- from the Tiled JSON on the fly.
+
+local TileProxy = Class{}
+
+function TileProxy:init()
+end
+
 --------------------------------------------------------------------------------
 -- TiledTileset
 
@@ -41,6 +55,9 @@ local TiledTileset = Class{}
 
 function TiledTileset:init(path, data, resource_manager)
     self.path = path
+    if not data then
+        data = strict_json_decode(love.filesystem.read(path))
+    end
     self.raw = data
 
     -- Copy some basics
@@ -86,6 +103,42 @@ function TiledTileset:init(path, data, resource_manager)
                 tbl[relid] = tbl["" .. relid]
                 tbl["" .. relid] = nil
             end
+        end
+    end
+
+    -- Read named sprites (and their animations, if appropriate)
+    -- FIXME this scheme is nice, except, there's no way to use the same frame
+    -- for two poses?
+    local spritesets = {}
+    local grid = anim8.newGrid(tw, th, iw, ih, data.margin, data.margin, data.spacing)
+    for id = 0, self.tilecount - 1 do
+        -- Tile IDs are keyed as strings, because JSON
+        --id = "" .. id
+        -- FIXME uggh
+        if data.tileproperties and data.tileproperties[id] and data.tileproperties[id]['sprite name'] then
+            local full_sprite_name = data.tileproperties[id]['sprite name']
+            local sprite_name, pose_name = full_sprite_name:match("^(.+)/(.+)$")
+            local spriteset = spritesets[sprite_name]
+            if not spriteset then
+                spriteset = SpriteSet(sprite_name, self.image)
+                spritesets[sprite_name] = spriteset
+            end
+
+            -- Collect the frames, as a list of quads
+            local quads, durations
+            if data.tiles[id] and data.tiles[id].animation then
+                quads = {}
+                durations = {}
+                for _, animation_frame in ipairs(data.tiles[id].animation) do
+                    table.insert(quads, self.quads[animation_frame.tileid])
+                    table.insert(durations, animation_frame.duration / 1000)
+                end
+            else
+                quads = {self.quads[id]}
+                durations = 1
+            end
+            -- TODO use a custom prop for non-looping animations
+            spriteset:add(pose_name, quads, durations, nil)
         end
     end
 end
@@ -155,8 +208,7 @@ function TiledMap:init(path, resource_manager)
             local tspath = relative_path(path, tilesetdef.source)
             tileset = resource_manager:get(tspath)
             if not tileset then
-                local tilesetdata = strict_json_decode(love.filesystem.read(tspath))
-                tileset = TiledTileset(tspath, tilesetdata, resource_manager)
+                tileset = TiledTileset(tspath, nil, resource_manager)
                 resource_manager:add(tspath, tileset)
             end
         else
@@ -277,4 +329,7 @@ function TiledMap:draw(layer_name, origin, width, height)
     end
 end
 
-return TiledMap
+return {
+    TiledMap = TiledMap,
+    TiledTileset = TiledTileset,
+}

@@ -6,7 +6,7 @@ local Player = require 'klinklang.actors.player'
 local BaseScene = require 'klinklang.scenes.base'
 local whammo = require 'klinklang.whammo'
 
-local TiledMap = require 'klinklang.tiledmap'
+local tiledmap = require 'klinklang.tiledmap'
 
 local CAMERA_MARGIN = 6
 
@@ -43,7 +43,7 @@ function WorldScene:update(dt)
     if self.player and self.player.__EXIT then
         self.player.__EXIT = false
         game.map_index = game.map_index + 1
-        local map = TiledMap("data/maps/" .. game.maps[game.map_index], game.resource_manager)
+        local map = tiledmap.TiledMap("data/maps/" .. game.maps[game.map_index], game.resource_manager)
         self:load_map(map)
     end
 

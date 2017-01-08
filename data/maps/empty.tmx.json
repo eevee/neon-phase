@@ -58,6 +58,10 @@
                 }
             },
          "tilewidth":16
+        }, 
+        {
+         "firstgid":257,
+         "source":"..\/tilesets\/kidneon.tsx.json"
         }],
  "tilewidth":16,
  "version":1,

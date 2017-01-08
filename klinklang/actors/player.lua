@@ -13,7 +13,7 @@ local Player = Class{
     shape = whammo_shapes.Box(0, 0, 16, 32),
     anchor = Vector(8, 32),
     -- FIXME game-specific
-    sprite_name = 'kidneon',
+    sprite_name = 'kid neon',
 
     is_player = true,
 
@@ -101,11 +101,7 @@ function Player:update(dt)
         pose = 'fall'
     end
     -- TODO how do these work for things that aren't players?
-    if self.facing_left then
-        pose = pose .. '/left'
-    else
-        pose = pose .. '/right'
-    end
+    self.sprite:set_facing_right(not self.facing_left)
     self.sprite:set_pose(pose)
 
     -- TODO ugh, this whole block should probably be elsewhere; i need a way to
@@ -164,12 +160,6 @@ local DeadScene = require 'klinklang.scenes.dead'
 function Player:die()
     if not self.is_dead then
         local pose = 'die'
-        -- TODO ARGGGHH
-        if self.facing_left then
-            pose = pose .. '/left'
-        else
-            pose = pose .. '/right'
-        end
         self.sprite:set_pose(pose)
         self.is_dead = true
         -- TODO LOL THIS WILL NOT FLY but the problem with putting a check in
