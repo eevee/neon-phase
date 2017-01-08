@@ -31,6 +31,14 @@ function Player:init(...)
     self.inventory = {}
 end
 
+-- FIXME game-specific
+local Chip = require 'neonphase.actors.chip'
+function Player:on_spawn()
+    local chip = Chip(self, self.pos:clone())
+    self.ptrs.chip = chip
+    worldscene:add_actor(chip)
+end
+
 function Player:update(dt)
     if self.is_dead then
         -- FIXME a corpse still has physics, just not input

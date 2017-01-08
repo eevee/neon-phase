@@ -62,6 +62,10 @@
         {
          "firstgid":257,
          "source":"..\/tilesets\/kidneon.tsx.json"
+        }, 
+        {
+         "firstgid":263,
+         "source":"..\/tilesets\/chip.tsx.json"
         }],
  "tilewidth":16,
  "version":1,

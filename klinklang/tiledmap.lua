@@ -107,6 +107,10 @@ function TiledTileset:init(path, data, resource_manager)
     end
 
     -- Read named sprites (and their animations, if appropriate)
+    -- FIXME this probably shouldn't happen for a random-ass sprite we're
+    -- reading from within a map, right?  maybe this should be a separate
+    -- method that dumps the spritesets into a passed-in table (which would let
+    -- me get rid of _all_sprites)
     -- FIXME this scheme is nice, except, there's no way to use the same frame
     -- for two poses?
     local spritesets = {}
@@ -126,7 +130,7 @@ function TiledTileset:init(path, data, resource_manager)
 
             -- Collect the frames, as a list of quads
             local quads, durations
-            if data.tiles[id] and data.tiles[id].animation then
+            if data.tiles and data.tiles[id] and data.tiles[id].animation then
                 quads = {}
                 durations = {}
                 for _, animation_frame in ipairs(data.tiles[id].animation) do

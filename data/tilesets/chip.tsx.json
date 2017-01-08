@@ -1,0 +1,25 @@
+{ "columns":13,
+ "image":"..\/..\/assets\/images\/chipsprite.png",
+ "imageheight":16,
+ "imagewidth":208,
+ "margin":0,
+ "name":"chip",
+ "spacing":0,
+ "tilecount":13,
+ "tileheight":16,
+ "tileproperties":
+    {
+     "0":
+        {
+         "sprite name":"chip\/stand"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "sprite name":"string"
+        }
+    },
+ "tilewidth":16
+}
