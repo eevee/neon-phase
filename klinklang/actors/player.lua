@@ -28,28 +28,6 @@ function Player:init(...)
     -- TODO BUT either way, this needs to be initialized at the start of the
     -- game and correctly restored on map load
     self.inventory = {}
-    table.insert(self.inventory, {
-        -- TODO i feel like this should be a real type, or perhaps attached to
-        -- an actor somehow, but i don't want you to have real actual actors in
-        -- your inventory.  i suppose you could just have a count of actor
-        -- /types/, which i think is how zdoom works?
-        display_name = 'Staff of Iesus',
-        sprite_name = 'staff',
-        on_inventory_use = function(self, activator)
-            if activator.ptrs.savepoint then
-                -- TODO seems like a good place to use :die()
-                worldscene:remove_actor(activator.ptrs.savepoint)
-                activator.ptrs.savepoint = nil
-            end
-
-            local savepoint = actors_misc.Savepoint(
-                -- TODO this constant is /totally/ arbitrary, hmm
-                activator.pos + Vector(0, -16))
-            worldscene:add_actor(savepoint)
-            activator.ptrs.savepoint = savepoint
-        end,
-    })
-
 end
 
 function Player:update(dt)

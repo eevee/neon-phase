@@ -2,7 +2,6 @@ local flux = require 'vendor.flux'
 local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
-local actors_misc = require 'klinklang.actors.misc'
 local Player = require 'klinklang.actors.player'
 local BaseScene = require 'klinklang.scenes.base'
 local whammo = require 'klinklang.whammo'
@@ -13,13 +12,6 @@ local CAMERA_MARGIN = 6
 
 -- TODO yeah this sucks
 local actors_lookup = {
-    spikes_up = actors_misc.SpikesUp,
-    magical_bridge = actors_misc.MagicalBridge,
-    wooden_switch = actors_misc.WoodenSwitch,
-    laser_eye = actors_misc.LaserEye,
-    ['stone door shutter'] = actors_misc.StoneDoorShutter,
-    ['wooden wheel'] = actors_misc.WoodenWheel,
-    ['tome of levitation'] = actors_misc.TomeOfLevitation,
 }
 
 local WorldScene = Class{
