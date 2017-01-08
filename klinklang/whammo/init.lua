@@ -88,11 +88,6 @@ function Collider:slide(shape, dx, dy)
                 break
             end
 
-            -- Log the first type of contact with each shape
-            if allhits[collision.shape] == nil then
-                allhits[collision.shape] = collision.touchtype
-            end
-
             -- Check whether we can move through this object
             local is_passable = false
             if collision.shape._xxx_is_one_way_platform and attempted.y < 0 then
@@ -105,13 +100,16 @@ function Collider:slide(shape, dx, dy)
                 -- FIXME this is better than using worldscene but still assumes
                 -- knowledge of the actor api
                 local otheractor = self:get_owner(collision.shape)
-                if otheractor and not otheractor:blocks(self, collision.move) then
+                local thisactor = self:get_owner(shape)
+                if otheractor and not otheractor:blocks(thisactor, collision.move) then
                     is_passable = true
                 end
             end
 
             -- Restrict our slide angle if the object blocks us
-            if not is_passable then
+            if is_passable then
+                collision.touchtype = 0
+            else
                 combined_clock:intersect(collision.clock)
             end
 
@@ -119,6 +117,11 @@ function Collider:slide(shape, dx, dy)
             if not first_collision and not is_passable and collision.touchtype > 0 then
                 first_collision = collision
                 --print("< found first collision:", first_collision.move, "len2:", first_collision.len2)
+            end
+
+            -- Log the first type of contact with each shape
+            if allhits[collision.shape] == nil then
+                allhits[collision.shape] = collision.touchtype
             end
         end
 

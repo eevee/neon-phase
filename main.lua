@@ -48,6 +48,9 @@ function love.load(args)
     local tspath = 'data/tilesets/chip.tsx.json'
     local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
     resource_manager:add(tspath, tileset)
+    local tspath = 'data/tilesets/chiplaser.tsx.json'
+    local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
+    resource_manager:add(tspath, tileset)
 
     -- FIXME probably want a way to specify fonts with named roles
     local fontscale = 2

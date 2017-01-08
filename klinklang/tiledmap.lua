@@ -129,7 +129,7 @@ function TiledTileset:init(path, data, resource_manager)
             end
 
             -- Collect the frames, as a list of quads
-            local quads, durations
+            local quads, durations, onloop
             if data.tiles and data.tiles[id] and data.tiles[id].animation then
                 quads = {}
                 durations = {}
@@ -137,12 +137,15 @@ function TiledTileset:init(path, data, resource_manager)
                     table.insert(quads, self.quads[animation_frame.tileid])
                     table.insert(durations, animation_frame.duration / 1000)
                 end
+                if data.tileproperties[id]['animation stops'] then
+                    onloop = 'pauseAtEnd'
+                end
             else
                 quads = {self.quads[id]}
                 durations = 1
+                onloop = 'pauseAtEnd'
             end
-            -- TODO use a custom prop for non-looping animations
-            spriteset:add(pose_name, quads, durations, nil)
+            spriteset:add(pose_name, quads, durations, onloop)
         end
     end
 end

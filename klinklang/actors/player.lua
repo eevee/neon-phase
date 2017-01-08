@@ -38,6 +38,12 @@ function Player:on_spawn()
     self.ptrs.chip = chip
     worldscene:add_actor(chip)
 end
+function Player:blocks(other, d)
+    if other.sprite_name == "chip's laser" then
+        return false
+    end
+    return true
+end
 
 function Player:update(dt)
     if self.is_dead then

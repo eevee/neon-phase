@@ -137,6 +137,8 @@ local MobileActor = Class{
     friction = 1/16 * PICO8A,  -- not actually from pico8
     ground_friction = 1,
     max_slope = Vector(1, 1),
+    gravity_multiplier = 1,
+    constant_velocity = nil,
 
     -- Active physics parameters
     -- TODO these are a little goofy because friction works differently; may be
@@ -199,9 +201,12 @@ function MobileActor:_do_physics(dt)
         end
 
         -- Gravity
-        self.velocity = self.velocity + gravity * dt
+        self.velocity = self.velocity + gravity * self.gravity_multiplier * dt
         self.velocity.y = math.min(self.velocity.y, terminal_velocity)
         --print("velocity after gravity:", self.velocity)
+    end
+    if self.constant_velocity ~= nil then
+        self.velocity = self.velocity:normalized() * self.constant_velocity
     end
 
     -- Calculate the desired movement, always trying to move us such that we
