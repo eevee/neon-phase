@@ -213,12 +213,6 @@ function MobileActor:_do_physics(dt)
 
     ----------------------------------------------------------------------------
     -- Collision time!
-    if love.keyboard.isDown('s') then
-        self.pos = Vector(416.5,448.5)
-        self.shape:move(self.pos.x - self.shape.x0, self.pos.y - self.shape.y0)
-        self.velocity = Vector(-160.89588755785371177,-95.287752296280814335)
-        movement = Vector(-3.5,-2.5)
-    end
     --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
 
     -- First things first: restrict movement to within the current map
