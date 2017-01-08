@@ -1,10 +1,10 @@
 local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
-local actors_base = require 'isaacsdescent.actors.base'
-local actors_misc = require 'isaacsdescent.actors.misc'
-local util = require 'isaacsdescent.util'
-local whammo_shapes = require 'isaacsdescent.whammo.shapes'
+local actors_base = require 'klinklang.actors.base'
+local actors_misc = require 'klinklang.actors.misc'
+local util = require 'klinklang.util'
+local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
 local Player = Class{
@@ -179,7 +179,7 @@ function Player:draw()
 end
 
 local Gamestate = require 'vendor.hump.gamestate'
-local DeadScene = require 'isaacsdescent.scenes.dead'
+local DeadScene = require 'klinklang.scenes.dead'
 -- TODO should other things also be able to die?
 function Player:die()
     if not self.is_dead then

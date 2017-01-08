@@ -2,7 +2,7 @@ local Class = require 'vendor.hump.class'
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
-local BaseScene = require 'isaacsdescent.scenes.base'
+local BaseScene = require 'klinklang.scenes.base'
 
 local SPEAKER_SCALE = 4
 local SCROLL_RATE = 64  -- characters per second

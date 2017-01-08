@@ -1,7 +1,7 @@
 local Vector = require 'vendor.hump.vector'
 
-local whammo = require 'isaacsdescent.whammo'
-local whammo_shapes = require 'isaacsdescent.whammo.shapes'
+local whammo = require 'klinklang.whammo'
+local whammo_shapes = require 'klinklang.whammo.shapes'
 
 describe("Collision", function()
     it("should handle orthogonal movement", function()

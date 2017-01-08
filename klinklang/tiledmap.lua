@@ -6,8 +6,8 @@ local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 local json = require 'vendor.dkjson'
 
-local util = require 'isaacsdescent.util'
-local whammo_shapes = require 'isaacsdescent.whammo.shapes'
+local util = require 'klinklang.util'
+local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
 -- I hate silent errors

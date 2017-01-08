@@ -1,9 +1,9 @@
 local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
-local util = require 'isaacsdescent.util'
-local Blockmap = require 'isaacsdescent.whammo.blockmap'
-local shapes = require 'isaacsdescent.whammo.shapes'
+local util = require 'klinklang.util'
+local Blockmap = require 'klinklang.whammo.blockmap'
+local shapes = require 'klinklang.whammo.shapes'
 
 local Collider = Class{
     _NOTHING = {},

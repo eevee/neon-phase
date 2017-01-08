@@ -1,6 +1,6 @@
 local Vector = require 'vendor.hump.vector'
 
-local util = require 'isaacsdescent.util'
+local util = require 'klinklang.util'
 local ClockRange = util.ClockRange
 
 local left = Vector(-1, 0)

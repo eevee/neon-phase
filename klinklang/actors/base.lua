@@ -1,8 +1,8 @@
 local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
-local util = require 'isaacsdescent.util'
-local whammo_shapes = require 'isaacsdescent.whammo.shapes'
+local util = require 'klinklang.util'
+local whammo_shapes = require 'klinklang.whammo.shapes'
 
 -- Base class for an actor: any object in the world with any behavior at all.
 -- (The world also contains tiles, but those are purely decorative; they don't

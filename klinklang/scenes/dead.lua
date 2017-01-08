@@ -3,8 +3,8 @@ local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 local flux = require 'vendor.flux'
 
-local BaseScene = require 'isaacsdescent.scenes.base'
-local SceneFader = require 'isaacsdescent.scenes.fader'
+local BaseScene = require 'klinklang.scenes.base'
+local SceneFader = require 'klinklang.scenes.fader'
 
 local DeadScene = Class{
     __includes = BaseScene,

@@ -1,7 +1,7 @@
 local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
-local util = require 'isaacsdescent.util'
+local util = require 'klinklang.util'
 
 -- Smallest unit of distance, in pixels.  Movement is capped to a multiple of
 -- this, and any surfaces closer than this distance are considered touching.

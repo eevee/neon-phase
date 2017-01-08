@@ -4,12 +4,12 @@ local Class = require 'vendor.hump.class'
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
-local ResourceManager = require 'isaacsdescent.resources'
-local WorldScene = require 'isaacsdescent.scenes.world'
-local Sprite = require 'isaacsdescent.sprite'
-local TiledMap = require 'isaacsdescent.tiledmap'
+local ResourceManager = require 'klinklang.resources'
+local WorldScene = require 'klinklang.scenes.world'
+local Sprite = require 'klinklang.sprite'
+local TiledMap = require 'klinklang.tiledmap'
 
-local DialogueScene = require 'isaacsdescent.scenes.dialogue'
+local DialogueScene = require 'klinklang.scenes.dialogue'
 
 
 game = {
