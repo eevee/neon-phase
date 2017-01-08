@@ -10,9 +10,10 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local Player = Class{
     __includes = actors_base.MobileActor,
 
-    shape = whammo_shapes.Box(8, 16, 20, 46),
-    anchor = Vector(19, 62),
-    sprite_name = 'isaac',
+    shape = whammo_shapes.Box(0, 0, 16, 32),
+    anchor = Vector(8, 32),
+    -- FIXME game-specific
+    sprite_name = 'kidneon',
 
     is_player = true,
 
@@ -71,7 +72,8 @@ function Player:update(dt)
             if self.velocity.y > -self.jumpvel then
                 self.velocity.y = -self.jumpvel
                 self.on_ground = false
-                game.resource_manager:get('assets/sounds/jump.ogg'):play()
+                -- FIXME kinda game-specific
+                --game.resource_manager:get('assets/sounds/jump.ogg'):play()
             end
         end
     else
