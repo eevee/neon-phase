@@ -1,8 +1,8 @@
 local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
-local actors_base = require 'isaacsdescent.actors.base'
-local whammo_shapes = require 'isaacsdescent.whammo.shapes'
+local actors_base = require 'klinklang.actors.base'
+local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
 -- TODO this doesn't do most things an actor does, which means it has no shape
