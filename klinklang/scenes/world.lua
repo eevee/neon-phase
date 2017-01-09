@@ -15,6 +15,8 @@ local actors_block = require 'neonphase.actors.block'
 local actors_lookup = {
     ['shootable block'] = actors_block.ShootableBlock,
 }
+-- FIXME game-specific...  but maybe it doesn't need to be
+local TriggerZone = require 'neonphase.actors.trigger'
 
 local WorldScene = Class{
     __includes = BaseScene,
@@ -123,12 +125,29 @@ function WorldScene:draw()
     -- actors should be drawn
     self.map:draw('background', self.camera, love.graphics.getDimensions())
 
-    for _, actor in ipairs(self.actors) do
-        actor:draw(dt)
+    if self.pushed_actors then
+        for _, actor in ipairs(self.pushed_actors) do
+            actor:draw(dt)
+        end
+    else
+        for _, actor in ipairs(self.actors) do
+            actor:draw(dt)
+        end
     end
 
     self.map:draw('objects', self.camera, love.graphics.getDimensions())
     self.map:draw('foreground', self.camera, love.graphics.getDimensions())
+
+    if self.pushed_actors then
+        love.graphics.setColor(0, 0, 0, 192)
+        love.graphics.rectangle('fill', self.camera.x, self.camera.y, love.graphics.getDimensions())
+        love.graphics.setColor(255, 255, 255)
+        self.map:draw(self.submap, self.camera, love.graphics.getDimensions())
+        for _, actor in ipairs(self.actors) do
+            actor:draw(dt)
+        end
+    end
+
 
     if game.debug then
         --[[
@@ -220,7 +239,7 @@ function WorldScene:keypressed(key, scancode, isrepeat)
         -- FIXME this should be separate keys maybe?
         if self.player.touching_mechanism then
             self.player.touching_mechanism:on_use(self.player)
-        else
+        elseif self.player.inventory_cursor > 0 then
             self.player.inventory[self.player.inventory_cursor]:on_inventory_use(self.player)
         end
     end
@@ -262,6 +281,19 @@ function WorldScene:load_map(map)
         self:add_actor(class(position))
     end
 
+    -- FIXME this is invasive
+    for _, layer in pairs(map.raw.layers) do
+        if layer.type == 'objectgroup' and layer.visible then
+            for _, object in ipairs(layer.objects) do
+                if object.type == 'trigger' then
+                    self:add_actor(TriggerZone(
+                        Vector(object.x, object.y),
+                        Vector(object.width, object.height)))
+                end
+            end
+        end
+    end
+
     -- FIXME putting the player last is really just a z hack to make the player
     -- draw in front of everything else
     self:add_actor(self.player)
@@ -278,6 +310,42 @@ end
 
 function WorldScene:reload_map()
     self:load_map(self.map)
+end
+
+function WorldScene:enter_submap(name)
+    -- FIXME this is extremely half-baked
+    self.submap = name
+    self:remove_actor(self.player)
+    self.pushed_actors = self.actors
+    self.pushed_collider = self.collider
+    self.actors = {}
+    self.collider = whammo.Collider(4 * self.map.tilewidth)
+    self.map:add_to_collider(self.collider, self.submap)
+    self:add_actor(self.player)
+
+    -- FIXME this is also invasive
+    for _, layer in pairs(map.raw.layers) do
+        if layer.type == 'objectgroup' and layer.properties and layer.properties['submap'] == self.submap then
+            for _, object in ipairs(layer.objects) do
+                if object.type == 'trigger' then
+                    self:add_actor(TriggerZone(
+                        Vector(object.x, object.y),
+                        Vector(object.width, object.height)))
+                end
+            end
+        end
+    end
+end
+
+function WorldScene:leave_submap(name)
+    -- FIXME this is extremely half-baked
+    self.submap = nil
+    self:remove_actor(self.player)
+    self.actors = self.pushed_actors
+    self.collider = self.pushed_collider
+    self.pushed_actors = nil
+    self.pushed_collider = nil
+    self:add_actor(self.player)
 end
 
 function WorldScene:add_actor(actor)

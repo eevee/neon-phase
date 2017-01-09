@@ -17,7 +17,7 @@ local Player = Class{
 
     is_player = true,
 
-    inventory_cursor = 1,
+    inventory_cursor = 0,
 }
 
 function Player:init(...)
@@ -34,9 +34,22 @@ end
 -- FIXME game-specific
 local Chip = require 'neonphase.actors.chip'
 function Player:on_enter()
-    local chip = Chip(self, self.pos:clone())
+    local chip
+    if self.chip then
+        chip = self.chip
+        self.chip = nil
+    else
+        -- FIXME chip should spawn at their desired location
+        chip = Chip(self, self.pos:clone())
+    end
     self.ptrs.chip = chip
     worldscene:add_actor(chip)
+end
+function Player:on_leave()
+    -- Keep Chip with us as a strong reference, so they can be returned to the
+    -- map when we are
+    self.chip = self.ptrs.chip
+    worldscene:remove_actor(self.chip)
 end
 function Player:blocks(other, d)
     if other.sprite_name == "chip's laser" then

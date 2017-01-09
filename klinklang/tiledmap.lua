@@ -278,13 +278,16 @@ function TiledMap:init(path, resource_manager)
     end
 end
 
-function TiledMap:add_to_collider(collider)
+function TiledMap:add_to_collider(collider, submap_name)
     -- TODO injecting like this seems...  wrong?  also keeping references to
     -- the collision shapes /here/?  this object should be a dumb wrapper and
     -- not have any state i think.  maybe return a structure of shapes?
-    self.shapes = {}
+    if not self.shapes then
+        self.shapes = {}
+    end
     for _, layer in pairs(self.raw.layers) do
-        if layer.type == 'tilelayer' then
+        -- FIXME use the prop, and don't add the main map stuff
+        if layer.type == 'tilelayer' and (layer.visible or layer.name == submap_name) then
             local lx = layer.x * self.tilewidth + (layer.offsetx or 0)
             local ly = layer.y * self.tileheight + (layer.offsety or 0)
             local width, height = layer.width, layer.height
@@ -299,8 +302,7 @@ function TiledMap:add_to_collider(collider)
                         shape:move(
                             lx + tx * self.raw.tilewidth,
                             ly + ty * self.raw.tileheight)
-                        -- TODO this doesn't work -- there are multiple layers!
-                        self.shapes[t] = shape
+                        self.shapes[shape] = true
                         collider:add(shape)
                     end
                 end
