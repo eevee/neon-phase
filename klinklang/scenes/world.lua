@@ -10,8 +10,10 @@ local tiledmap = require 'klinklang.tiledmap'
 
 local CAMERA_MARGIN = 0.4
 
--- TODO yeah this sucks
+-- FIXME game-specific, but i need a subclass hook to fix it
+local actors_block = require 'neonphase.actors.block'
 local actors_lookup = {
+    ['shootable block'] = actors_block.ShootableBlock,
 }
 
 local WorldScene = Class{

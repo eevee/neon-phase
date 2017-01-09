@@ -43,8 +43,11 @@ function ChipLaser:update(dt)
         -- FIXME seems to be a recurring problem of having certain individual
         -- objects ignore collision with certain other individual objects;
         -- maybe the collider itself should know about this
-        local owner = worldscene.collider:get_owner(shape)
-        if touchtype > 0 and owner ~= self.ptrs.owner and owner ~= self.ptrs.owner.ptrs.owner then
+        local obstacle = worldscene.collider:get_owner(shape)
+        if touchtype > 0 and obstacle ~= self.ptrs.owner and obstacle ~= self.ptrs.owner.ptrs.owner then
+            if obstacle then
+                obstacle:damage(self, 10)
+            end
             self.velocity = Vector(0, 0)
             self.sprite:set_pose('hit')
             worldscene.fluct:to(self, 0.25, {}):oncomplete(function() 

@@ -90,6 +90,10 @@ end
 function Actor:on_collide(actor, direction)
 end
 
+-- FIXME should probably have health tracking and whatnot
+function Actor:damage(source, amount)
+end
+
 -- General API stuff for controlling actors from outside
 function Actor:move_to(position)
     self.pos = position
