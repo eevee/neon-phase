@@ -170,10 +170,19 @@ function TiledTileset:get_collision(tileid)
 
     if coll.polygon then
         local points = {}
-        for _, pt in ipairs(coll.polygon) do
-            if _ ~= 1 then
-                table.insert(points, pt.x)
-                table.insert(points, pt.y)
+        for i, pt in ipairs(coll.polygon) do
+            -- Sometimes Tiled repeats the first point as the last point, and
+            -- sometimes it does not.  Duplicate points create zero normals,
+            -- which are REALLY BAD (and turn the player's position into nan),
+            -- so strip them out
+            local j = i + 1
+            if j > #coll.polygon then
+                j = 1
+            end
+            local nextpt = coll.polygon[j]
+            if pt.x ~= nextpt.x or pt.y ~= nextpt.y then
+                table.insert(points, pt.x + coll.x)
+                table.insert(points, pt.y + coll.y)
             end
         end
         return whammo_shapes.Polygon(unpack(points))

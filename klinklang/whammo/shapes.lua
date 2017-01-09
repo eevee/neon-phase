@@ -150,8 +150,10 @@ function Polygon:_generate_normals()
     self._normals = {}
     for _, edge in ipairs(self.edges) do
         local normal = edge:normal()
-        -- What a mouthful
-        self._normals[normal] = normal:normalized()
+        if normal ~= Vector.zero then
+            -- What a mouthful
+            self._normals[normal] = normal:normalized()
+        end
     end
 end
 
