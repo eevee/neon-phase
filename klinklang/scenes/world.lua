@@ -8,7 +8,7 @@ local whammo = require 'klinklang.whammo'
 
 local tiledmap = require 'klinklang.tiledmap'
 
-local CAMERA_MARGIN = 6
+local CAMERA_MARGIN = 0.4
 
 -- TODO yeah this sucks
 local actors_lookup = {
@@ -61,13 +61,14 @@ function WorldScene:update_camera()
         local focus = self.player.pos
         local w, h = love.graphics.getDimensions()
         local mapx, mapy = 0, 0
-        local margin = CAMERA_MARGIN * self.map.tilewidth
+        local marginx = CAMERA_MARGIN * w
+        local marginy = CAMERA_MARGIN * h
         self.camera.x = math.max(
-            math.min(self.camera.x, math.max(mapx, math.floor(focus.x) - margin)),
-            math.min(self.map.width, math.floor(focus.x) + margin) - w)
+            math.min(self.camera.x, math.max(mapx, math.floor(focus.x) - marginx)),
+            math.min(self.map.width, math.floor(focus.x) + marginx) - w)
         self.camera.y = math.max(
-            math.min(self.camera.y, math.max(mapy, math.floor(focus.y) - margin)),
-            math.min(self.map.height, math.floor(focus.y) + margin) - h)
+            math.min(self.camera.y, math.max(mapy, math.floor(focus.y) - marginy)),
+            math.min(self.map.height, math.floor(focus.y) + marginy) - h)
     end
 end
 
