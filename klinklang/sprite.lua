@@ -59,7 +59,6 @@ end
 -- Changing to the current pose is a no-op.
 function Sprite:set_pose(pose)
     if pose == self.pose then
-        self._pending_pose = nil
     elseif self.spriteset.poses[pose] then
         self._pending_pose = pose
     else
