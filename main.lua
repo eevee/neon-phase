@@ -41,7 +41,13 @@ function love.load(args)
     resource_manager.locked = false  -- TODO make an api for this lol
     game.resource_manager = resource_manager
 
+    -- FIXME parallax bgs -- should live in data somewhere
+    resource_manager:load('assets/images/dustybg1.png')
+    resource_manager:load('assets/images/dustybg2.png')
+    resource_manager:load('assets/images/dustybg3.png')
+
     -- Load all the graphics upfront
+    -- FIXME should...  iterate through tilesets i guess?
     local tspath = 'data/tilesets/kidneon.tsx.json'
     local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
     resource_manager:add(tspath, tileset)

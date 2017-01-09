@@ -71,7 +71,45 @@ function WorldScene:update_camera()
     end
 end
 
+PARALLAXES = {
+    {
+        path = 'assets/images/dustybg1.png',
+        x = 0,
+        y = 0,
+        scale = 2,
+        xfactor = 0,
+    },
+    {
+        path = 'assets/images/dustybg2.png',
+        x = 0,
+        y = 32 - 30,
+        scale = 2,
+        xfactor = 0.125,
+    },
+    {
+        path = 'assets/images/dustybg3.png',
+        x = 0,
+        y = 64 - 60,
+        scale = 2,
+        xfactor = 0.25,
+    },
+    total_height = 240,
+}
 function WorldScene:draw()
+    -- FIXME game-specific
+    local x = self.camera.x
+    local sw, sh = love.graphics.getDimensions()
+    -- FIXME these can be negative if u fuck up
+    -- FIXME y isn't parallaxed yet
+    local yrange = self.map.height - sh
+
+    for _, parallax in ipairs(PARALLAXES) do
+        local img = game.resource_manager:get(parallax.path)
+        local iw, ih = img:getDimensions()
+        -- FIXME doesn't take wrapping into account
+        love.graphics.draw(img, parallax.x * parallax.scale - self.camera.x * parallax.xfactor, parallax.y * parallax.scale, 0, parallax.scale)
+    end
+
     love.graphics.push('all')
     love.graphics.translate(-self.camera.x, -self.camera.y)
 
