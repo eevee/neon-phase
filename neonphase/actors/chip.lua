@@ -80,7 +80,7 @@ end
 
 function Chip:update(dt)
     if self.can_fire and love.keyboard.isScancodeDown('d') then
-        worldscene:add_actor(ChipLaser(self, self.pos:clone()))
+        worldscene:add_actor(ChipLaser(self, self.pos + Vector(0, -8)))
         self.can_fire = false
         worldscene.fluct:to(self, 0.25, {}):oncomplete(function() 
             self.can_fire = true
