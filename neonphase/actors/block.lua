@@ -24,6 +24,7 @@ function ShootableBlock:damage(source, amount)
     if self.breaking then
         return
     end
+    self.breaking = true
     self.sprite:set_pose('busted')
     worldscene.fluct:to(self, 0.3, {}):oncomplete(function()
         worldscene:remove_actor(self)
