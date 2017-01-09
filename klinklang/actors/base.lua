@@ -4,15 +4,67 @@ local Vector = require 'vendor.hump.vector'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
+-- An extremely barebones actor, implementing only the bare minimum of the
+-- interface.  Most actors probably want to inherit from Actor, which supports
+-- drawing from a sprite.  Code operating on arbitrary actors should only use
+-- the properties and methods defined here.
+local BareActor = Class{
+    pos = nil,
+
+    -- If true, the player can "use" this object, calling on_use(activator)
+    is_usable = false,
+}
+
+-- Main update and draw loops
+function BareActor:update(dt)
+end
+
+function BareActor:draw()
+end
+
+-- Called when the actor is added to the world
+function BareActor:on_enter()
+end
+
+-- Called when the actor is removed from the world
+function BareActor:on_leave()
+end
+
+-- Called every frame that another actor is touching this one
+-- TODO that seems excessive?
+-- FIXME that's not true, anyway; this fires on a slide, but NOT if you just
+-- sit next to it.  maybe this just shouldn't fire for slides?
+function BareActor:on_collide(actor, direction)
+end
+
+-- Called when this actor is used (only possible if is_usable is true)
+function BareActor:on_use(activator)
+end
+
+-- Determines whether this actor blocks another one.  By default, actors are
+-- non-blocking, and mobile actors are blocking
+function BareActor:blocks(actor, direction)
+    return false
+end
+
+-- FIXME should probably have health tracking and whatnot
+function BareActor:damage(source, amount)
+end
+
+-- General API stuff for controlling actors from outside
+function BareActor:move_to(position)
+    self.pos = position
+end
+
+
+
 -- Base class for an actor: any object in the world with any behavior at all.
 -- (The world also contains tiles, but those are purely decorative; they don't
 -- have an update call, and they're drawn all at once by the map rather than
 -- drawing themselves.)
 local Actor = Class{
+    __includes = BareActor,
     -- TODO consider splitting me into components
-
-    -- Provided to constructor
-    pos = nil,
 
     -- Should be provided in the class
     -- TODO are these part of the sprite?
@@ -73,25 +125,6 @@ function Actor:draw()
         end
         self.sprite:draw_at(where)
     end
-end
-
--- Determines whether this actor blocks another one.  By default, actors are
--- non-blocking, and mobile actors are blocking
-function Actor:blocks(actor, direction)
-    return false
-end
-
--- Called when the actor is added to the world
-function Actor:on_spawn()
-end
-
--- Called every frame that another actor is touching this one
--- TODO that seems excessive?
-function Actor:on_collide(actor, direction)
-end
-
--- FIXME should probably have health tracking and whatnot
-function Actor:damage(source, amount)
 end
 
 -- General API stuff for controlling actors from outside

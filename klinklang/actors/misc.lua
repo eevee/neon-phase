@@ -5,11 +5,9 @@ local actors_base = require 'klinklang.actors.base'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
--- TODO this doesn't do most things an actor does, which means it has no shape
--- or sprite, which means other code trying to interfere with it might not work
--- so good.  but it also means i have to write my own dummy on_spawn?
--- do i need a BaseActor or something?
-local Particle = Class{}
+local Particle = Class{
+    __includes = actors_base.BareActor,
+}
 
 function Particle:init(position, velocity, acceleration, color, ttl, fadeout)
     self.pos = position
@@ -19,9 +17,6 @@ function Particle:init(position, velocity, acceleration, color, ttl, fadeout)
     self.ttl = ttl
     self.original_ttl = ttl
     self.fadeout = fadeout
-end
-
-function Particle:on_spawn()
 end
 
 function Particle:update(dt)

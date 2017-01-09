@@ -33,7 +33,7 @@ end
 
 -- FIXME game-specific
 local Chip = require 'neonphase.actors.chip'
-function Player:on_spawn()
+function Player:on_enter()
     local chip = Chip(self, self.pos:clone())
     self.ptrs.chip = chip
     worldscene:add_actor(chip)

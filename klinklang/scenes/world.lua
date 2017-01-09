@@ -288,11 +288,12 @@ function WorldScene:add_actor(actor)
         self.collider:add(actor.shape, actor)
     end
 
-    actor:on_spawn()
+    actor:on_enter()
 end
 
 function WorldScene:remove_actor(actor)
     -- TODO what if the actor is the player...?  should we unset self.player?
+    actor:on_leave()
 
     -- TODO maybe an index would be useful
     for i, an_actor in ipairs(self.actors) do
