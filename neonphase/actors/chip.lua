@@ -102,6 +102,15 @@ function Chip:update(dt)
     actors_base.Actor.update(self, dt)
 end
 
+function Chip:draw()
+    actors_base.Actor.draw(self)
+
+    if self.holding then
+        self.holding.pos = self.pos + Vector(0, 8)
+        self.holding:draw()
+    end
+end
+
 function Chip:_approach_owner(dt)
     local offset = self.owner_offset
     if self.ptrs.owner.facing_left then

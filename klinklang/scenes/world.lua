@@ -13,9 +13,18 @@ local CAMERA_MARGIN = 0.4
 -- FIXME game-specific, but i need a subclass hook to fix it
 local actors_block = require 'neonphase.actors.block'
 local actors_npcs = require 'neonphase.actors.npcs'
+local actors_wire = require 'neonphase.actors.wire'
 local actors_lookup = {
     ['shootable block'] = actors_block.ShootableBlock,
     ['magnet goat'] = actors_npcs.MagnetGoat,
+    bulb = actors_wire.Bulb,
+    ['wire ns'] = actors_wire.WireNS,
+    ['wire ne'] = actors_wire.WireNE,
+    ['wire nw'] = actors_wire.WireNW,
+    ['wire ew'] = actors_wire.WireEW,
+    emitter = actors_wire.Emitter,
+    ['wire plug ne'] = actors_wire.WirePlugNE,
+    ['wire socket'] = actors_wire.WireSocket,
 }
 -- FIXME game-specific...  but maybe it doesn't need to be
 local TriggerZone = require 'neonphase.actors.trigger'
@@ -176,6 +185,7 @@ function WorldScene:draw()
 
     self.map:draw('objects', self.camera, w, h)
     self.map:draw('foreground', self.camera, w, h)
+    self.map:draw('wiring', self.camera, w, h)
 
     if self.pushed_actors then
         love.graphics.setColor(0, 0, 0, 192)
@@ -342,6 +352,7 @@ function WorldScene:load_map(map)
     end
 
     -- FIXME this is invasive
+    -- FIXME should probably just pass the slightly-munged object right to the constructor, instead of special casing these
     for _, layer in pairs(map.raw.layers) do
         if layer.type == 'objectgroup' and layer.visible then
             for _, object in ipairs(layer.objects) do

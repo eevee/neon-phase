@@ -6,7 +6,6 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
--- FIXME much like Particle, this doesn't act like most actors...
 local TriggerZone = Class{
     __includes = actors_base.BareActor,
 
