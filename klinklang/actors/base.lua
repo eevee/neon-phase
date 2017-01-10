@@ -13,7 +13,26 @@ local BareActor = Object:extend{
 
     -- If true, the player can "use" this object, calling on_use(activator)
     is_usable = false,
+
+    -- Used for debug printing; should only be used for abstract types
+    __name = 'BareActor',
+
+    -- Table of all known actor types, indexed by name
+    name = nil,
+    _ALL_ACTOR_TYPES = {},
 }
+
+function BareActor:extend(...)
+    local class = BareActor.__super.extend(self, ...)
+    if class.name ~= nil then
+        self._ALL_ACTOR_TYPES[class.name] = class
+    end
+    return class
+end
+
+function BareActor:__tostring()
+    return ("<%s %s at %s>"):format(self.__name, self.name, self.pos)
+end
 
 -- Main update and draw loops
 function BareActor:update(dt)
@@ -63,6 +82,7 @@ end
 -- have an update call, and they're drawn all at once by the map rather than
 -- drawing themselves.)
 local Actor = BareActor:extend{
+    __name = 'Actor',
     -- TODO consider splitting me into components
 
     -- Should be provided in the class
@@ -160,6 +180,7 @@ local gravity = Vector(0, 0.75/32 * PICO8A)
 local terminal_velocity = 7/8 * PICO8V
 
 local MobileActor = Actor:extend{
+    __name = 'MobileActor',
     -- TODO separate code from twiddles
     velocity = nil,
 

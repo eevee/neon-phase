@@ -7,6 +7,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
 local ChipLaser = actors_base.MobileActor:extend{
+    name = "chip's laser",
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
     sprite_name = "chip's laser",
@@ -59,6 +60,7 @@ end
 -- FIXME i do wonder if physics should be a flag (component?!) rather than
 -- an inheritance level
 local Chip = actors_base.Actor:extend{
+    name = 'chip',
     shape = whammo_shapes.Box(0, 0, 16, 16),
     anchor = Vector(8, 12),
     sprite_name = 'chip',

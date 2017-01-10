@@ -6,6 +6,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
 local TriggerZone = actors_base.BareActor:extend{
+    name = 'trigger',
     is_usable = true,
 }
 

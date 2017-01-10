@@ -5,7 +5,9 @@ local actors_base = require 'klinklang.actors.base'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local Particle = actors_base.BareActor:extend()
+local Particle = actors_base.BareActor:extend{
+    name = 'particle',
+}
 
 function Particle:init(position, velocity, acceleration, color, ttl, fadeout)
     self.pos = position

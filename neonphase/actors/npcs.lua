@@ -9,6 +9,7 @@ local DialogueScene = require 'klinklang.scenes.dialogue'
 
 
 local MagnetGoat = actors_base.Actor:extend{
+    name = 'magnet goat',
     shape = whammo_shapes.Box(0, 0, 32, 32),
     anchor = Vector(16, 32),
     sprite_name = 'magnet goat',

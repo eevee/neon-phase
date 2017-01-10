@@ -1,6 +1,7 @@
 local flux = require 'vendor.flux'
 local Vector = require 'vendor.hump.vector'
 
+local actors_base = require 'klinklang.actors.base'
 local Player = require 'klinklang.actors.player'
 local BaseScene = require 'klinklang.scenes.base'
 local whammo = require 'klinklang.whammo'
@@ -9,22 +10,6 @@ local tiledmap = require 'klinklang.tiledmap'
 
 local CAMERA_MARGIN = 0.4
 
--- FIXME game-specific, but i need a subclass hook to fix it
-local actors_block = require 'neonphase.actors.block'
-local actors_npcs = require 'neonphase.actors.npcs'
-local actors_wire = require 'neonphase.actors.wire'
-local actors_lookup = {
-    ['shootable block'] = actors_block.ShootableBlock,
-    ['magnet goat'] = actors_npcs.MagnetGoat,
-    bulb = actors_wire.Bulb,
-    ['wire ns'] = actors_wire.WireNS,
-    ['wire ne'] = actors_wire.WireNE,
-    ['wire nw'] = actors_wire.WireNW,
-    ['wire ew'] = actors_wire.WireEW,
-    emitter = actors_wire.Emitter,
-    ['wire plug ne'] = actors_wire.WirePlugNE,
-    ['wire socket'] = actors_wire.WireSocket,
-}
 -- FIXME game-specific...  but maybe it doesn't need to be
 local TriggerZone = require 'neonphase.actors.trigger'
 
@@ -341,7 +326,10 @@ function WorldScene:load_map(map)
 
     -- TODO this seems more a candidate for an 'enter' or map-switch event
     for _, template in ipairs(map.actor_templates) do
-        local class = actors_lookup[template.name]
+        local class = actors_base.Actor._ALL_ACTOR_TYPES[template.name]
+        if not class then
+            error(("No such actor type %s"):format(template.name))
+        end
         local position = template.position:clone()
         if class.anchor then
             position = position + class.anchor

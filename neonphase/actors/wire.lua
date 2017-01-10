@@ -13,6 +13,7 @@ local WIRE_CONNECTIONS = {
 }
 
 local Wirable = actors_base.Actor:extend{
+    __name = 'Wirable',
     connections = {},
     powered = 0,
     can_emit = true,
@@ -150,6 +151,7 @@ end
 
 
 local Emitter = Wirable:extend{
+    name = 'emitter',
     sprite_name = 'emitter',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -161,6 +163,7 @@ local Emitter = Wirable:extend{
 
 
 local WireNS = Wirable:extend{
+    name = 'wire ns',
     sprite_name = 'wire ns',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -169,6 +172,7 @@ local WireNS = Wirable:extend{
 }
 
 local WireNE = Wirable:extend{
+    name = 'wire ne',
     sprite_name = 'wire ne',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -177,6 +181,7 @@ local WireNE = Wirable:extend{
 }
 
 local WireNW = Wirable:extend{
+    name = 'wire nw',
     sprite_name = 'wire nw',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -185,6 +190,7 @@ local WireNW = Wirable:extend{
 }
 
 local WireEW = Wirable:extend{
+    name = 'wire ew',
     sprite_name = 'wire ew',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -193,6 +199,7 @@ local WireEW = Wirable:extend{
 }
 
 local Bulb = Wirable:extend{
+    name = 'bulb',
     sprite_name = 'bulb',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -213,6 +220,7 @@ end
 
 
 local WirePlugNE = Wirable:extend{
+    name = 'wire plug ne',
     sprite_name = 'wire plug ne',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -221,6 +229,7 @@ local WirePlugNE = Wirable:extend{
 }
 
 local WireSocket = Wirable:extend{
+    name = 'wire socket',
     sprite_name = 'wire socket',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),

@@ -32,6 +32,18 @@ function love.load(args)
 
     love.graphics.setDefaultFilter('nearest', 'nearest', 1)
 
+    -- Eagerly load all actor modules, so we can access them by name
+    for _, package in ipairs{'klinklang', 'neonphase'} do
+        local dir = package .. '/actors'
+        for _, filename in ipairs(love.filesystem.getDirectoryItems(dir)) do
+            -- FIXME this should recurse, but i can't be assed right now
+            if filename:match("%.lua$") and love.filesystem.isFile(dir .. '/' .. filename) then
+                module = package .. '.actors.' .. filename:sub(1, #filename - 4)
+                require(module)
+            end
+        end
+    end
+
     local resource_manager = ResourceManager()
     resource_manager:register_default_loaders()
     resource_manager.locked = false  -- TODO make an api for this lol
