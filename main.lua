@@ -80,3 +80,19 @@ end
 function love.draw()
     love.graphics.print(tostring(love.timer.getFPS( )), 10, 10)
 end
+
+local _previous_mode
+
+function love.keypressed(key, scancode, isrepeat)
+    if key == 'return' and not isrepeat and love.keyboard.isDown('lalt', 'ralt') then
+        if love.window.getFullscreen() then
+            love.window.setMode(unpack(_previous_mode))
+            -- This isn't called for resizes caused by code, but worldscene
+            -- etc. sort of rely on knowing this
+            love.resize(love.graphics.getDimensions())
+        else
+            _previous_mode = {love.window.getMode()}
+            love.window.setFullscreen(true)
+        end
+    end
+end

@@ -28,6 +28,24 @@ local WorldScene = Class{
 --------------------------------------------------------------------------------
 -- hump.gamestate hooks
 
+function WorldScene:init(...)
+    BaseScene.init(self, ...)
+
+    self:_determine_scale()
+    local w, h = self:getDimensions()
+    self.canvas = love.graphics.newCanvas(w, h)
+end
+
+function WorldScene:_determine_scale()
+    -- Default resolution is 640 × 360, which is half of 720p and a third of
+    -- 1080p and equal to 40 × 22.5 tiles.  With some padding, I get these as
+    -- the max viewport size.
+    local w, h = love.graphics.getDimensions()
+    local MAX_WIDTH = 50 * 16
+    local MAX_HEIGHT = 30 * 16
+    self.scale = math.ceil(math.max(w / MAX_WIDTH, h / MAX_HEIGHT))
+end
+
 function WorldScene:update(dt)
     if love.keyboard.isDown(',') then
         local Gamestate = require 'vendor.hump.gamestate'
@@ -55,24 +73,29 @@ function WorldScene:update(dt)
         actor:update(dt)
     end
 
+    local w, h = love.graphics.getDimensions()
     self:update_camera()
 end
 
 function WorldScene:update_camera()
     -- Update camera position
     -- TODO i miss having a box type
+    -- FIXME if you resize the window, the camera can point outside of the
+    -- map??  but that shouldn't be possible, we check against the map size,
+    -- what
     if self.player then
         local focus = self.player.pos
-        local w, h = love.graphics.getDimensions()
+        local w = love.graphics.getWidth() / self.scale
+        local h = love.graphics.getHeight() / self.scale
         local mapx, mapy = 0, 0
         local marginx = CAMERA_MARGIN * w
         local marginy = CAMERA_MARGIN * h
-        self.camera.x = math.max(
+        self.camera.x = math.floor(math.max(
             math.min(self.camera.x, math.max(mapx, math.floor(focus.x) - marginx)),
-            math.min(self.map.width, math.floor(focus.x) + marginx) - w)
-        self.camera.y = math.max(
+            math.min(self.map.width, math.floor(focus.x) + marginx) - w))
+        self.camera.y = math.floor(math.max(
             math.min(self.camera.y, math.max(mapy, math.floor(focus.y) - marginy)),
-            math.min(self.map.height, math.floor(focus.y) + marginy) - h)
+            math.min(self.map.height, math.floor(focus.y) + marginy) - h))
     end
 end
 
@@ -83,36 +106,50 @@ PARALLAXES = {
         y = 0,
         scale = 2,
         xfactor = 0,
+        yfactor = 0,
+        ypos = 0,
     },
     {
         path = 'assets/images/dustybg2.png',
         x = 0,
-        y = 32 - 30,
+        y = 32,
         scale = 2,
         xfactor = 0.125,
+        yfactor = 0.4,
+        ypos = 0.5,
     },
     {
         path = 'assets/images/dustybg3.png',
         x = 0,
-        y = 64 - 60,
+        y = 64,
         scale = 2,
         xfactor = 0.25,
+        yfactor = 0.25,
+        ypos = 1,
     },
     total_height = 240,
 }
 function WorldScene:draw()
-    -- FIXME game-specific
-    local x = self.camera.x
-    local sw, sh = love.graphics.getDimensions()
-    -- FIXME these can be negative if u fuck up
-    -- FIXME y isn't parallaxed yet
-    local yrange = self.map.height - sh
+    local w, h = self:getDimensions()
+    love.graphics.setCanvas(self.canvas)
 
+    -- FIXME game-specific
+    -- FIXME these can be negative if u fuck up
+    local yrange = self.map.height - h
     for _, parallax in ipairs(PARALLAXES) do
         local img = game.resource_manager:get(parallax.path)
         local iw, ih = img:getDimensions()
+        local parallax_yrange = h - (ih + parallax.y) * parallax.scale
+        local yoff = (
+            parallax_yrange * parallax.ypos
+            + (yrange - self.camera.y) * parallax.yfactor
+        )
         -- FIXME doesn't take wrapping into account
-        love.graphics.draw(img, parallax.x * parallax.scale - self.camera.x * parallax.xfactor, parallax.y * parallax.scale, 0, parallax.scale)
+        love.graphics.draw(
+            img,
+            parallax.x * parallax.scale - self.camera.x * parallax.xfactor,
+            parallax.y * parallax.scale + yoff,
+            0, parallax.scale)
     end
 
     love.graphics.push('all')
@@ -123,28 +160,28 @@ function WorldScene:draw()
     -- FIXME don't really like hardcoding layer names here; they /have/ an
     -- order, the main problem is just that there's no way to specify where the
     -- actors should be drawn
-    self.map:draw('background', self.camera, love.graphics.getDimensions())
+    self.map:draw('background', self.camera, w, h)
 
     if self.pushed_actors then
         for _, actor in ipairs(self.pushed_actors) do
-            actor:draw(dt)
+            actor:draw()
         end
     else
         for _, actor in ipairs(self.actors) do
-            actor:draw(dt)
+            actor:draw()
         end
     end
 
-    self.map:draw('objects', self.camera, love.graphics.getDimensions())
-    self.map:draw('foreground', self.camera, love.graphics.getDimensions())
+    self.map:draw('objects', self.camera, w, h)
+    self.map:draw('foreground', self.camera, w, h)
 
     if self.pushed_actors then
         love.graphics.setColor(0, 0, 0, 192)
-        love.graphics.rectangle('fill', self.camera.x, self.camera.y, love.graphics.getDimensions())
+        love.graphics.rectangle('fill', self.camera.x, self.camera.y, w, h)
         love.graphics.setColor(255, 255, 255)
-        self.map:draw(self.submap, self.camera, love.graphics.getDimensions())
+        self.map:draw(self.submap, self.camera, w, h)
         for _, actor in ipairs(self.actors) do
-            actor:draw(dt)
+            actor:draw()
         end
     end
 
@@ -188,6 +225,9 @@ function WorldScene:draw()
 
     love.graphics.pop()
 
+    love.graphics.setCanvas()
+    love.graphics.draw(self.canvas, 0, 0, 0, self.scale, self.scale)
+
     if game.debug then
         self:_draw_blockmap()
     end
@@ -219,6 +259,11 @@ function WorldScene:_draw_blockmap()
     love.graphics.pop()
 end
 
+function WorldScene:resize(w, h)
+    self:_determine_scale()
+end
+
+-- FIXME this is really /all/ game-specific
 function WorldScene:keypressed(key, scancode, isrepeat)
     if key == 'q' then
         -- Switch inventory items
@@ -256,6 +301,10 @@ end
 
 --------------------------------------------------------------------------------
 -- API
+
+function WorldScene:getDimensions()
+    return love.graphics.getWidth() / self.scale, love.graphics.getHeight() / self.scale
+end
 
 function WorldScene:load_map(map)
     self.camera = Vector(0, 0)
