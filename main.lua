@@ -48,15 +48,14 @@ function love.load(args)
 
     -- Load all the graphics upfront
     -- FIXME should...  iterate through tilesets i guess?
-    local tspath = 'data/tilesets/kidneon.tsx.json'
-    local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
-    resource_manager:add(tspath, tileset)
-    local tspath = 'data/tilesets/chip.tsx.json'
-    local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
-    resource_manager:add(tspath, tileset)
-    local tspath = 'data/tilesets/chiplaser.tsx.json'
-    local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
-    resource_manager:add(tspath, tileset)
+    for _, tspath in ipairs{
+        'data/tilesets/kidneon.tsx.json',
+        'data/tilesets/chip.tsx.json',
+        'data/tilesets/energyball.tsx.json',
+    } do
+        local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
+        resource_manager:add(tspath, tileset)
+    end
 
     -- FIXME probably want a way to specify fonts with named roles
     local fontscale = 2

@@ -242,6 +242,15 @@ function WorldScene:keypressed(key, scancode, isrepeat)
         elseif self.player.inventory_cursor > 0 then
             self.player.inventory[self.player.inventory_cursor]:on_inventory_use(self.player)
         end
+    elseif scancode == 's' and not isrepeat then
+        -- FIXME if initial attempt doesn't work, every subsequent frame should try again
+        self.player:grab_chip()
+    end
+end
+
+function WorldScene:keyreleased(key, scancode)
+    if scancode == 's' then
+        self.player:release_chip()
     end
 end
 

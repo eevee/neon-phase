@@ -224,5 +224,27 @@ function Player:resurrect()
     end
 end
 
+-- TODO game-specific
+function Player:grab_chip()
+    if self.holding_chip then
+        return
+    end
+    local chip = self.ptrs.chip
+    if not chip then
+        return
+    end
+    if (self.pos + chip.owner_gliding_offset - chip.pos):len2() < 20*20 then
+        self.holding_chip = true
+        self.gravity_multiplier = 0.5
+    end
+end
+function Player:release_chip()
+    if not self.holding_chip then
+        return
+    end
+    self.holding_chip = false
+    self.gravity_multiplier = 1
+end
+
 
 return Player

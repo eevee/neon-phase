@@ -10,13 +10,13 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local ChipLaser = Class{
     __includes = actors_base.MobileActor,
 
-    shape = whammo_shapes.Box(4, 7, 8, 3),
-    anchor = Vector(5, 8),
+    shape = whammo_shapes.Box(4, 4, 8, 8),
+    anchor = Vector(8, 8),
     sprite_name = "chip's laser",
 
     gravity_multiplier = 0,
     ground_friction = 0,
-    constant_velocity = 256,
+    constant_velocity = 512,
 }
 
 function ChipLaser:init(owner, ...)
@@ -72,6 +72,7 @@ local Chip = Class{
     max_scalar_acceleration = 512,
     scalar_velocity = 0,
     can_fire = true,
+    owner_gliding_offset = Vector(0, -24),
 }
 
 function Chip:init(owner, ...)
@@ -91,15 +92,27 @@ function Chip:update(dt)
     end
 
     if self.ptrs.owner then
-        local offset = self.owner_offset
-        if self.ptrs.owner.facing_left then
-            offset = Vector(-offset.x, offset.y)
+        if self.ptrs.owner.holding_chip then
+            self.pos = self.ptrs.owner.pos + self.owner_gliding_offset
+        else
+            self:_approach_owner(dt)
         end
+    end
 
-        local goal = self.ptrs.owner.pos + offset + Vector(0, math.sin(self.timer) * 8)
-        local separation = goal - self.pos
-        local distance = separation:len()
+    actors_base.Actor.update(self, dt)
+end
 
+function Chip:_approach_owner(dt)
+    local offset = self.owner_offset
+    if self.ptrs.owner.facing_left then
+        offset = Vector(-offset.x, offset.y)
+    end
+
+    local goal = self.ptrs.owner.pos + offset + Vector(0, math.sin(self.timer) * 8)
+    local separation = goal - self.pos
+    local distance = separation:len()
+
+    if distance >= 1 then
         -- If we're close and fast enough, we need to start decelerating so we
         -- come to a nice stop right at our goal, instead of overshooting
         local t = self.scalar_velocity / self.max_scalar_acceleration
@@ -112,15 +125,17 @@ function Chip:update(dt)
         self.scalar_velocity = self.scalar_velocity + accel * dt
 
         self.pos = self.pos + separation / distance * self.scalar_velocity * dt
-
-        if math.abs(separation.x) < 1 then
-            self.sprite:set_facing_right(not self.ptrs.owner.facing_left)
-        else
-            self.sprite:set_facing_right(separation.x > 0)
-        end
+        self.pos.x = math.floor(self.pos.x + 0.5)
+        self.pos.y = math.floor(self.pos.y + 0.5)
+    else
+        self.scalar_velocity = 0
     end
 
-    actors_base.Actor.update(self, dt)
+    if math.abs(separation.x) < 1 then
+        self.sprite:set_facing_right(not self.ptrs.owner.facing_left)
+    else
+        self.sprite:set_facing_right(separation.x > 0)
+    end
 end
 
 
