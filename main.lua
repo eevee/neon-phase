@@ -52,6 +52,7 @@ function love.load(args)
         'data/tilesets/kidneon.tsx.json',
         'data/tilesets/chip.tsx.json',
         'data/tilesets/energyball.tsx.json',
+        'data/tilesets/portraits.tsx.json',
     } do
         local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
         resource_manager:add(tspath, tileset)

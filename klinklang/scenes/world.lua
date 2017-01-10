@@ -12,8 +12,10 @@ local CAMERA_MARGIN = 0.4
 
 -- FIXME game-specific, but i need a subclass hook to fix it
 local actors_block = require 'neonphase.actors.block'
+local actors_npcs = require 'neonphase.actors.npcs'
 local actors_lookup = {
     ['shootable block'] = actors_block.ShootableBlock,
+    ['magnet goat'] = actors_npcs.MagnetGoat,
 }
 -- FIXME game-specific...  but maybe it doesn't need to be
 local TriggerZone = require 'neonphase.actors.trigger'

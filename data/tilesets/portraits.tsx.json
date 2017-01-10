@@ -1,0 +1,33 @@
+{ "columns":1,
+ "image":"..\/..\/assets\/images\/portraits.png",
+ "imageheight":640,
+ "imagewidth":80,
+ "margin":0,
+ "name":"portraits",
+ "spacing":0,
+ "tilecount":8,
+ "tileheight":80,
+ "tileproperties":
+    {
+     "0":
+        {
+         "sprite name":"kid neon portrait\/default"
+        },
+     "7":
+        {
+         "sprite name":"magnet goat portrait\/default"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "sprite name":"string"
+        },
+     "7":
+        {
+         "sprite name":"string"
+        }
+    },
+ "tilewidth":80
+}

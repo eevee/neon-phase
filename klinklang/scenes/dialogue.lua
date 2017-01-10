@@ -8,7 +8,8 @@ local SPEAKER_SCALE = 4
 local SCROLL_RATE = 64  -- characters per second
 
 -- Magic rendering numbers
-local HORIZ_TEXT_MARGIN = 32
+local TEXT_MARGIN_X = 16
+local TEXT_MARGIN_Y = 16
 
 local DialogueScene = Class{
     __includes = BaseScene,
@@ -16,38 +17,27 @@ local DialogueScene = Class{
 }
 
 -- TODO as with DeadScene, it would be nice if i could formally eat keyboard input
-function DialogueScene:init(wrapped)
+-- FIXME document the shape of speakers/script, once we know what it is
+function DialogueScene:init(speakers, script)
     BaseScene.init(self)
 
-    self.wrapped = wrapped
+    self.wrapped = nil
+
+    -- FIXME unhardcode some more of this, adjust it on resize
+    self.speaker_height = 80
+    local boxheight = 120
+    local winheight = love.graphics.getHeight()
+    self.speaker_scale = math.floor((winheight - boxheight) / self.speaker_height)
 
     -- TODO a good start, but
-    self.speakers = {
-        isaac = {
-            sprite = game.sprites.isaac_dialogue:instantiate(),
-            background = dialogueboximg,
-            mood = 'default',
-        },
-        lexy = {
-            sprite = game.sprites.lexy_dialogue:instantiate(),
-            background = dialogueboximg2,
-            mood = 'default',
-        },
-    }
-    self.speakers.isaac.sprite:set_scale(SPEAKER_SCALE)
-    self.speakers.lexy.sprite:set_scale(SPEAKER_SCALE)
-    -- TODO temporary
-    self.script = {
-        -- TODO æons  :(
-        --{ "I would wager no one has set foot in these caves in eons.  It's a miracle any of these mechanisms still work." },
-        { "Remind me why the greatest wizard on Owel can't just teleport to the end of the cave?  Or drink a walk through walls potion?", speaker='lexy' },
-        { "An excellent and perceptive question, fox.  Well done.", speaker='isaac' },
-        { "It's not that simple, because...", speaker='isaac' },
-        { nil, speaker='lexy', mood='yeahsure' },
-        { "Hmm, how do I put this...", speaker='isaac' },
-        { "The entire cavern has been...  enchanted with...  an anti-cheating field.  Quite common in these sorts of places, unfortunately for us.", speaker='isaac' },
-        { "Damn!  And here cheating is my favorite thing.  How did they know?", speaker='lexy' },
-    }
+    self.speakers = speakers
+    for name, speaker in pairs(speakers) do
+        -- FIXME maybe speakers should only provide a spriteset so i'm not
+        -- changing out from under them
+        speaker.sprite:set_scale(self.speaker_scale)
+    end
+
+    self.script = script
     -- TODO should rig up a whole thing for who to display and where, pose to use, etc., but for now these bits are hardcoded i guess
     self.font = m5x7  -- TODO global, should use resourcemanager probably
     
@@ -61,42 +51,22 @@ function DialogueScene:init(wrapped)
     self.state = 'start'
 
     -- TODO magic numbers
-    self.wraplimit = love.graphics.getWidth() - HORIZ_TEXT_MARGIN * 2
+    self.wraplimit = love.graphics.getWidth() - TEXT_MARGIN_X * 2
 
     self.script_index = 0
+
+    self:_advance_script()
+end
+
+function DialogueScene:enter(previous_scene)
+    self.wrapped = previous_scene
 end
 
 function DialogueScene:update(dt)
     for _, speaker in pairs(self.speakers) do
         speaker.sprite:update(dt)
     end
-
-    while self.state == 'start' or (self.state == 'waiting' and love.keyboard.isDown('space')) do
-        if self.script_index >= #self.script then
-            -- TODO actually not sure what should happen here
-            self.state = 'done'
-            return
-        end
-        self.script_index = self.script_index + 1
-        local step = self.script[self.script_index]
-
-        if step[1] then
-            self.state = 'speaking'
-            local _textwidth
-            _textwidth, self.phrase_lines = self.font:getWrap(step[1], self.wraplimit)
-            self.phrase_speaker = self.speakers[step.speaker]
-            -- TODO euugh.  not only is this gross, it's wrong, because isaac faces left in this sprite
-            self.phrase_speaker.sprite:set_pose(self.phrase_speaker.mood .. '/talk/right')
-            self.phrase_timer = 0
-            self.curline = 1
-            self.curchar = 0
-        else
-            -- Textless steps are commands
-            -- TODO this is super hokey at the moment dang
-            self.speakers[step.speaker].mood = step.mood
-            self.speakers[step.speaker].sprite:set_pose(step.mood .. '/right')
-        end
-    end
+    -- FIXME no way to specify facing direction atm
 
     if self.state == 'speaking' then
         self.phrase_timer = self.phrase_timer + dt * SCROLL_RATE
@@ -107,7 +77,7 @@ function DialogueScene:update(dt)
             if self.curchar > string.len(self.phrase_lines[self.curline]) then
                 if self.curline == #self.phrase_lines then
                     self.state = 'waiting'
-                    self.phrase_speaker.sprite:set_pose(self.phrase_speaker.mood .. '/right')
+                    self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
                     break
                 else
                     self.curline = self.curline + 1
@@ -122,6 +92,38 @@ function DialogueScene:update(dt)
     end
 end
 
+function DialogueScene:_advance_script()
+    while true do
+        if self.script_index >= #self.script then
+            -- TODO actually not sure what should happen here
+            self.state = 'done'
+            Gamestate.pop()
+            return
+        end
+        self.script_index = self.script_index + 1
+        local step = self.script[self.script_index]
+
+        if step[1] then
+            self.state = 'speaking'
+            local _textwidth
+            _textwidth, self.phrase_lines = self.font:getWrap(step[1], self.wraplimit)
+            self.phrase_speaker = self.speakers[step.speaker]
+            -- TODO euugh.  not only is this gross, it's wrong, because isaac faces left in this sprite
+            -- FIXME need a less hardcoded way to specify talking sprites; probably just only animate them while talking
+            self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
+            self.phrase_timer = 0
+            self.curline = 1
+            self.curchar = 0
+            break
+        else
+            -- Textless steps are commands
+            -- TODO this is super hokey at the moment dang
+            self.speakers[step.speaker].pose = step.pose
+            self.speakers[step.speaker].sprite:set_pose(step.pose)
+        end
+    end
+end
+
 function DialogueScene:draw()
     -- TODO this bit is copied from DeadScene
     self.wrapped:draw()
@@ -132,19 +134,21 @@ function DialogueScene:draw()
     -- Draw the dialogue box, which is slightly complicated because it involves
     -- drawing the ends and then repeating the middle bit to fit the screen
     -- size
-    -- TODO this feels rather hardcoded
-    local boxheight = 160
+    local background = self.phrase_speaker.background
+    -- TODO this feels rather hardcoded; surely the background should flex to fit the height rather than defining it.
+    local boxheight = background:getHeight()
+    boxheight = 120
     local boxwidth = love.graphics.getWidth()
     local boxtop = love.graphics.getHeight() - boxheight
 
-    local background = self.phrase_speaker.background
+    local BOXSCALE = 1  -- FIXME this was 2 for isaac
     local boxrepeatleft, boxrepeatright = 192, 224
     local boxquadl = love.graphics.newQuad(0, 0, boxrepeatleft, background:getHeight(), background:getDimensions())
-    love.graphics.draw(background, boxquadl, 0, boxtop, 0, 2)
+    love.graphics.draw(background, boxquadl, 0, boxtop, 0, BOXSCALE)
     local boxquadm = love.graphics.newQuad(boxrepeatleft, 0, boxrepeatright - boxrepeatleft, background:getHeight(), background:getDimensions())
-    love.graphics.draw(background, boxquadm, boxrepeatleft * 2, boxtop, 0, math.floor(love.graphics.getWidth() / (boxrepeatright - boxrepeatleft)) + 1, 2)
+    love.graphics.draw(background, boxquadm, boxrepeatleft * BOXSCALE, boxtop, 0, math.floor(love.graphics.getWidth() / (boxrepeatright - boxrepeatleft)) + 1, BOXSCALE)
     local boxquadr = love.graphics.newQuad(boxrepeatright, 0, background:getWidth() - boxrepeatright, background:getHeight(), background:getDimensions())
-    love.graphics.draw(background, boxquadr, love.graphics.getWidth() - (background:getWidth() - boxrepeatright) * 2, boxtop, 0, 2)
+    love.graphics.draw(background, boxquadr, love.graphics.getWidth() - (background:getWidth() - boxrepeatright) * BOXSCALE, boxtop, 0, BOXSCALE)
 
     -- Compute the text we should be displaying so far
     -- TODO it bugs me slightly that we re-render the entire string every
@@ -162,14 +166,30 @@ function DialogueScene:draw()
     -- Draw the text, twice: once for a drop shadow, then the text itself
     local text = love.graphics.newText(m5x7, joinedtext)
     love.graphics.setColor(0, 0, 0, 128)
-    love.graphics.draw(text, HORIZ_TEXT_MARGIN - 2, boxtop + 32 + 2)
+    love.graphics.draw(text, TEXT_MARGIN_X - 2, boxtop + TEXT_MARGIN_Y + 2)
     love.graphics.setColor(255, 255, 255)
-    love.graphics.draw(text, HORIZ_TEXT_MARGIN, boxtop + 32)
+    love.graphics.draw(text, TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y)
 
     -- Draw the speakers
-    -- TODO wish these had anchors too so i could draw them from the bottom left and right
-    self.speakers.isaac.sprite:draw_at(Vector(boxwidth - 32 - 64 * SPEAKER_SCALE, boxtop - 96 * SPEAKER_SCALE))
-    self.speakers.lexy.sprite:draw_at(Vector(32, boxtop - 96 * SPEAKER_SCALE))
+    -- FIXME speakers really need to have, like, positions.  this is very hardcoded
+    -- Left
+    local sprite = self.speakers.kidneon.sprite
+    local sw, sh = sprite.anim:getDimensions()
+    local pos = Vector(math.floor(boxwidth / 4) - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
+    sprite:draw_at(pos)
+    -- Right
+    local sprite = self.speakers.magnetgoat.sprite
+    local sw, sh = sprite.anim:getDimensions()
+    local pos = Vector(math.floor(boxwidth * 3 / 4) - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
+    sprite:draw_at(pos)
+end
+
+function DialogueScene:keypressed(key, scancode, isrepeat)
+    if key == 'space' then
+        if self.state == 'waiting' then
+            self:_advance_script()
+        end
+    end
 end
 
 return DialogueScene
