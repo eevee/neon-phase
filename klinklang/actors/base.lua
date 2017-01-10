@@ -1,6 +1,6 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
+local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
@@ -8,7 +8,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 -- interface.  Most actors probably want to inherit from Actor, which supports
 -- drawing from a sprite.  Code operating on arbitrary actors should only use
 -- the properties and methods defined here.
-local BareActor = Class{
+local BareActor = Object:extend{
     pos = nil,
 
     -- If true, the player can "use" this object, calling on_use(activator)
@@ -62,8 +62,7 @@ end
 -- (The world also contains tiles, but those are purely decorative; they don't
 -- have an update call, and they're drawn all at once by the map rather than
 -- drawing themselves.)
-local Actor = Class{
-    __includes = BareActor,
+local Actor = BareActor:extend{
     -- TODO consider splitting me into components
 
     -- Should be provided in the class
@@ -160,9 +159,7 @@ local PICO8A = TILE_SIZE / (1/30) / (1/30)
 local gravity = Vector(0, 0.75/32 * PICO8A)
 local terminal_velocity = 7/8 * PICO8V
 
-local MobileActor = Class{
-    __includes = Actor,
-
+local MobileActor = Actor:extend{
     -- TODO separate code from twiddles
     velocity = nil,
 

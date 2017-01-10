@@ -1,4 +1,3 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
@@ -6,9 +5,7 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local ShootableBlock = Class{
-    __includes = actors_base.Actor,
-
+local ShootableBlock = actors_base.Actor:extend{
     shape = whammo_shapes.Box(0, 0, 16, 16),
     anchor = Vector(0, 0),
     sprite_name = 'shootable block',

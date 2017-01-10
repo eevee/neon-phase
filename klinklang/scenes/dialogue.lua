@@ -1,4 +1,3 @@
-local Class = require 'vendor.hump.class'
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
@@ -11,8 +10,7 @@ local SCROLL_RATE = 64  -- characters per second
 local TEXT_MARGIN_X = 16
 local TEXT_MARGIN_Y = 16
 
-local DialogueScene = Class{
-    __includes = BaseScene,
+local DialogueScene = BaseScene:extend{
     __tostring = function(self) return "dialoguescene" end,
 }
 

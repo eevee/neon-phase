@@ -1,13 +1,11 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
+local Object = require 'klinklang.object'
 local actors_base = require 'klinklang.actors.base'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local Particle = Class{
-    __includes = actors_base.BareActor,
-}
+local Particle = actors_base.BareActor:extend()
 
 function Particle:init(position, velocity, acceleration, color, ttl, fadeout)
     self.pos = position

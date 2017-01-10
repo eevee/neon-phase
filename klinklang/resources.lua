@@ -6,14 +6,14 @@ the manager is locked and will refuse to lazy-load -- this is to prevent
 accidentally loading resources outside of the load phase.
 ]]
 
-local Class = require 'vendor.hump.class'
+local Object = require 'klinklang.object'
 
 local function get_file_ext(path)
     local _start, _end, ext = path:find('[^%./]+%.([^/]+)$')
     return ext
 end
 
-local ResourceManager = Class{}
+local ResourceManager = Object:extend{}
 
 function ResourceManager:init()
     self.loaders = {}

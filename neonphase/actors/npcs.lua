@@ -1,4 +1,3 @@
-local Class = require 'vendor.hump.class'
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
@@ -9,9 +8,7 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
 
 
-local MagnetGoat = Class{
-    __includes = actors_base.Actor,
-
+local MagnetGoat = actors_base.Actor:extend{
     shape = whammo_shapes.Box(0, 0, 32, 32),
     anchor = Vector(16, 32),
     sprite_name = 'magnet goat',

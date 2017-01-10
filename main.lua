@@ -1,15 +1,11 @@
 local utf8 = require 'utf8'
 
-local Class = require 'vendor.hump.class'
 local Gamestate = require 'vendor.hump.gamestate'
-local Vector = require 'vendor.hump.vector'
 
 local ResourceManager = require 'klinklang.resources'
 local WorldScene = require 'klinklang.scenes.world'
 local SpriteSet = require 'klinklang.sprite'
 local tiledmap = require 'klinklang.tiledmap'
-
-local DialogueScene = require 'klinklang.scenes.dialogue'
 
 
 game = {

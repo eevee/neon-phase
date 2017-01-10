@@ -1,4 +1,3 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
@@ -7,9 +6,7 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local ChipLaser = Class{
-    __includes = actors_base.MobileActor,
-
+local ChipLaser = actors_base.MobileActor:extend{
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
     sprite_name = "chip's laser",
@@ -58,12 +55,10 @@ function ChipLaser:update(dt)
     end
 end
 
-local Chip = Class{
-    -- Chip is immune to physics
-    -- FIXME i do wonder if physics should be a flag (component?!) rather than
-    -- an inheritance level
-    __includes = actors_base.Actor,
-
+-- Chip is immune to physics
+-- FIXME i do wonder if physics should be a flag (component?!) rather than
+-- an inheritance level
+local Chip = actors_base.Actor:extend{
     shape = whammo_shapes.Box(0, 0, 16, 16),
     anchor = Vector(8, 12),
     sprite_name = 'chip',

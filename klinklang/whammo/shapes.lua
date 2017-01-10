@@ -1,6 +1,6 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
+local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 
 -- Smallest unit of distance, in pixels.  Movement is capped to a multiple of
@@ -25,7 +25,7 @@ local function round_movement_to_quantum(v)
     end
 end
 
-local Segment = Class{}
+local Segment = Object:extend()
 
 function Segment:init(x0, y0, x1, y1)
     self.x0 = x0
@@ -67,7 +67,7 @@ end
 
 
 
-local Shape = Class{}
+local Shape = Object:extend()
 
 function Shape:init()
     self.blockmaps = setmetatable({}, {__mode = 'k'})
@@ -109,9 +109,7 @@ function Shape:extended_bbox(dx, dy)
 end
 
 -- An arbitrary (CONVEX) polygon
-local Polygon = Class{
-    __includes = Shape,
-}
+local Polygon = Shape:extend()
 
 function Polygon:init(...)
     Shape.init(self)
@@ -341,8 +339,7 @@ end
 -- An AABB, i.e., an unrotated rectangle
 local _XAXIS = Vector(1, 0)
 local _YAXIS = Vector(0, 1)
-local Box = Class{
-    __includes = Polygon,
+local Box = Polygon:extend{
     -- Handily, an AABB only has two normals: the x and y axes
     _normals = { [_XAXIS] = _XAXIS, [_YAXIS] = _YAXIS },
 }

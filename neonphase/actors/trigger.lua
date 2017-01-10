@@ -1,4 +1,3 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
@@ -6,9 +5,7 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local TriggerZone = Class{
-    __includes = actors_base.BareActor,
-
+local TriggerZone = actors_base.BareActor:extend{
     is_usable = true,
 }
 

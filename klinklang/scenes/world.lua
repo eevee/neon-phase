@@ -1,5 +1,4 @@
 local flux = require 'vendor.flux'
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
 local Player = require 'klinklang.actors.player'
@@ -29,8 +28,7 @@ local actors_lookup = {
 -- FIXME game-specific...  but maybe it doesn't need to be
 local TriggerZone = require 'neonphase.actors.trigger'
 
-local WorldScene = Class{
-    __includes = BaseScene,
+local WorldScene = BaseScene:extend{
     __tostring = function(self) return "worldscene" end,
 
     fluct = nil,

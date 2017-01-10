@@ -1,12 +1,10 @@
-local Class = require 'vendor.hump.class'
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 local flux = require 'vendor.flux'
 
 local BaseScene = require 'klinklang.scenes.base'
 
-local SceneFader = Class{
-    __includes = BaseScene,
+local SceneFader = BaseScene:extend{
     __tostring = function(self) return "scenefader" end,
 
     wrapped = nil,

@@ -3,10 +3,10 @@ Read a map in Tiled's JSON format.
 ]]
 
 local anim8 = require 'vendor.anim8'
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 local json = require 'vendor.dkjson'
 
+local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 local SpriteSet = require 'klinklang.sprite'
@@ -43,7 +43,7 @@ end
 -- Not a real tile object, but a little wrapper that can read its properties
 -- from the Tiled JSON on the fly.
 
-local TileProxy = Class{}
+local TileProxy = Object:extend{}
 
 function TileProxy:init()
 end
@@ -51,7 +51,7 @@ end
 --------------------------------------------------------------------------------
 -- TiledTileset
 
-local TiledTileset = Class{}
+local TiledTileset = Object:extend{}
 
 function TiledTileset:init(path, data, resource_manager)
     self.path = path
@@ -202,7 +202,7 @@ end
 --------------------------------------------------------------------------------
 -- TiledMap
 
-local TiledMap = Class{
+local TiledMap = Object:extend{
     player_start = nil,
 }
 

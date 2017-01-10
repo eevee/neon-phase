@@ -1,10 +1,10 @@
 --[[
 All this does is rename Gamestate's init hook to scene_init, so it doesn't
-conflict with Class.init.
+conflict with Object.init.
 ]]
-local Class = require 'vendor.hump.class'
+local Object = require 'klinklang.object'
 
-local BaseScene = Class{
+local BaseScene = Object:extend{
     scene_init = function() end,
 }
 

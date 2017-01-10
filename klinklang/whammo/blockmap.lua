@@ -2,9 +2,9 @@
 A spatial hash.
 ]]
 
-local Class = require 'vendor.hump.class'
+local Object = require 'klinklang.object'
 
-local Blockmap = Class{}
+local Blockmap = Object:extend()
 
 function Blockmap:init(blocksize)
     self.blocksize = blocksize

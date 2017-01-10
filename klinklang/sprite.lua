@@ -1,5 +1,6 @@
 local anim8 = require 'vendor.anim8'
-local Class = require 'vendor.hump.class'
+
+local Object = require 'klinklang.object'
 
 --------------------------------------------------------------------------------
 -- SpriteSet
@@ -7,7 +8,7 @@ local Class = require 'vendor.hump.class'
 -- switch between them and draw with a simplified API.
 
 local Sprite
-local SpriteSet = Class{
+local SpriteSet = Object:extend{
     _all_sprites = {},
 }
 
@@ -40,7 +41,7 @@ function SpriteSet:instantiate()
     return Sprite(self)
 end
 
-Sprite = Class{}
+Sprite = Object:extend{}
 
 function Sprite:init(spriteset)
     self.spriteset = spriteset

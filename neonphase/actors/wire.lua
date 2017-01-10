@@ -1,4 +1,3 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
@@ -13,9 +12,7 @@ local WIRE_CONNECTIONS = {
     west = Vector(-16, 0),
 }
 
-local Wirable = Class{
-    __includes = actors_base.Actor,
-
+local Wirable = actors_base.Actor:extend{
     connections = {},
     powered = 0,
     can_emit = true,
@@ -152,9 +149,7 @@ end
             
 
 
-local Emitter = Class{
-    __includes = Wirable,
-
+local Emitter = Wirable:extend{
     sprite_name = 'emitter',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -165,9 +160,7 @@ local Emitter = Class{
 }
 
 
-local WireNS = Class{
-    __includes = Wirable,
-
+local WireNS = Wirable:extend{
     sprite_name = 'wire ns',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -175,9 +168,7 @@ local WireNS = Class{
     connections = {Vector(0, -16), Vector(0, 16)},
 }
 
-local WireNE = Class{
-    __includes = Wirable,
-
+local WireNE = Wirable:extend{
     sprite_name = 'wire ne',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -185,9 +176,7 @@ local WireNE = Class{
     connections = {Vector(0, -16), Vector(16, 0)},
 }
 
-local WireNW = Class{
-    __includes = Wirable,
-
+local WireNW = Wirable:extend{
     sprite_name = 'wire nw',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -195,9 +184,7 @@ local WireNW = Class{
     connections = {Vector(0, -16), Vector(-16, 0)},
 }
 
-local WireEW = Class{
-    __includes = Wirable,
-
+local WireEW = Wirable:extend{
     sprite_name = 'wire ew',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -205,9 +192,7 @@ local WireEW = Class{
     connections = {Vector(16, 0), Vector(-16, 0)},
 }
 
-local Bulb = Class{
-    __includes = Wirable,
-
+local Bulb = Wirable:extend{
     sprite_name = 'bulb',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -227,9 +212,7 @@ function Bulb:_receive_pulse(value, source)
 end
 
 
-local WirePlugNE = Class{
-    __includes = Wirable,
-
+local WirePlugNE = Wirable:extend{
     sprite_name = 'wire plug ne',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),
@@ -237,9 +220,7 @@ local WirePlugNE = Class{
     connections = {Vector(0, -16), Vector(16, 0)},
 }
 
-local WireSocket = Class{
-    __includes = Wirable,
-
+local WireSocket = Wirable:extend{
     sprite_name = 'wire socket',
     shape = whammo_shapes.Box(4, 4, 8, 8),
     anchor = Vector(8, 8),

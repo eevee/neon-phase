@@ -1,16 +1,14 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local actors_misc = require 'klinklang.actors.misc'
+local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
-local Player = Class{
-    __includes = actors_base.MobileActor,
-
-    shape = whammo_shapes.Box(0, 0, 16, 32),
+local Player = actors_base.MobileActor:extend{
+    shape = whammo_shapes.Box(0, 1, 16, 31),
     anchor = Vector(8, 32),
     -- FIXME game-specific
     sprite_name = 'kid neon',

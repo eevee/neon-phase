@@ -1,11 +1,11 @@
-local Class = require 'vendor.hump.class'
 local Vector = require 'vendor.hump.vector'
 
+local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 local Blockmap = require 'klinklang.whammo.blockmap'
 local shapes = require 'klinklang.whammo.shapes'
 
-local Collider = Class{
+local Collider = Object:extend{
     _NOTHING = {},
 }
 
