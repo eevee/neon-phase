@@ -233,6 +233,35 @@ function TiledTileset:get_collision(tileid)
 end
 
 --------------------------------------------------------------------------------
+-- TiledMapLayer
+-- Thin wrapper around a Tiled JSON layer.
+
+local TiledMapLayer = Object:extend()
+
+function TiledMapLayer:init(raw_layer)
+    self.raw = raw_layer
+
+    self.name = raw_layer.name
+    self.width = raw_layer.width
+    self.height = raw_layer.height
+
+    self.type = raw_layer.type
+    self.objects = raw_layer.objects
+    self.data = raw_layer.data
+
+    self.submap = self:prop('submap')
+end
+
+function TiledMapLayer:prop(key)
+    if not self.raw.properties then
+        return nil
+    end
+    local value = self.raw.properties[key]
+    -- TODO this would be a good place to do type-casting based on the...  type
+    return value
+end
+
+--------------------------------------------------------------------------------
 -- TiledMap
 
 local TiledMap = Object:extend{
@@ -277,13 +306,17 @@ function TiledMap:init(path, resource_manager)
         end
     end
 
+    -- Load layers
+    self.layers = {}
+    for _, layer in ipairs(self.raw.layers) do
+        table.insert(self.layers, TiledMapLayer(layer))
+    end
+
     -- Detach any automatic actor tiles
     -- TODO also more explicit actors via object layers probably
     self.actor_templates = {}
-    for _, layer in pairs(self.raw.layers) do
+    for _, layer in ipairs(self.layers) do
         -- TODO this is largely copy/pasted from below
-        local lx = layer.x * self.tilewidth + (layer.offsetx or 0)
-        local ly = layer.y * self.tileheight + (layer.offsety or 0)
         -- FIXME i think these are deprecated for layers maybe?
         local width, height = layer.width, layer.height
         if layer.type == 'tilelayer' then
@@ -301,9 +334,10 @@ function TiledMap:init(path, resource_manager)
                             local ty, tx = util.divmod(t, width)
                             table.insert(self.actor_templates, {
                                 name = props.actor,
+                                submap = layer.submap,
                                 position = Vector(
-                                    lx + tx * self.raw.tilewidth,
-                                    ly + ty * self.raw.tileheight),
+                                    tx * self.raw.tilewidth,
+                                    ty * self.raw.tileheight),
                             })
                             data[t + 1] = 0
                         end
@@ -324,26 +358,25 @@ function TiledMap:add_to_collider(collider, submap_name)
     -- TODO injecting like this seems...  wrong?  also keeping references to
     -- the collision shapes /here/?  this object should be a dumb wrapper and
     -- not have any state i think.  maybe return a structure of shapes?
+    -- or, alternatively, create shapes on the fly from the blockmap...?
     if not self.shapes then
         self.shapes = {}
     end
-    for _, layer in pairs(self.raw.layers) do
-        -- FIXME use the prop, and don't add the main map stuff
-        if layer.type == 'tilelayer' and (layer.visible or layer.name == submap_name) then
-            local lx = layer.x * self.tilewidth + (layer.offsetx or 0)
-            local ly = layer.y * self.tileheight + (layer.offsety or 0)
+    for _, layer in ipairs(self.layers) do
+        if layer.type == 'tilelayer' and layer.submap == submap_name then
             local width, height = layer.width, layer.height
             local data = layer.data
             for t = 0, width * height - 1 do
                 local gid = data[t + 1]
                 local tile = self.tiles[gid]
                 if tile then
+                    -- TODO could just create this once and then clone it
                     local shape = tile.tileset:get_collision(tile.tilesetid)
                     if shape then
                         local ty, tx = util.divmod(t, width)
                         shape:move(
-                            lx + tx * self.raw.tilewidth,
-                            ly + ty * self.raw.tileheight)
+                            tx * self.raw.tilewidth,
+                            ty * self.raw.tileheight)
                         self.shapes[shape] = true
                         collider:add(shape)
                     end
@@ -359,7 +392,6 @@ function TiledMap:draw(layer_name, origin, width, height)
     local tw, th = self.raw.tilewidth, self.raw.tileheight
     for _, layer in pairs(self.raw.layers) do
         if layer.name == layer_name then
-        local x, y = layer.x, layer.y
         local width, height = layer.width, layer.height
         local data = layer.data
         for t = 0, width * height - 1 do
@@ -372,7 +404,7 @@ function TiledMap:draw(layer_name, origin, width, height)
                     tile.tileset.image,
                     tile.tileset.quads[tile.tilesetid],
                     -- convert tile offsets to pixels
-                    (x + dx) * tw, (y + dy) * th,
+                    dx * tw, dy * th,
                     0, 1, 1)
             end
         end

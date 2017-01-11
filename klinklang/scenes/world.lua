@@ -343,22 +343,11 @@ function WorldScene:load_map(map)
     end
 
     -- TODO this seems more a candidate for an 'enter' or map-switch event
-    for _, template in ipairs(map.actor_templates) do
-        local class = actors_base.Actor._ALL_ACTOR_TYPES[template.name]
-        if not class then
-            error(("No such actor type %s"):format(template.name))
-        end
-        local position = template.position:clone()
-        local actor = class(position)
-        -- FIXME this feels...  hokey...
-        if actor.sprite.anchor then
-            actor:move_to(position + actor.sprite.anchor)
-        end
-        self:add_actor(actor)
-    end
+    self:_create_actors()
 
     -- FIXME this is invasive
     -- FIXME should probably just pass the slightly-munged object right to the constructor, instead of special casing these
+    -- FIXME could combine this with player start detection maybe
     for _, layer in pairs(map.raw.layers) do
         if layer.type == 'objectgroup' and layer.visible then
             for _, object in ipairs(layer.objects) do
@@ -383,10 +372,39 @@ function WorldScene:load_map(map)
         -- TODO should this be a more general 'reset'?
         self.player:resurrect()
     end
+
+    self.camera = self.player.pos:clone()
+
+    self._xxx_shader = love.graphics.newShader([[
+        vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+            texture_coords.x += sin(texture_coords.y * 6.28 * 16) * 0.125;
+            vec4 texcolor = Texel(texture, texture_coords);
+            return texcolor * color;
+        }
+    ]])
+    self._xxx_timer = 0
 end
 
 function WorldScene:reload_map()
     self:load_map(self.map)
+end
+
+function WorldScene:_create_actors(submap)
+    for _, template in ipairs(self.map.actor_templates) do
+        if template.submap == submap then
+            local class = actors_base.Actor._ALL_ACTOR_TYPES[template.name]
+            if not class then
+                error(("No such actor type %s"):format(template.name))
+            end
+            local position = template.position:clone()
+            local actor = class(position)
+            -- FIXME this feels...  hokey...
+            if actor.sprite.anchor then
+                actor:move_to(position + actor.sprite.anchor)
+            end
+            self:add_actor(actor)
+        end
+    end
 end
 
 function WorldScene:enter_submap(name)
@@ -399,6 +417,8 @@ function WorldScene:enter_submap(name)
     self.collider = whammo.Collider(4 * self.map.tilewidth)
     self.map:add_to_collider(self.collider, self.submap)
     self:add_actor(self.player)
+
+    self:_create_actors(self.submap)
 
     -- FIXME this is also invasive
     for _, layer in pairs(map.raw.layers) do
