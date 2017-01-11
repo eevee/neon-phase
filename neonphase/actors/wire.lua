@@ -2,7 +2,6 @@ local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local util = require 'klinklang.util'
-local whammo_shapes = require 'klinklang.whammo.shapes'
 
 
 local WIRE_CONNECTIONS = {
@@ -14,7 +13,7 @@ local WIRE_CONNECTIONS = {
 
 local Wirable = actors_base.Actor:extend{
     __name = 'Wirable',
-    connections = {},
+    nodes = {},
     powered = 0,
     can_emit = true,
     can_receive = true,
@@ -27,26 +26,27 @@ function Wirable:init(...)
 end
 
 function Wirable:on_enter()
-    -- FIXME get this stuff from the physics engine
+    -- FIXME get this stuff from the physics engine (but wait, how, if these lot don't have collision??)
+    local nodes = {}
+    for _, offset in ipairs(self.nodes) do
+        table.insert(nodes, self.pos + offset)
+    end
     for _, actor in ipairs(worldscene.actors) do
         if actor._receive_pulse then
-            local direction = actor.pos - self.pos
             local is_connection = false
-            for _, conn in ipairs(self.connections) do
-                if conn == direction then
-                    is_connection = true
-                    break
+            for _, offset in ipairs(actor.nodes) do
+                local their_node = actor.pos + offset
+                for _, my_node in ipairs(nodes) do
+                    if my_node == their_node then
+                        is_connection = true
+                        break
+                    end
+                    if is_connection then
+                        break
+                    end
                 end
             end
-            local is_reverse_connection = false
-            for _, conn in ipairs(actor.connections) do
-                if conn == -direction then
-                    is_reverse_connection = true
-                    break
-                end
-            end
-            -- FIXME is...  this...  right?  need to be connected both ways, right?  seems right...
-            if is_connection and is_reverse_connection then
+            if is_connection then
                 -- FIXME seems invasive
                 self:_receive_pulse(actor.powered > 0, actor)
                 if actor.powered > 0 then
@@ -153,9 +153,8 @@ end
 local Emitter = Wirable:extend{
     name = 'emitter',
     sprite_name = 'emitter',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
-    connections = {Vector(0, 16)},
+    nodes = {Vector(0, 8)},
     powered = 1,
     can_receive = false,
 }
@@ -164,9 +163,8 @@ local Emitter = Wirable:extend{
 local SmallBattery = Wirable:extend{
     name = 'small battery',
     sprite_name = 'small battery',
-    shape = whammo_shapes.Box(0, 0, 32, 16),
 
-    connections = {Vector(0, -16), Vector(0, 16)},
+    nodes = {Vector(8, -8), Vector(8, 8)},
     powered = 0,
     can_receive = false,
 }
@@ -175,41 +173,36 @@ local SmallBattery = Wirable:extend{
 local WireNS = Wirable:extend{
     name = 'wire ns',
     sprite_name = 'wire ns',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
-    connections = {Vector(0, -16), Vector(0, 16)},
+    nodes = {Vector(0, -8), Vector(0, 8)},
 }
 
 local WireNE = Wirable:extend{
     name = 'wire ne',
     sprite_name = 'wire ne',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
-    connections = {Vector(0, -16), Vector(16, 0)},
+    nodes = {Vector(0, -8), Vector(8, 0)},
 }
 
 local WireNW = Wirable:extend{
     name = 'wire nw',
     sprite_name = 'wire nw',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
-    connections = {Vector(0, -16), Vector(-16, 0)},
+    nodes = {Vector(0, -8), Vector(-8, 0)},
 }
 
 local WireEW = Wirable:extend{
     name = 'wire ew',
     sprite_name = 'wire ew',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
-    connections = {Vector(16, 0), Vector(-16, 0)},
+    nodes = {Vector(8, 0), Vector(-8, 0)},
 }
 
 local Bulb = Wirable:extend{
     name = 'bulb',
     sprite_name = 'bulb',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
-    connections = {Vector(0, 16)},
+    nodes = {Vector(0, 8)},
     can_emit = false,
 }
 
@@ -227,15 +220,13 @@ end
 local WirePlugNE = Wirable:extend{
     name = 'wire plug ne',
     sprite_name = 'wire plug ne',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
-    connections = {Vector(0, -16), Vector(16, 0)},
+    nodes = {Vector(0, -8), Vector(8, 0)},
 }
 
 local WireSocket = Wirable:extend{
     name = 'wire socket',
     sprite_name = 'wire socket',
-    shape = whammo_shapes.Box(4, 4, 8, 8),
 
     is_usable = true,
 }
