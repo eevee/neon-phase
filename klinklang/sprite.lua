@@ -21,15 +21,37 @@ function SpriteSet:init(name, image)
     SpriteSet._all_sprites[name] = self
 end
 
-function SpriteSet:add(pose_name, frames, durations, onloop)
+function SpriteSet:add(pose_name, anchor, shape, frames, durations, onloop, flipped)
     assert(not self.poses[pose_name], ("Pose %s already exists"):format(pose_name))
 
     -- FIXME this is pretty hokey and seems really specific to platformers
     local anim = anim8.newAnimation(frames, durations, onloop)
-    self.poses[pose_name] = {
-        right = anim,
-        left = anim:clone():flipH(),
+    local flipped_shape
+    if shape then
+        flipped_shape = shape:flipx(0)
+    end
+    local normal_data = {
+        animation = anim,
+        shape = shape,
+        anchor = anchor,
     }
+    local flipped_data = {
+        animation = anim:clone():flipH(),
+        shape = flipped_shape,
+        -- FIXME probably...  not right
+        anchor = anchor,
+    }
+    if flipped then
+        self.poses[pose_name] = {
+            left = normal_data,
+            right = flipped_data,
+        }
+    else
+        self.poses[pose_name] = {
+            left = flipped_data,
+            right = normal_data,
+        }
+    end
     if not self.default_pose then
         self.default_pose = pose_name
     end
@@ -75,7 +97,10 @@ function Sprite:_set_pose(pose)
     -- Internal method that actually changes the pose.  Doesn't check that the
     -- pose exists.
     self.pose = pose
-    self.anim = self.spriteset.poses[pose][self.facing]:clone()
+    local data = self.spriteset.poses[pose][self.facing]
+    self.anim = data.animation:clone()
+    self.anchor = data.anchor
+    self.shape = data.shape
     self._pending_pose = nil
 end
 
@@ -111,7 +136,7 @@ end
 function Sprite:draw_at(point)
     -- TODO hm, how do i auto-batch?  shame there's nothing for doing that
     -- built in?  seems an obvious thing
-    self.anim:draw(self.spriteset.image, point.x, point.y, 0, self.scale, self.scale)
+    self.anim:draw(self.spriteset.image, point.x - self.anchor.x, point.y - self.anchor.y, 0, self.scale, self.scale)
 end
 
 

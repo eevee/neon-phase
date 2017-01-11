@@ -9,8 +9,6 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 
 local Player = actors_base.MobileActor:extend{
     name = 'kid neon',
-    shape = whammo_shapes.Box(0, 1, 16, 31),
-    anchor = Vector(8, 32),
     -- FIXME game-specific
     sprite_name = 'kid neon',
 

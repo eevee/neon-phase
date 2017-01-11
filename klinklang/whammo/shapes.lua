@@ -67,7 +67,10 @@ end
 
 
 
-local Shape = Object:extend()
+local Shape = Object:extend{
+    xoff = 0,
+    yoff = 0,
+}
 
 function Shape:init()
     self.blockmaps = setmetatable({}, {__mode = 'k'})
@@ -108,9 +111,15 @@ function Shape:extended_bbox(dx, dy)
     return x0, y0, x1, y1
 end
 
+function Shape:flipx(axis)
+    error("flipx not implemented")
+end
+
+
 -- An arbitrary (CONVEX) polygon
 local Polygon = Shape:extend()
 
+-- FIXME i think this blindly assumes clockwise order
 function Polygon:init(...)
     Shape.init(self)
     self.edges = {}
@@ -144,6 +153,15 @@ function Polygon:clone()
     return Polygon(unpack(self.coords))
 end
 
+function Polygon:flipx(axis)
+    local reverse_coords = {}
+    for n = #self.coords - 1, 1, -2 do
+        reverse_coords[#self.coords - n] = axis * 2 - self.coords[n]
+        reverse_coords[#self.coords - n + 1] = self.coords[n + 1]
+    end
+    return Polygon(unpack(self.coords))
+end
+
 function Polygon:_generate_normals()
     self._normals = {}
     for _, edge in ipairs(self.edges) do
@@ -160,6 +178,8 @@ function Polygon:bbox()
 end
 
 function Polygon:move(dx, dy)
+    self.xoff = self.xoff + dx
+    self.yoff = self.yoff + dy
     self.x0 = self.x0 + dx
     self.x1 = self.x1 + dx
     self.y0 = self.y0 + dy
@@ -354,11 +374,15 @@ function Box:clone()
     return Box(self.x0, self.y0, self.width, self.height)
 end
 
+function Box:flipx(axis)
+    return Box(axis * 2 - self.x0 - self.width, self.y0, self.width, self.height)
+end
+
 function Box:_generate_normals()
 end
 
 function Box:move_to(x, y)
-    self:move(x - self.x0, y - self.y0)
+    self:move(x - self.xoff, y - self.yoff)
     self:update_blockmaps()
 end
 

@@ -112,7 +112,6 @@ function Actor:init(position)
     -- Table of weak references to other actors
     self.ptrs = setmetatable({}, { __mode = 'v' })
 
-    self.shape = self.shape:clone()
     -- TODO arrgh, this global.  sometimes i just need access to the game.
     -- should this be done on enter, maybe?
     -- TODO shouldn't the anchor really be part of the sprite?  hm, but then
@@ -123,10 +122,12 @@ function Actor:init(position)
     end
     self.sprite = game.sprites[self.sprite_name]:instantiate()
 
-    -- FIXME i could get rid of this if i just said shapes are relative to the
-    -- anchor.  also if i put collision shapes in tiled
-    self.initial_shape_offset = Vector(self.shape.x0, self.shape.y0)
-    self.shape:move_to((position - self.anchor + self.initial_shape_offset):unpack())
+    -- FIXME progress!  but this should update when the sprite changes, argh!
+    if self.sprite.shape then
+        self.shape = self.sprite.shape:clone()
+        self.anchor = Vector.zero
+        self.shape:move_to(position:unpack())
+    end
 end
 
 -- Called once per update frame; any state changes should go here
@@ -138,7 +139,7 @@ end
 -- Draw the actor
 function Actor:draw()
     if self.sprite then
-        local where = self.pos - self.anchor
+        local where = self.pos:clone()
         if self.is_floating then
             where.y = where.y + math.sin(self.timer) * 4
         end
@@ -149,7 +150,7 @@ end
 -- General API stuff for controlling actors from outside
 function Actor:move_to(position)
     self.pos = position
-    self.shape:move_to((self.pos - self.anchor + self.initial_shape_offset):unpack())
+    self.shape:move_to(position:unpack())
 end
 
 function Actor:set_shape(new_shape)
@@ -159,7 +160,7 @@ function Actor:set_shape(new_shape)
     self.shape = new_shape
     if self.shape then
         worldscene.collider:add(self.shape, self)
-        self.shape:move_to((self.pos - self.anchor + self.initial_shape_offset):unpack())
+        self.shape:move_to(self.pos:unpack())
     end
 end
 
@@ -327,7 +328,9 @@ function MobileActor:_do_physics(dt)
 
     self.pos = self.pos + movement
     --print("FINAL POSITION:", self.pos)
-    self.shape:move_to((self.pos - self.anchor + self.initial_shape_offset):unpack())
+    if self.shape then
+    self.shape:move_to(self.pos:unpack())
+    end
 
     -- Tell everyone we've hit them
     -- TODO surely we should announce this in the order we hit!  all the more

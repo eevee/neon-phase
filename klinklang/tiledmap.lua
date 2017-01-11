@@ -129,7 +129,7 @@ function TiledTileset:init(path, data, resource_manager)
             end
 
             -- Collect the frames, as a list of quads
-            local quads, durations, onloop
+            local quads, durations, onloop, flipped
             if data.tiles and data.tiles[id] and data.tiles[id].animation then
                 quads = {}
                 durations = {}
@@ -140,14 +140,45 @@ function TiledTileset:init(path, data, resource_manager)
                 if data.tileproperties[id]['animation stops'] then
                     onloop = 'pauseAtEnd'
                 end
+                if data.tileproperties[id]['animation flipped'] then
+                    flipped = true
+                end
             else
                 quads = {self.quads[id]}
                 durations = 1
                 onloop = 'pauseAtEnd'
             end
-            spriteset:add(pose_name, quads, durations, onloop)
+            local shape, anchor = self:get_collision(id)
+            spriteset:add(pose_name, anchor or Vector.zero, shape, quads, durations, onloop, flipped)
         end
     end
+end
+
+local function _tiled_shape_to_whammo_shape(object, anchor)
+    if object.polygon then
+        local points = {}
+        for i, pt in ipairs(object.polygon) do
+            -- Sometimes Tiled repeats the first point as the last point, and
+            -- sometimes it does not.  Duplicate points create zero normals,
+            -- which are REALLY BAD (and turn the player's position into nan),
+            -- so strip them out
+            local j = i + 1
+            if j > #object.polygon then
+                j = 1
+            end
+            local nextpt = object.polygon[j]
+            if pt.x ~= nextpt.x or pt.y ~= nextpt.y then
+                table.insert(points, pt.x + object.x - anchor.x)
+                table.insert(points, pt.y + object.y - anchor.y)
+            end
+        end
+        return whammo_shapes.Polygon(unpack(points))
+    end
+
+    -- TODO do the others, once whammo supports them
+
+    return whammo_shapes.Box(
+        object.x - anchor.x, object.y - anchor.y, object.width, object.height)
 end
 
 function TiledTileset:get_collision(tileid)
@@ -156,47 +187,49 @@ function TiledTileset:get_collision(tileid)
     end
 
     local tiledata = self.raw.tiles[tileid]
-    if not tiledata then
-        return nil
+    if not tiledata or not tiledata.objectgroup then
+        return
     end
 
     -- TODO extremely hokey -- assumes at least one, doesn't check for more
     -- than one, doesn't check shape, etc
-    -- TODO and this might crash at any point
-    local coll = tiledata.objectgroup.objects[1]
-    if not coll then
+    local objects = tiledata.objectgroup.objects
+    if not objects or #objects == 0 then
         return
     end
 
-    if coll.polygon then
-        local points = {}
-        for i, pt in ipairs(coll.polygon) do
-            -- Sometimes Tiled repeats the first point as the last point, and
-            -- sometimes it does not.  Duplicate points create zero normals,
-            -- which are REALLY BAD (and turn the player's position into nan),
-            -- so strip them out
-            local j = i + 1
-            if j > #coll.polygon then
-                j = 1
-            end
-            local nextpt = coll.polygon[j]
-            if pt.x ~= nextpt.x or pt.y ~= nextpt.y then
-                table.insert(points, pt.x + coll.x)
-                table.insert(points, pt.y + coll.y)
-            end
+    -- Find an anchor, if any
+    local anchor = Vector()
+    for _, obj in ipairs(objects) do
+        if obj.type == "anchor" then
+            anchor.x = obj.x
+            anchor.y = obj.y
+            break
         end
-        return whammo_shapes.Polygon(unpack(points))
     end
 
-    local shape = whammo_shapes.Box(
-        coll.x, coll.y, coll.width, coll.height)
+    local shape
+    for _, obj in ipairs(objects) do
+        if obj.type == "anchor" then
+            -- already taken care of
+        elseif obj.type == "" then
+            -- collision shape
+            -- FIXME should support having more than one shape, oops!
+            shape = _tiled_shape_to_whammo_shape(obj, anchor)
 
-    -- FIXME this is pretty bad
-    if coll.properties and coll.properties['one-way platform'] then
-        shape._xxx_is_one_way_platform = true
+            -- FIXME this is pretty bad
+            if obj.properties and obj.properties['one-way platform'] then
+                shape._xxx_is_one_way_platform = true
+            end
+        else
+            -- FIXME maybe need to return a table somehow, because i want to keep this for wire points?
+            error(
+                ("Don't know how to handle shape type %s on tile %d from %s")
+                :format(obj.type, tileid, self.path))
+        end
     end
 
-    return shape
+    return shape, anchor
 end
 
 --------------------------------------------------------------------------------

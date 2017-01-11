@@ -154,10 +154,20 @@ local Emitter = Wirable:extend{
     name = 'emitter',
     sprite_name = 'emitter',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     connections = {Vector(0, 16)},
     powered = 1,
+    can_receive = false,
+}
+
+
+local SmallBattery = Wirable:extend{
+    name = 'small battery',
+    sprite_name = 'small battery',
+    shape = whammo_shapes.Box(0, 0, 32, 16),
+
+    connections = {Vector(0, -16), Vector(0, 16)},
+    powered = 0,
     can_receive = false,
 }
 
@@ -166,7 +176,6 @@ local WireNS = Wirable:extend{
     name = 'wire ns',
     sprite_name = 'wire ns',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     connections = {Vector(0, -16), Vector(0, 16)},
 }
@@ -175,7 +184,6 @@ local WireNE = Wirable:extend{
     name = 'wire ne',
     sprite_name = 'wire ne',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     connections = {Vector(0, -16), Vector(16, 0)},
 }
@@ -184,7 +192,6 @@ local WireNW = Wirable:extend{
     name = 'wire nw',
     sprite_name = 'wire nw',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     connections = {Vector(0, -16), Vector(-16, 0)},
 }
@@ -193,7 +200,6 @@ local WireEW = Wirable:extend{
     name = 'wire ew',
     sprite_name = 'wire ew',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     connections = {Vector(16, 0), Vector(-16, 0)},
 }
@@ -202,7 +208,6 @@ local Bulb = Wirable:extend{
     name = 'bulb',
     sprite_name = 'bulb',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     connections = {Vector(0, 16)},
     can_emit = false,
@@ -223,7 +228,6 @@ local WirePlugNE = Wirable:extend{
     name = 'wire plug ne',
     sprite_name = 'wire plug ne',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     connections = {Vector(0, -16), Vector(16, 0)},
 }
@@ -232,7 +236,6 @@ local WireSocket = Wirable:extend{
     name = 'wire socket',
     sprite_name = 'wire socket',
     shape = whammo_shapes.Box(4, 4, 8, 8),
-    anchor = Vector(8, 8),
 
     is_usable = true,
 }
@@ -268,6 +271,7 @@ return {
     WireNW = WireNW,
     WireEW = WireEW,
     Emitter = Emitter,
+    SmallBattery = SmallBattery,
     WirePlugNE = WirePlugNE,
     WireSocket = WireSocket,
 }

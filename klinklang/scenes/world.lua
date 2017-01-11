@@ -331,10 +331,12 @@ function WorldScene:load_map(map)
             error(("No such actor type %s"):format(template.name))
         end
         local position = template.position:clone()
-        if class.anchor then
-            position = position + class.anchor
+        local actor = class(position)
+        -- FIXME this feels...  hokey...
+        if actor.sprite.anchor then
+            actor:move_to(position + actor.sprite.anchor)
         end
-        self:add_actor(class(position))
+        self:add_actor(actor)
     end
 
     -- FIXME this is invasive

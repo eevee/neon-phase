@@ -7,8 +7,6 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 
 local ShootableBlock = actors_base.Actor:extend{
     name = 'shootable block',
-    shape = whammo_shapes.Box(0, 0, 16, 16),
-    anchor = Vector(0, 0),
     sprite_name = 'shootable block',
 
     breaking = false,
