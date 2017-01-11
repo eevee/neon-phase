@@ -25,6 +25,11 @@ local WorldScene = BaseScene:extend{
 function WorldScene:init(...)
     BaseScene.init(self, ...)
 
+    self.camera = Vector()
+    self:_refresh_canvas()
+end
+
+function WorldScene:_refresh_canvas()
     self:_determine_scale()
     local w, h = self:getDimensions()
     self.canvas = love.graphics.newCanvas(w, h)
@@ -77,19 +82,33 @@ function WorldScene:update_camera()
     -- FIXME if you resize the window, the camera can point outside of the
     -- map??  but that shouldn't be possible, we check against the map size,
     -- what
+    -- FIXME would like some more interesting features here like smoothly
+    -- catching up with the player, platform snapping?
     if self.player then
         local focus = self.player.pos
-        local w = love.graphics.getWidth() / self.scale
-        local h = love.graphics.getHeight() / self.scale
+        local w, h = self:getDimensions()
         local mapx, mapy = 0, 0
         local marginx = CAMERA_MARGIN * w
         local marginy = CAMERA_MARGIN * h
         self.camera.x = math.floor(math.max(
             math.min(self.camera.x, math.max(mapx, math.floor(focus.x) - marginx)),
             math.min(self.map.width, math.floor(focus.x) + marginx) - w))
-        self.camera.y = math.floor(math.max(
-            math.min(self.camera.y, math.max(mapy, math.floor(focus.y) - marginy)),
-            math.min(self.map.height, math.floor(focus.y) + marginy) - h))
+        --self.camera.y = math.floor(math.max(
+        --    math.min(self.camera.y, math.max(mapy, math.floor(focus.y) - marginy)),
+        --    math.min(self.map.height, math.floor(focus.y) + marginy) - h))
+        -- FIXME hmm, finish this up probably, maybe stuff it in a type
+        local y0 = marginy
+        local y1 = h - marginy
+        local miny = 0
+        local maxy = self.map.height - h
+        local newy = self.camera.y
+        if focus.y - newy < y0 then
+            newy = focus.y - y0
+        elseif focus.y - newy > y1 then
+            newy = focus.y - y1
+        end
+        newy = math.max(miny, math.min(maxy, newy))
+        self.camera.y = math.floor(newy)
     end
 end
 
@@ -255,7 +274,7 @@ function WorldScene:_draw_blockmap()
 end
 
 function WorldScene:resize(w, h)
-    self:_determine_scale()
+    self:_refresh_canvas()
 end
 
 -- FIXME this is really /all/ game-specific
@@ -302,7 +321,6 @@ function WorldScene:getDimensions()
 end
 
 function WorldScene:load_map(map)
-    self.camera = Vector(0, 0)
     self.collider = whammo.Collider(4 * map.tilewidth)
     self.map = map
     self.actors = {}
