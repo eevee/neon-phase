@@ -66,6 +66,7 @@ local Chip = actors_base.Actor:extend{
     scalar_velocity = 0,
     can_fire = true,
     owner_gliding_offset = Vector(0, -24),
+    holding_offset = Vector(0, 16),
 }
 
 function Chip:init(owner, ...)
@@ -84,11 +85,28 @@ function Chip:update(dt)
         end)
     end
 
-    if self.ptrs.owner then
+    if self.goal then
+        local reached = self:_approach(self.goal, dt)
+        if reached then
+            self.goalres(self)
+            self.goal = nil
+            self.goalres = nil
+        end
+    elseif self.ptrs.owner then
         if self.ptrs.owner.holding_chip then
             self.pos = self.ptrs.owner.pos + self.owner_gliding_offset
         else
-            self:_approach_owner(dt)
+            local offset = self.owner_offset
+            if self.ptrs.owner.facing_left then
+                offset = Vector(-offset.x, offset.y)
+            end
+
+            local goal = self.ptrs.owner.pos + offset + Vector(0, math.sin(self.timer) * 8)
+            local reached = self:_approach(goal, dt)
+
+            if reached then
+                self.sprite:set_facing_right(not self.ptrs.owner.facing_left)
+            end
         end
     end
 
@@ -99,18 +117,26 @@ function Chip:draw()
     actors_base.Actor.draw(self)
 
     if self.holding then
-        self.holding.pos = self.pos + Vector(0, 8)
+        -- FIXME this is wrong since the velocity might be purely vertical
+        local lag_offset = self.scalar_velocity / 60
+        -- FIXME ehh
+        if self.sprite.facing == 'right' then
+            lag_offset = -lag_offset
+        end
+        self.holding.pos = self.pos + self.holding_offset + Vector(lag_offset, 0)
         self.holding:draw()
     end
 end
 
-function Chip:_approach_owner(dt)
-    local offset = self.owner_offset
-    if self.ptrs.owner.facing_left then
-        offset = Vector(-offset.x, offset.y)
+function Chip:approach(where, what)
+    if self.holding or self.goal then
+        return
     end
+    self.goal = where
+    self.goalres = what
+end
 
-    local goal = self.ptrs.owner.pos + offset + Vector(0, math.sin(self.timer) * 8)
+function Chip:_approach(goal, dt)
     local separation = goal - self.pos
     local distance = separation:len()
 
@@ -129,14 +155,13 @@ function Chip:_approach_owner(dt)
         self.pos = self.pos + separation / distance * self.scalar_velocity * dt
         self.pos.x = math.floor(self.pos.x + 0.5)
         self.pos.y = math.floor(self.pos.y + 0.5)
+        if math.abs(separation.x) > 1 then
+            self.sprite:set_facing_right(separation.x > 0)
+        end
+        return false
     else
         self.scalar_velocity = 0
-    end
-
-    if math.abs(separation.x) < 1 then
-        self.sprite:set_facing_right(not self.ptrs.owner.facing_left)
-    else
-        self.sprite:set_facing_right(separation.x > 0)
+        return true
     end
 end
 

@@ -257,6 +257,11 @@ local WireSocket = Wirable:extend{
     is_usable = true,
 }
 
+function WireSocket:blocks()
+    -- FIXME i'd like this to be blocking, but then you can't use it, because you use things you /overlap/
+    return false
+end
+
 function WireSocket:on_enter()
     local plug = WirePlugNE(self.pos)
     self.ptrs.plug = plug
@@ -265,10 +270,12 @@ end
 
 function WireSocket:on_use(activator)
     -- FIXME this is invasive; chip needs an api for taking a thing, and probably a little animation too
-    if activator.is_player and self.ptrs.plug and not activator.ptrs.chip.holding then
-        activator.ptrs.chip.holding = self.ptrs.plug
-        worldscene:remove_actor(self.ptrs.plug)
-        self.ptrs.plug = nil
+    if activator.is_player and self.ptrs.plug then
+        activator.ptrs.chip:approach(self.pos - activator.ptrs.chip.holding_offset, function(chip)
+            chip.holding = self.ptrs.plug
+            worldscene:remove_actor(self.ptrs.plug)
+            self.ptrs.plug = nil
+        end)
     elseif activator.is_player and not self.ptrs.plug and activator.ptrs.chip.holding then
         -- FIXME only if holding a plug!
         local plug = activator.ptrs.chip.holding
