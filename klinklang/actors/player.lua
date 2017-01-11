@@ -78,11 +78,17 @@ function Player:update(dt)
     -- TODO should be whichever was pressed last?
     local pose = 'stand'
     if love.keyboard.isDown('right') then
-        self.velocity.x = self.velocity.x + self.xaccel * xmult * dt
+        -- FIXME hmm is this the right way to handle a maximum walking speed?
+        -- it obviously doesn't work correctly in another frame of reference
+        if self.velocity.x < self.max_speed then
+            self.velocity.x = self.velocity.x + self.xaccel * xmult * dt
+        end
         self.facing_left = false
         pose = 'walk'
     elseif love.keyboard.isDown('left') then
-        self.velocity.x = self.velocity.x - self.xaccel * xmult * dt
+        if self.velocity.x > -self.max_speed then
+            self.velocity.x = self.velocity.x - self.xaccel * xmult * dt
+        end
         self.facing_left = true
         pose = 'walk'
     end
@@ -176,6 +182,18 @@ function Player:draw()
     end
     self.shape:draw('fill')
     love.graphics.setColor(255, 255, 255)
+end
+
+function Player:damage(source, amount)
+    -- Apply a force that shoves the player away from the source
+    -- FIXME this should maybe be using the direction vector passed to
+    -- on_collide instead?  this doesn't take collision boxes into account
+    local offset = self.pos - source.pos
+    local force = Vector(256, -32)
+    if self.pos.x < source.pos.x then
+        force.x = -force.x
+    end
+    self.velocity = self.velocity + force
 end
 
 local Gamestate = require 'vendor.hump.gamestate'

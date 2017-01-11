@@ -171,7 +171,7 @@ end
 -- component-entity, or going the zdoom route and making everything have every
 -- behavior but toggled on and off via myriad flags
 -- TODO convert these to native units once you're confident these are the same
-local TILE_SIZE = 32
+local TILE_SIZE = 16
 local PICO8V = TILE_SIZE / (1/30)
 local PICO8A = TILE_SIZE / (1/30) / (1/30)
 
@@ -202,7 +202,7 @@ local MobileActor = Actor:extend{
     xaccel = 0.125 * PICO8A * 0.75,
     -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
-    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
+    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2 * 0.75)),
     jumpcap = 0.25,
     -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
     -- friction to xaccel, or the player won't be able to move while floating!
@@ -214,9 +214,7 @@ local MobileActor = Actor:extend{
 
 function MobileActor:_do_physics(dt)
     -- Passive adjustments
-    if math.abs(self.velocity.x) > self.max_speed then
-        self.velocity.x = util.sign(self.velocity.x) * self.max_speed
-    elseif math.abs(self.velocity.x) < self.min_speed then
+    if math.abs(self.velocity.x) < self.min_speed then
         self.velocity.x = 0
     end
 
