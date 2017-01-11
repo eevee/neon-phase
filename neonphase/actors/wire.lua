@@ -268,21 +268,24 @@ function WireSocket:on_enter()
     worldscene:add_actor(plug)
 end
 
+-- TODO it would be nice if we could be notified when our plug is removed
 function WireSocket:on_use(activator)
+    if not activator.is_player then
+        return
+    end
+    local chip = activator.ptrs.chip
+    if not chip then
+        return
+    end
+
     -- FIXME this is invasive; chip needs an api for taking a thing, and probably a little animation too
-    if activator.is_player and self.ptrs.plug then
-        activator.ptrs.chip:approach(self.pos - activator.ptrs.chip.holding_offset, function(chip)
-            chip.holding = self.ptrs.plug
-            worldscene:remove_actor(self.ptrs.plug)
-            self.ptrs.plug = nil
-        end)
-    elseif activator.is_player and not self.ptrs.plug and activator.ptrs.chip.holding then
+    if self.ptrs.plug then
+        chip:pick_up(self.ptrs.plug, function() self.ptrs.plug = nil end)
+    else
         -- FIXME only if holding a plug!
-        local plug = activator.ptrs.chip.holding
-        activator.ptrs.chip.holding = nil
-        plug.pos = self.pos:clone()
-        self.ptrs.plug = plug
-        worldscene:add_actor(plug)
+        chip:set_down(self.pos:clone(), function()
+            self.ptrs.plug = chip.cargo
+        end)
     end
 end
 

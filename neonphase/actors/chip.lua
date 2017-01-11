@@ -66,7 +66,20 @@ local Chip = actors_base.Actor:extend{
     scalar_velocity = 0,
     can_fire = true,
     owner_gliding_offset = Vector(0, -24),
-    holding_offset = Vector(0, 16),
+
+    -- Goal-seeking, which sounds fancier than it is; Chip can fly to a point
+    -- and then do something
+    goal = nil,  -- Target position, possibly relative to an actor
+    goal_callback = nil,  -- What to do once there
+    -- Also, ptrs.goal is sometimes used as the actor being flown towards, if any
+
+    -- Carrying objects or the player
+    cargo = nil,  -- Strong reference to the object, since we own it
+    cargo_in_world = nil,  -- Whether we left the object in-world (player)
+    cargo_anchor = nil,  -- Carrying point on the object, relative to its pos
+    cargo_offset = Vector(0, 8),  -- Distance between our pos and the cargo anchor
+
+    overlay_sprite = nil,
 }
 
 function Chip:init(owner, ...)
@@ -86,57 +99,52 @@ function Chip:update(dt)
     end
 
     if self.goal then
-        local reached = self:_approach(self.goal, dt)
-        if reached then
-            self.goalres(self)
-            self.goal = nil
-            self.goalres = nil
+        -- Moving towards some particular point
+        local goal = self.goal
+        if self.ptrs.goal then
+            goal = goal + self.ptrs.goal.pos
         end
+        local reached = self:_move_towards(goal, dt)
+        if reached then
+            self.goal_callback(self)
+            self:_clear_goal()
+        end
+    elseif self.cargo == self.ptrs.owner then
+        -- Carrying the player; update our position accordingly
+        self.pos = self.cargo.pos - self.cargo_offset + self.cargo_anchor
     elseif self.ptrs.owner then
-        if self.ptrs.owner.holding_chip then
-            self.pos = self.ptrs.owner.pos + self.owner_gliding_offset
-        else
-            local offset = self.owner_offset
-            if self.ptrs.owner.facing_left then
-                offset = Vector(-offset.x, offset.y)
-            end
+        -- Following the player, and possibly carrying something else
+        local offset = self.owner_offset
+        if self.ptrs.owner.facing_left then
+            offset = Vector(-offset.x, offset.y)
+        end
 
-            local goal = self.ptrs.owner.pos + offset + Vector(0, math.sin(self.timer) * 8)
-            local reached = self:_approach(goal, dt)
+        local goal = self.ptrs.owner.pos + offset + Vector(0, math.sin(self.timer) * 8)
+        local reached = self:_move_towards(goal, dt)
 
-            if reached then
-                self.sprite:set_facing_right(not self.ptrs.owner.facing_left)
-            end
+        if reached then
+            self.sprite:set_facing_right(not self.ptrs.owner.facing_left)
         end
     end
 
-    actors_base.Actor.update(self, dt)
-end
-
-function Chip:draw()
-    actors_base.Actor.draw(self)
-
-    if self.holding then
+    if self.cargo and self.cargo ~= self.ptrs.owner then
         -- FIXME this is wrong since the velocity might be purely vertical
         local lag_offset = self.scalar_velocity / 60
         -- FIXME ehh
         if self.sprite.facing == 'right' then
             lag_offset = -lag_offset
         end
-        self.holding.pos = self.pos + self.holding_offset + Vector(lag_offset, 0)
-        self.holding:draw()
+        self.cargo.pos = self.pos + self.cargo_offset - self.cargo_anchor + Vector(lag_offset, 0)
+    end
+
+    actors_base.Actor.update(self, dt)
+
+    if self.overlay_sprite then
+        self.overlay_sprite:update(dt)
     end
 end
 
-function Chip:approach(where, what)
-    if self.holding or self.goal then
-        return
-    end
-    self.goal = where
-    self.goalres = what
-end
-
-function Chip:_approach(goal, dt)
+function Chip:_move_towards(goal, dt)
     local separation = goal - self.pos
     local distance = separation:len()
 
@@ -163,6 +171,116 @@ function Chip:_approach(goal, dt)
         self.scalar_velocity = 0
         return true
     end
+end
+
+function Chip:draw()
+    actors_base.Actor.draw(self)
+
+    if self.cargo then
+        if self.cargo ~= self.ptrs.owner then
+            self.cargo:draw()
+        end
+        self.overlay_sprite:draw_at(self.pos + Vector(0, 4))
+    end
+end
+
+
+-- API
+
+-- Tell Chip to approach a point.
+-- If actor is nil, the point is in absolute coordinates, and the approach
+-- cannot be cancelled.
+-- If actor is not nil, the point is relative to the actor's position, and Chip
+-- will chase the actor as it moves.  The actor can be passed to
+-- cancel_approach() to abandon the chase.
+function Chip:approach(actor, point, callback)
+    if self.goal then
+        return
+    end
+
+    self.goal = point or Vector.zero
+    self.goal_callback = callback
+    self.ptrs.goal = actor
+end
+
+-- If Chip is currently moving towards the given actor, stop
+function Chip:cancel_approach(actor)
+    if self.ptrs.goal == actor then
+        self:_clear_goal()
+    end
+end
+
+function Chip:_clear_goal()
+    self.goal = nil
+    self.goal_callback = nil
+    self.ptrs.goal = nil
+end
+
+-- Ask Chip to move towards something and pick it up
+function Chip:pick_up(actor, callback)
+    if self.cargo then
+        return
+    end
+    if self.goal then
+        return
+    end
+
+    -- Hold objects by the top center of their sprite
+    -- TODO as usual, this might change if the sprite changes, and it might be
+    -- better to specify this explicitly anyway
+    if actor.sprite then
+        -- FIXME oh lol wait this is positioned, i want the original offset
+        local x0, y0, x1, y1 = actor.sprite.shape:bbox()
+        self.cargo_anchor = Vector(math.floor((x0 + x1) / 2), y0)
+    else
+        self.cargo_anchor = Vector.zero
+    end
+
+    self:approach(
+        actor,
+        self.cargo_anchor - self.cargo_offset,
+        function()
+            self.cargo = actor
+
+            -- If we're carrying the player, we should leave them in the world and
+            -- follow their movement, rather than vice versa
+            self.cargo_in_world = actor == self.ptrs.owner
+            if not self.cargo_in_world then
+                worldscene:remove_actor(actor)
+            end
+
+            self.overlay_sprite = game.sprites["chip's tractor beam"]:instantiate()
+
+            if callback then
+                callback()
+            end
+        end)
+end
+
+-- Ask Chip to drop its current cargo at some point.  Note that this cannot be
+-- cancelled.
+function Chip:set_down(point, callback)
+    if not self.cargo then
+        return
+    end
+
+    self:approach(
+        nil,
+        point - self.cargo_offset + self.cargo_anchor,
+        function()
+            if not self.cargo_in_world then
+                worldscene:add_actor(self.cargo)
+            end
+
+            self.cargo = nil
+            self.cargo_in_world = nil
+            self.cargo_anchor = nil
+            self.overlay_sprite = nil
+
+            if callback then
+                callback()
+            end
+        end)
 end
 
 
