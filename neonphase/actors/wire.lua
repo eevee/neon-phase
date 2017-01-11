@@ -32,7 +32,7 @@ function Wirable:on_enter()
         table.insert(nodes, self.pos + offset)
     end
     for _, actor in ipairs(worldscene.actors) do
-        if actor._receive_pulse then
+        if actor ~= self and actor._receive_pulse then
             local is_connection = false
             for _, offset in ipairs(actor.nodes) do
                 local their_node = actor.pos + offset
@@ -127,7 +127,14 @@ function Wirable:draw()
     actors_base.Actor.draw(self)
 
     --[[
-    if self.powered > 0 then
+    love.graphics.setColor(255, 0, 255)
+    for _, node in ipairs(self.nodes) do
+        local xy = self.pos + node
+        love.graphics.circle('fill', xy.x, xy.y, 2)
+    end
+    love.graphics.setColor(255, 255, 255)
+
+    if self.powered > 0 and self.shape then
         love.graphics.setColor(255, 255, 0, 128)
         self.shape:draw('fill')
     end
@@ -167,8 +174,27 @@ local SmallBattery = Wirable:extend{
     nodes = {Vector(8, -8), Vector(8, 8)},
     powered = 0,
     can_receive = false,
+
+    is_active = false,
 }
 
+function SmallBattery:blocks()
+    return true
+end
+
+function SmallBattery:damage(source, amount)
+    if source and source.name == "chip's laser" then
+        self.is_active = not self.is_active
+        if self.is_active then
+            self.sprite:set_pose('on')
+            self.powered = 1
+        else
+            self.sprite:set_pose('off')
+            self.powered = 0
+        end
+        self:_emit_pulse(self.is_active)
+    end
+end
 
 local WireNS = Wirable:extend{
     name = 'wire ns',
