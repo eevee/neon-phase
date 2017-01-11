@@ -1,5 +1,5 @@
 function love.conf(t)
-    t.title = "█████ PHASE"
+    t.title = "NEON PHASE"
     t.version = "0.10.1"
     t.window.width = 640
     t.window.height = 360
