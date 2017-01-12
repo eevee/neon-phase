@@ -337,7 +337,7 @@ function TiledMap:init(path, resource_manager)
                                 submap = layer.submap,
                                 position = Vector(
                                     tx * self.raw.tilewidth,
-                                    ty * self.raw.tileheight),
+                                    ty * self.raw.tileheight - tile.tileset.raw.tileheight + self.raw.tileheight),
                             })
                             data[t + 1] = 0
                         end
