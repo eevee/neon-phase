@@ -281,6 +281,7 @@ function Polygon:slide_towards(other, movement)
     -- TODO i would love to get rid of ClockRange, and it starts right here; i
     -- think at most we can return a span of two normals, if you hit a corner
     local clock = util.ClockRange()
+    local cant_collide = false
     --print("us:", self:bbox())
     --print("them:", other:bbox())
     for fullaxis, axis in pairs(axes) do
@@ -309,9 +310,19 @@ function Polygon:slide_towards(other, movement)
         --print("    axis:", fullaxis, "dist:", dist, "sep:", sep)
         if dist >= 0 then
             -- The movement itself may be away from the other shape, in which
-            -- case we can stop here; we know they'll never collide
-            if fullaxis * movement <= 0 and dist > 0 then
-                return
+            -- case we can stop here; we know they'll never collide.
+            -- (The most common case here is that fullaxis is the move normal.)
+            if fullaxis * movement <= 0 then
+                if dist > 0 then
+                    return
+                else
+                    -- If dist is zero, then they might still /touch/, and we
+                    -- need to know about that for other reasons
+                    -- FIXME wait, do we?  where do i care about a perfect
+                    -- existing slide?  if i'm sliding along the ground then
+                    -- i'm not /on/ the ground...
+                    cant_collide = true
+                end
             end
 
             -- If the distance isn't negative, then it's possible to do a slide
@@ -337,10 +348,8 @@ function Polygon:slide_towards(other, movement)
 
     local gap = maxsep:projectOn(maxdir)
     local allowed = movement:projectOn(maxdir)
-    --print("  max dist:", maxdist, "in dir:", maxdir, "  gap:", gap, "allowed:", allowed)
-    -- If we're already moving in an allowed slide direction, then we can't
-    -- possibly collide
-    if clock:includes(movement) then
+    --print("  max dist:", maxdist, "in dir:", maxdir, "  gap:", gap, "allowed:", allowed, "clock:", clock)
+    if cant_collide then
         -- One question remains: will we actually touch?
         -- TODO i'm not totally confident in this logic; seems like near misses
         -- without touches might not be handled correctly...?
@@ -355,14 +364,16 @@ function Polygon:slide_towards(other, movement)
     end
 
     local mv
-    if math.abs(allowed.x) > math.abs(allowed.y) then
+    if allowed == Vector.zero then
+        error("pretty sure this shouldn't be possible")
+        mv = Vector.zero:clone()
+    elseif math.abs(allowed.x) > math.abs(allowed.y) then
         mv = movement * gap.x / allowed.x
     else
         mv = movement * gap.y / allowed.y
     end
     round_movement_to_quantum(mv)
     local move_len2 = mv:len2()
-    --if move_len2 < 0 or move_len2 > movement:len2() then
     if move_len2 > movement:len2() then
         -- Won't actually hit!
         return
