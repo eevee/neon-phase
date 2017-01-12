@@ -343,7 +343,7 @@ function TiledMap:init(path, resource_manager)
                                 submap = layer.submap,
                                 position = Vector(
                                     tx * self.raw.tilewidth,
-                                    ty * self.raw.tileheight - tile.tileset.raw.tileheight + self.raw.tileheight),
+                                    (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight),
                             })
                             data[t + 1] = 0
                         end
@@ -382,7 +382,7 @@ function TiledMap:add_to_collider(collider, submap_name)
                         local ty, tx = util.divmod(t, width)
                         shape:move(
                             tx * self.raw.tilewidth,
-                            ty * self.raw.tileheight)
+                            (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight)
                         self.shapes[shape] = true
                         collider:add(shape)
                     end
@@ -404,13 +404,14 @@ function TiledMap:draw(layer_name, origin, width, height)
             local gid = data[t + 1]
             if gid ~= 0 then
                 local tile = self.tiles[gid]
-                local dy, dx = util.divmod(t, width)
+                local ty, tx = util.divmod(t, width)
                 -- TODO don't draw tiles not on the screen
                 love.graphics.draw(
                     tile.tileset.image,
                     tile.tileset.quads[tile.tilesetid],
                     -- convert tile offsets to pixels
-                    dx * tw, dy * th,
+                    tx * tw,
+                    (ty + 1) * th - tile.tileset.raw.tileheight,
                     0, 1, 1)
             end
         end
