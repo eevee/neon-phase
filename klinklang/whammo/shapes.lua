@@ -115,6 +115,22 @@ function Shape:flipx(axis)
     error("flipx not implemented")
 end
 
+function Shape:move(dx, dy)
+    error("move not implemented")
+end
+
+function Shape:move_to(x, y)
+    self:move(x - self.xoff, y - self.yoff)
+end
+
+function Shape:draw(mode)
+    error("draw not implemented")
+end
+
+function Shape:normals()
+    error("normals not implemented")
+end
+
 
 -- An arbitrary (CONVEX) polygon
 local Polygon = Shape:extend()
@@ -194,11 +210,6 @@ function Polygon:move(dx, dy)
     self:update_blockmaps()
 end
 
-function Polygon:move_to(x, y)
-    -- TODO
-    error("TODO")
-end
-
 function Polygon:center()
     -- TODO uhh
     return self.x0 + self.width / 2, self.y0 + self.height / 2
@@ -245,6 +256,10 @@ function Polygon:slide_towards(other, movement)
     -- a. It keeps values around in terms of their original vectors, rather
     --    than lengths or normalized vectors, to avoid precision loss
     --    from taking square roots.
+
+    if other.subshapes then
+        return self:_multi_slide_towards(other, movement)
+    end
 
     -- Mapping of normal vectors (i.e. projection axes) to their normalized
     -- versions (needed for comparing the results of the projection)
@@ -356,6 +371,33 @@ function Polygon:slide_towards(other, movement)
     return mv, 1, clock
 end
 
+function Polygon:_multi_slide_towards(other, movement)
+    local move, touchtype, clock, movelen
+    for _, subshape in ipairs(other.subshapes) do
+        local move2, touchtype2, clock2 = self:slide_towards(subshape, movement)
+        if move2 == nil then
+            -- Do nothing
+        elseif move == nil then
+            -- First result; just accept it
+            move, touchtype, clock = move2, touchtype2, clock2
+            movelen = move:len2()
+        else
+            -- Need to combine
+            local movelen2 = move2:len2()
+            if movelen2 < movelen then
+                move, touchtype, clock = move2, touchtype2, clock2
+                movelen = movelen2
+            elseif movelen2 == movelen then
+                clock:intersect(clock2)
+                touchtype = math.min(touchtype, touchtype2)
+            end
+        end
+    end
+
+    return move, touchtype, clock
+end
+
+
 -- An AABB, i.e., an unrotated rectangle
 local _XAXIS = Vector(1, 0)
 local _YAXIS = Vector(0, 1)
@@ -381,17 +423,94 @@ end
 function Box:_generate_normals()
 end
 
-function Box:move_to(x, y)
-    self:move(x - self.xoff, y - self.yoff)
-    self:update_blockmaps()
-end
-
 function Box:center()
     return self.x0 + self.width / 2, self.y0 + self.height / 2
 end
 
+
+local MultiShape = Shape:extend()
+
+function MultiShape:init(...)
+    MultiShape.__super.init(self)
+
+    self.subshapes = {}
+    for _, subshape in ipairs{...} do
+        self:add_subshape(subshape)
+    end
+end
+
+function MultiShape:add_subshape(subshape)
+    -- TODO what if subshape has an offset already?
+    table.insert(self.subshapes, subshape)
+end
+
+function MultiShape:clone()
+    return MultiShape(unpack(self.subshapes))
+end
+
+function MultiShape:bbox()
+    local x0, x1 = math.huge, -math.huge
+    local y0, y1 = math.huge, -math.huge
+    for _, subshape in ipairs(self.subshapes) do
+        local subx0, subx1, suby0, suby1 = subshape:bbox()
+        x0 = math.min(x0, subx0)
+        x1 = math.max(x1, subx1)
+        y0 = math.min(y0, suby0)
+        y1 = math.max(y1, suby1)
+    end
+    return x0, y0, x1, y1
+end
+
+function MultiShape:move(dx, dy)
+    self.xoff = self.xoff + dx
+    self.yoff = self.yoff + dy
+    for _, subshape in ipairs(self.subshapes) do
+        subshape:move(dx, dy)
+    end
+end
+
+function MultiShape:draw(...)
+    for _, subshape in ipairs(self.subshapes) do
+        subshape:draw(...)
+    end
+end
+
+function MultiShape:normals()
+    local normals = {}
+    -- TODO maybe want to compute this only once
+    for _, subshape in ipairs(self.subshapes) do
+        for k, v in pairs(subshape:normals()) do
+            normals[k] = v
+        end
+    end
+    return normals
+end
+
+function MultiShape:project_onto_axis(...)
+    local min, max, minpt, maxpt
+    for i, subshape in ipairs(self.subshapes) do
+        if i == 1 then
+            min, max, minpt, maxpt = subshape:project_onto_axis(...)
+        else
+            local min2, max2, minpt2, maxpt2 = subshape:project_onto_axis(...)
+            if min2 < min then
+                min = min2
+                minpt = minpt2
+            end
+            if max2 > max then
+                max = max2
+                maxpt = maxpt2
+            end
+        end
+    end
+    return min, max, minpt, maxpt
+end
+
+
+
 return {
     Box = Box,
+    MultiShape = MultiShape,
     Polygon = Polygon,
     Segment = Segment,
 }

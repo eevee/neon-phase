@@ -40,6 +40,8 @@ function Collider:get_owner(shape)
 end
 
 
+-- FIXME if you're exactly in a corner and try to move diagonally, the
+-- resulting clock will only block one direction, sigh
 function Collider:slide(shape, dx, dy)
     --print()
     local attempted = Vector(dx, dy)

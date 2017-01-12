@@ -214,12 +214,18 @@ function TiledTileset:get_collision(tileid)
             -- already taken care of
         elseif obj.type == "" then
             -- collision shape
-            -- FIXME should support having more than one shape, oops!
-            shape = _tiled_shape_to_whammo_shape(obj, anchor)
+            local new_shape = _tiled_shape_to_whammo_shape(obj, anchor)
 
             -- FIXME this is pretty bad
             if obj.properties and obj.properties['one-way platform'] then
-                shape._xxx_is_one_way_platform = true
+                new_shape._xxx_is_one_way_platform = true
+            end
+
+            if shape then
+                shape = whammo_shapes.MultiShape(shape)
+                shape:add_subshape(new_shape)
+            else
+                shape = new_shape
             end
         else
             -- FIXME maybe need to return a table somehow, because i want to keep this for wire points?
