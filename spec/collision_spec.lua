@@ -105,6 +105,30 @@ describe("Collision", function()
         assert.are.equal(1, hits[wall1])
         assert.are.equal(1, hits[wall2])
     end)
+    it("should handle movement blocked in multiple directions", function()
+        --[[
+            +--------+--------+
+            | wall 1 | wall 2 |
+            +--------+--------+
+            | wall 3 | player |
+            +--------+--------+
+            movement is up and to the left; should not move at all
+        ]]
+        local collider = whammo.Collider(400)
+        local wall1 = whammo_shapes.Box(0, 0, 100, 100)
+        collider:add(wall1)
+        local wall2 = whammo_shapes.Box(100, 0, 100, 100)
+        collider:add(wall2)
+        local wall3 = whammo_shapes.Box(0, 100, 100, 100)
+        collider:add(wall3)
+
+        local player = whammo_shapes.Box(100, 100, 100, 100)
+        local successful, hits = collider:slide(player, -50, -50)
+        assert.are.equal(Vector(0, 0), successful)
+        assert.are.equal(1, hits[wall1])
+        assert.are.equal(1, hits[wall2])
+        assert.are.equal(1, hits[wall3])
+    end)
     it("should slide you down when pressed against a corner", function()
         --[[
                      +--------+
@@ -144,6 +168,51 @@ describe("Collision", function()
         assert.are.equal(Vector(0, 100), successful)
         assert.are.equal(1, hits[wall1])
         assert.are.equal(1, hits[wall2])
+    end)
+    it("should slide you along slopes", function()
+        --[[
+            +--------+
+            | player |
+            +--------+
+            | ""--,,_
+            | floor  +    (this is actually a triangle)
+            +--------+
+            movement is straight down; should slide rightwards along the slope
+        ]]
+        local collider = whammo.Collider(400)
+        local floor = whammo_shapes.Polygon(0, 100, 100, 150, 0, 150)
+        collider:add(floor)
+
+        local player = whammo_shapes.Box(0, 0, 100, 100)
+        local successful, hits = collider:slide(player, 0, 100)
+        assert.are.equal(Vector(40, 20), successful)
+        assert.are.equal(1, hits[floor])
+    end)
+    it("should not put you inside slopes", function()
+        --[[
+            +--------+
+            | player |
+            +--------+
+            | ""--,,_
+            | floor  +    (this is actually a triangle)
+            +--------+
+            movement is straight down; should slide rightwards along the slope
+        ]]
+        local collider = whammo.Collider(64)
+        -- Unlike above, this does not make a triangle with nice angles; the
+        -- results are messy floats.
+        -- Also, if it weren't obvious, this was taken from an actual game.
+        local floor = whammo_shapes.Polygon(400, 552, 416, 556, 416, 560, 400, 560)
+        collider:add(floor)
+
+        local player = whammo_shapes.Box(415 - 8, 553 - 29, 13, 28)
+        local successful, hits = collider:slide(player, 0, 2)
+        assert.are.equal(1, hits[floor])
+
+        -- We don't actually care about the exact results; we just want to be
+        -- sure we aren't inside the slope on the next tic
+        local successful, hits = collider:slide(player, 0, 10)
+        assert.are.equal(1, hits[floor])
     end)
     it("should not register slides against objects out of range", function()
         --[[
