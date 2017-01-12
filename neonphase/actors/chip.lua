@@ -64,6 +64,7 @@ local Chip = actors_base.Actor:extend{
     owner_offset = Vector(-16, -24),
     max_scalar_acceleration = 512,
     scalar_velocity = 0,
+    has_laser = false,
     can_fire = true,
     owner_gliding_offset = Vector(0, -24),
 
@@ -90,7 +91,7 @@ function Chip:init(owner, ...)
 end
 
 function Chip:update(dt)
-    if self.can_fire and love.keyboard.isScancodeDown('d') then
+    if self.has_laser and self.can_fire and love.keyboard.isScancodeDown('d') then
         worldscene:add_actor(ChipLaser(self, self.pos + Vector(0, -8)))
         self.can_fire = false
         worldscene.fluct:to(self, 0.25, {}):oncomplete(function() 
@@ -281,6 +282,20 @@ function Chip:set_down(point, callback)
                 callback()
             end
         end)
+end
+
+
+local UpgradeChip = actors_base.Actor:extend{
+    name = 'upgrade chip',
+    sprite_name = 'upgrade chip',
+}
+
+function UpgradeChip:on_collide(other, direction)
+    if other.is_player then
+        -- TODO what if not chip?
+        other.ptrs.chip.has_laser = true
+        worldscene:remove_actor(self)
+    end
 end
 
 
