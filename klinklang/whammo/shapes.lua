@@ -7,18 +7,21 @@ local util = require 'klinklang.util'
 -- this, and any surfaces closer than this distance are considered touching.
 -- Should be exactly representable as a float (i.e., a power of two) else
 -- you're kinda defeating the point.
-local QUANTUM = 1 / 8
+local QUANTUM = 1 / 1
 -- Allowed rounding error when comparing whether two shapes are overlapping.
 -- If they overlap by only this amount, they'll be considered touching.
 local PRECISION = 1e-8
 
-local function round_movement_to_quantum(v)
-    if v.x < 0 then
+local function round_movement_to_quantum(v, axis)
+    -- Round away from the axis of movement, to avoid accidentally clipping
+    -- into an odd shape
+    axis = axis or v
+    if axis.x < 0 then
         v.x = math.ceil(v.x / QUANTUM) * QUANTUM
     else
         v.x = math.floor(v.x / QUANTUM) * QUANTUM
     end
-    if v.y < 0 then
+    if axis.y < 0 then
         v.y = math.ceil(v.y / QUANTUM) * QUANTUM
     else
         v.y = math.floor(v.y / QUANTUM) * QUANTUM
@@ -339,7 +342,7 @@ function Polygon:slide_towards(other, movement)
 
     if maxdist < 0 then
         -- Shapes are already colliding
-        -- TODO should maybe...  return something more specific here?
+        -- FIXME should have /some/ kind of gentle rejection here
         --error("seem to be inside something!!  stopping so you can debug buddy  <3")
         --print("ALREADY COLLIDING", worldscene.collider:get_owner(other))
         return Vector.zero, -1, util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
@@ -372,14 +375,14 @@ function Polygon:slide_towards(other, movement)
     else
         mv = movement * gap.y / allowed.y
     end
-    round_movement_to_quantum(mv)
+    round_movement_to_quantum(mv, maxdir)
     local move_len2 = mv:len2()
     if move_len2 > movement:len2() then
         -- Won't actually hit!
         return
     end
 
-    return mv, 1, clock
+    return mv, 1, clock, -maxdir
 end
 
 function Polygon:_multi_slide_towards(other, movement)
@@ -524,4 +527,5 @@ return {
     MultiShape = MultiShape,
     Polygon = Polygon,
     Segment = Segment,
+    round_movement_to_quantum = round_movement_to_quantum,
 }

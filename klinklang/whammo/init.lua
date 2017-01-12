@@ -57,7 +57,7 @@ function Collider:slide(shape, dx, dy)
         local collisions = {}
         local neighbors = self.blockmap:neighbors(shape, attempted:unpack())
         for neighbor in pairs(neighbors) do
-            local move, touchtype, clock = shape:slide_towards(neighbor, attempted)
+            local move, touchtype, clock, normal = shape:slide_towards(neighbor, attempted)
             --print("< got move, touchtype, clock:", move, touchtype, clock)
             if move then
                 table.insert(collisions, {
@@ -65,6 +65,7 @@ function Collider:slide(shape, dx, dy)
                     move = move,
                     touchtype = touchtype,
                     clock = clock,
+                    normal = normal,
                     len2 = move:len2(),
                 })
             end
@@ -175,16 +176,22 @@ function Collider:slide(shape, dx, dy)
             local remaining = attempted - first_collision.move
             attempted = remaining:projectOn(slide)
             --print("slide!  remaining", remaining, "-> attempted", attempted)
+            -- FIXME this still isn't right.  it causes some overlaps when
+            -- QUANTUM is 1/8, and even with QUANTUM as 1 it causes some forced
+            -- bailouts
+            shapes.round_movement_to_quantum(attempted, slide:perpendicular())
+            --print(" ... rounded to", attempted)
         else
             attempted = Vector.zero:clone()
         end
 
-        if attempted.x == 0 and attempted.y == 0 then
+        if math.abs(attempted.x) < 0.125 and math.abs(attempted.y) < 0.125 then
             break
         end
     end
 
     -- Whatever's left over is unopposed
+    --print("moving by leftovers", attempted)
     shape:move(attempted:unpack())
     --debug_hits = allhits
     return successful + attempted, allhits, lastclock
