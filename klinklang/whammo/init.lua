@@ -93,7 +93,20 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
 
             -- Check whether we can move through this object
             local is_passable = false
-            if collision.shape._xxx_is_one_way_platform and attempted.y < 0 then
+            -- One-way platforms don't block us if we've moving upwards, OR if
+            -- they're not blocking us in the direction of gravity (i.e. we're
+            -- approaching from the side).
+            -- Note that this can't use `attempted.y <= 0`!  If we're standing
+            -- on a platform, the first round will slide us against it (making
+            -- our y movement zero) and the second round will then catch the
+            -- platform again, see y == 0, and think it no longer blocks us.
+            -- We won't fall through it, but the actor code will think we're
+            -- suspended in midair.
+            if collision.shape._xxx_is_one_way_platform and (
+                attempted.y < 0 or collision.clock:includes(Vector(0, 1)))
+            then
+                -- FIXME un-xxx this
+                -- FIXME this assumes the direction of gravity
                 is_passable = true
             end
             if collision.touchtype < 0 then
