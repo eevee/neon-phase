@@ -19,6 +19,9 @@ local WorldScene = BaseScene:extend{
     __tostring = function(self) return "worldscene" end,
 
     fluct = nil,
+
+    was_left_down = false,
+    was_right_down = false,
 }
 
 --------------------------------------------------------------------------------
@@ -37,6 +40,53 @@ function WorldScene:_refresh_canvas()
 end
 
 function WorldScene:update(dt)
+    -- Handle movement input.
+    -- Input comes in two flavors: "instant" actions that happen once when a
+    -- button is pressed, and "continuous" actions that happen as long as a
+    -- button is held down.
+    -- "Instant" actions need to be handled in keypressed, but "continuous"
+    -- actions need to be handled with an explicit per-frame check.  The
+    -- difference is that a press might happen in another scene (e.g. when the
+    -- game is paused), which for instant actions should be ignored, but for
+    -- continuous actions should start happening as soon as we regain control —
+    -- even though we never know a physical press happened.
+    -- Walking has the additional wrinkle that there are two distinct inputs.
+    -- If both are held down, then we want to obey whichever was held more
+    -- recently, which means we also need to track whether they were held down
+    -- last frame.
+    local is_left_down = love.keyboard.isScancodeDown('left')
+    local is_right_down = love.keyboard.isScancodeDown('right')
+    if is_left_down and is_right_down then
+        if self.was_left_down and self.was_right_down then
+            -- Continuing to hold both keys; do nothing
+        elseif self.was_left_down then
+            -- Was holding left, also pressed right, so move right
+            self.player:decide_walk(1)
+        elseif self.was_right_down then
+            -- Was holding right, also pressed left, so move left
+            self.player:decide_walk(-1)
+        else
+            -- Miraculously went from holding neither to holding both, so let's
+            -- not move at all
+            self.player:decide_walk(0)
+        end
+    elseif is_left_down then
+        self.player:decide_walk(-1)
+    elseif is_right_down then
+        self.player:decide_walk(1)
+    else
+        self.player:decide_walk(0)
+    end
+    self.was_left_down = is_left_down
+    self.was_right_down = is_right_down
+    -- Jumping is slightly more subtle.  The initial jump is an instant action,
+    -- but /continuing/ to jump is a continuous action.  So we handle the
+    -- initial jump in keypressed, but abandon a jump here as soon as the key
+    -- is no longer held.
+    if not love.keyboard.isScancodeDown('space') then
+        self.player:decide_abandon_jump()
+    end
+
     if love.keyboard.isDown(',') then
         local Gamestate = require 'vendor.hump.gamestate'
         Gamestate.switch(self)
@@ -288,7 +338,13 @@ end
 
 -- FIXME this is really /all/ game-specific
 function WorldScene:keypressed(key, scancode, isrepeat)
-    if key == 'q' then
+    if isrepeat then
+        return
+    end
+
+    if scancode == 'space' then
+        self.player:decide_jump()
+    elseif key == 'q' then
         -- Switch inventory items
         if not self.inventory_switch then
             local old_item = self.player.inventory[self.player.inventory_cursor]
