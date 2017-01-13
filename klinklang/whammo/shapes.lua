@@ -7,7 +7,7 @@ local util = require 'klinklang.util'
 -- this, and any surfaces closer than this distance are considered touching.
 -- Should be exactly representable as a float (i.e., a power of two) else
 -- you're kinda defeating the point.
-local QUANTUM = 1 / 1
+local QUANTUM = 1 / 8
 -- Allowed rounding error when comparing whether two shapes are overlapping.
 -- If they overlap by only this amount, they'll be considered touching.
 local PRECISION = 1e-8

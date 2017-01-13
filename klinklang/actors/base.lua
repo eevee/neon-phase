@@ -206,7 +206,7 @@ local MobileActor = Actor:extend{
     xaccel = 0.125 * PICO8A * 0.75,
     -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
-    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2 * 0.75)),
+    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2 * 0.875)),
     jumpcap = 0.25,
     -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
     -- friction to xaccel, or the player won't be able to move while floating!

@@ -161,7 +161,11 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
 
         -- FIXME this seems like a poor way to get at this logic from outside
         if xxx_no_slide then
-            return first_collision.move, allhits, lastclock
+            if first_collision then
+                return first_collision.move, allhits, lastclock
+            else
+                return attempted, allhits, lastclock
+            end
         end
 
         if not first_collision then
