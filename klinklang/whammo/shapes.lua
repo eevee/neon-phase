@@ -458,6 +458,7 @@ end
 function MultiShape:add_subshape(subshape)
     -- TODO what if subshape has an offset already?
     table.insert(self.subshapes, subshape)
+    self:update_blockmaps()
 end
 
 function MultiShape:clone()
@@ -468,10 +469,10 @@ function MultiShape:bbox()
     local x0, x1 = math.huge, -math.huge
     local y0, y1 = math.huge, -math.huge
     for _, subshape in ipairs(self.subshapes) do
-        local subx0, subx1, suby0, suby1 = subshape:bbox()
+        local subx0, suby0, subx1, suby1 = subshape:bbox()
         x0 = math.min(x0, subx0)
-        x1 = math.max(x1, subx1)
         y0 = math.min(y0, suby0)
+        x1 = math.max(x1, subx1)
         y1 = math.max(y1, suby1)
     end
     return x0, y0, x1, y1
