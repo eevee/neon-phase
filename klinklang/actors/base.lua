@@ -287,6 +287,7 @@ function MobileActor:_do_physics(dt)
 
     ----------------------------------------------------------------------------
     -- Collision time!
+    --print()
     --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
 
     -- First things first: restrict movement to within the current map
@@ -303,6 +304,26 @@ function MobileActor:_do_physics(dt)
     local attempted = movement
     local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement:unpack())
 
+    -- FIXME this is turning this method into a "deliberate actor" method,
+    -- which i'm fine with, but it should be separate
+    if self.on_ground then
+        -- FIXME how far should we try this?
+        -- FIXME again, don't do this off the edges of the map...  depending on map behavior...  sigh
+        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, 0, 2, true)
+        local any_hit = false
+        for shape, touchtype in pairs(drop_hits) do
+            any_hit = true
+            break
+        end
+        if any_hit then
+            -- If we hit something, then commit the movement and stick us to the ground
+            movement.y = movement.y + drop_movement.y
+        else
+            -- Otherwise, we're in the air; ignore the drop
+            self.on_ground = false
+        end
+    end
+
     -- Trim velocity as necessary, based on the last surface we slid against
     --print("velocity is", self.velocity, "and clock is", last_clock)
     if last_clock and self.velocity ~= Vector.zero then
@@ -315,6 +336,7 @@ function MobileActor:_do_physics(dt)
         else
             --print("axis", axis, "dot product", self.velocity * axis)
             -- Nearest axis is within a quarter-turn, so slide that direction
+            --print("velocity", self.velocity, self.velocity:projectOn(axis))
             self.velocity = self.velocity:projectOn(axis)
         end
     end
@@ -329,11 +351,13 @@ function MobileActor:_do_physics(dt)
     else
         self.last_slide = nil
     end
-    -- We are on the ground iff our max standable slope is closer to gravity
-    -- (i.e. steeper) than our downwards slide angle, plus a fuzz factor
-    self.on_ground = (self.last_slide and
-        self.last_slide:normalized() * gravity
-        - self.max_slope:normalized() * gravity <= 1e-8)
+    if not self.on_ground then
+        -- We are on the ground iff our max standable slope is closer to gravity
+        -- (i.e. steeper) than our downwards slide angle, plus a fuzz factor
+        self.on_ground = (self.last_slide and
+            self.last_slide:normalized() * gravity
+            - self.max_slope:normalized() * gravity <= 1e-8)
+    end
 
     self.pos = self.pos + movement
     --print("FINAL POSITION:", self.pos)

@@ -356,6 +356,8 @@ function Polygon:slide_towards(other, movement)
         -- One question remains: will we actually touch?
         -- TODO i'm not totally confident in this logic; seems like near misses
         -- without touches might not be handled correctly...?
+        -- TODO do we actually care about this at all?  there's a use for "what
+        -- am i overlapping" but that could be done differently
         if gap:len2() <= allowed:len2() then
             -- This is a slide; we will touch (or are already touching) the
             -- other object, but can continue past it
