@@ -7,7 +7,7 @@ local SPEAKER_SCALE = 4
 local SCROLL_RATE = 64  -- characters per second
 
 -- Magic rendering numbers
-local TEXT_MARGIN_X = 16
+local TEXT_MARGIN_X = 24
 local TEXT_MARGIN_Y = 16
 
 local DialogueScene = BaseScene:extend{
@@ -22,9 +22,10 @@ function DialogueScene:init(speakers, script)
     self.wrapped = nil
 
     -- FIXME unhardcode some more of this, adjust it on resize
+    local w, h = game:getDimensions()
     self.speaker_height = 80
     local boxheight = 120
-    local winheight = love.graphics.getHeight()
+    local winheight = h
     self.speaker_scale = math.floor((winheight - boxheight) / self.speaker_height)
 
     -- TODO a good start, but
@@ -49,7 +50,7 @@ function DialogueScene:init(speakers, script)
     self.state = 'start'
 
     -- TODO magic numbers
-    self.wraplimit = love.graphics.getWidth() - TEXT_MARGIN_X * 2
+    self.wraplimit = w - TEXT_MARGIN_X * 2
 
     self.script_index = 0
 
@@ -123,10 +124,12 @@ function DialogueScene:_advance_script()
 end
 
 function DialogueScene:draw()
-    -- TODO this bit is copied from DeadScene
     self.wrapped:draw()
+
+    love.graphics.push('all')
+    love.graphics.scale(game.scale, game.scale)
     love.graphics.setColor(0, 0, 0, 64)
-    love.graphics.rectangle('fill', 0, 0, love.graphics.getDimensions())
+    love.graphics.rectangle('fill', 0, 0, game:getDimensions())
     love.graphics.setColor(255, 255, 255)
 
     -- Draw the dialogue box, which is slightly complicated because it involves
@@ -136,17 +139,18 @@ function DialogueScene:draw()
     -- TODO this feels rather hardcoded; surely the background should flex to fit the height rather than defining it.
     local boxheight = background:getHeight()
     boxheight = 120
-    local boxwidth = love.graphics.getWidth()
-    local boxtop = love.graphics.getHeight() - boxheight
+    local w, h = game:getDimensions()
+    local boxwidth = w
+    local boxtop = h - boxheight
 
     local BOXSCALE = 1  -- FIXME this was 2 for isaac
     local boxrepeatleft, boxrepeatright = 192, 224
     local boxquadl = love.graphics.newQuad(0, 0, boxrepeatleft, background:getHeight(), background:getDimensions())
     love.graphics.draw(background, boxquadl, 0, boxtop, 0, BOXSCALE)
     local boxquadm = love.graphics.newQuad(boxrepeatleft, 0, boxrepeatright - boxrepeatleft, background:getHeight(), background:getDimensions())
-    love.graphics.draw(background, boxquadm, boxrepeatleft * BOXSCALE, boxtop, 0, math.floor(love.graphics.getWidth() / (boxrepeatright - boxrepeatleft)) + 1, BOXSCALE)
+    love.graphics.draw(background, boxquadm, boxrepeatleft * BOXSCALE, boxtop, 0, math.floor(w / (boxrepeatright - boxrepeatleft)) + 1, BOXSCALE)
     local boxquadr = love.graphics.newQuad(boxrepeatright, 0, background:getWidth() - boxrepeatright, background:getHeight(), background:getDimensions())
-    love.graphics.draw(background, boxquadr, love.graphics.getWidth() - (background:getWidth() - boxrepeatright) * BOXSCALE, boxtop, 0, BOXSCALE)
+    love.graphics.draw(background, boxquadr, w - (background:getWidth() - boxrepeatright) * BOXSCALE, boxtop, 0, BOXSCALE)
 
     -- Compute the text we should be displaying so far
     -- TODO it bugs me slightly that we re-render the entire string every
@@ -176,10 +180,14 @@ function DialogueScene:draw()
     local pos = Vector(math.floor(boxwidth / 4) - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
     sprite:draw_at(pos)
     -- Right
-    local sprite = self.speakers.magnetgoat.sprite
-    local sw, sh = sprite.anim:getDimensions()
-    local pos = Vector(math.floor(boxwidth * 3 / 4) - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
-    sprite:draw_at(pos)
+    if self.speakers.magnetgoat then
+        local sprite = self.speakers.magnetgoat.sprite
+        local sw, sh = sprite.anim:getDimensions()
+        local pos = Vector(math.floor(boxwidth * 3 / 4) - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
+        sprite:draw_at(pos)
+    end
+
+    love.graphics.pop()
 end
 
 function DialogueScene:keypressed(key, scancode, isrepeat)
@@ -188,6 +196,10 @@ function DialogueScene:keypressed(key, scancode, isrepeat)
             self:_advance_script()
         end
     end
+end
+
+function DialogueScene:resize(w, h)
+    self.wrapped:resize(w, h)
 end
 
 return DialogueScene

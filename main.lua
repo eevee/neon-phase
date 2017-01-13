@@ -15,6 +15,23 @@ game = {
     resource_manager = nil,
     -- FIXME this seems ugly, but the alternative is to have sprite.lua implicitly depend here
     sprites = SpriteSet._all_sprites,
+
+    scale = 1,
+
+    _determine_scale = function(self)
+        -- Default resolution is 640 × 360, which is half of 720p and a third
+        -- of 1080p and equal to 40 × 22.5 tiles.  With some padding, I get
+        -- these as the max viewport size.
+        local w, h = love.graphics.getDimensions()
+        local MAX_WIDTH = 50 * 16
+        local MAX_HEIGHT = 30 * 16
+        self.scale = math.ceil(math.max(w / MAX_WIDTH, h / MAX_HEIGHT))
+        print(self.scale)
+    end,
+
+    getDimensions = function(self)
+        return love.graphics.getWidth() / self.scale, love.graphics.getHeight() / self.scale
+    end,
 }
 
 local TILE_SIZE = 16
@@ -91,6 +108,10 @@ function love.draw()
 end
 
 local _previous_mode
+
+function love.resize(w, h)
+    game:_determine_scale()
+end
 
 function love.keypressed(key, scancode, isrepeat)
     if key == 'return' and not isrepeat and love.keyboard.isDown('lalt', 'ralt') then
