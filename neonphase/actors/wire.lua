@@ -11,6 +11,10 @@ local WIRE_CONNECTIONS = {
     west = Vector(-16, 0),
 }
 
+-- TODO i'd like to improve "powered" to a broader understanding of all current
+-- inputs, so other stuff can be sent over wires.  but at the same time, there
+-- should always be a simple prop i can check to know if i have any input at
+-- all
 local Wirable = actors_base.Actor:extend{
     __name = 'Wirable',
     nodes = {},
@@ -48,17 +52,27 @@ function Wirable:on_enter()
             end
             if is_connection then
                 -- FIXME seems invasive
-                self:_receive_pulse(actor.powered > 0, actor)
-                if actor.powered > 0 then
-                    actor.live_connections[self] = 1
-                else
-                    actor.live_connections[self] = 0
+                if actor.can_emit and self.can_receive then
+                    self:_receive_pulse(actor.powered > 0, actor)
+                    if actor.powered > 0 then
+                        actor.live_connections[self] = 1
+                    else
+                        actor.live_connections[self] = 0
+                    end
+                end
+                if self.can_emit and actor.can_receive then
+                    local powered = self.powered > 0
+                    if powered and self.live_connections[actor] == 0 then
+                        actor:_receive_pulse(true, self)
+                        self.live_connections[actor] = 1
+                    else
+                        self.live_connections[actor] = 0
+                        actor.live_connections[self] = 0
+                    end
                 end
             end
         end
     end
-
-    self:_emit_pulse(self.powered > 0)
 end
 
 function Wirable:on_leave()
@@ -253,6 +267,13 @@ local WirePlugNE = Wirable:extend{
     nodes = {Vector(0, -8), Vector(8, 0)},
 }
 
+local WirePlugNW = Wirable:extend{
+    name = 'wire plug nw',
+    sprite_name = 'wire plug nw',
+
+    nodes = {Vector(0, -8), Vector(-8, 0)},
+}
+
 local WireSocket = Wirable:extend{
     name = 'wire socket',
     sprite_name = 'wire socket',
@@ -266,7 +287,7 @@ function WireSocket:blocks()
 end
 
 function WireSocket:on_enter()
-    local plug = WirePlugNE(self.pos)
+    local plug = WirePlugNW(self.pos)
     self.ptrs.plug = plug
     worldscene:add_actor(plug)
 end
@@ -289,6 +310,36 @@ function WireSocket:on_use(activator)
         chip:set_down(self.pos:clone(), function(cargo)
             self.ptrs.plug = cargo
         end)
+    end
+end
+
+
+local SlidingDoor = Wirable:extend{
+    name = 'sliding door',
+    sprite_name = 'sliding door',
+
+    --nodes = {Vector(0, -64)},
+    -- FIXME need to turn the door's roof into its own object
+    nodes = {Vector(-8, -64 - 16 * 8)},
+    can_emit = false,
+}
+
+function SlidingDoor:blocks()
+    return true
+end
+
+function SlidingDoor:on_power_change(active)
+    if active then
+        self.sprite:set_pose('opening')
+        self.sprite:update(0)
+        local oldonloop = self.sprite.anim.onLoop
+        self.sprite.anim.onLoop = function()
+            self.sprite:set_pose('open')
+            self.sprite:update(0)
+            local shape = self.sprite.shape:clone()
+            shape:move_to(self.pos:unpack())
+            self:set_shape(shape)
+        end
     end
 end
 
