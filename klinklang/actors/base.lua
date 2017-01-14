@@ -312,8 +312,10 @@ function MobileActor:_do_physics(dt)
         local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, 0, 2, true)
         local any_hit = false
         for shape, touchtype in pairs(drop_hits) do
-            any_hit = true
-            break
+            if touchtype > 0 then
+                any_hit = true
+                break
+            end
         end
         if any_hit then
             -- If we hit something, then commit the movement and stick us to the ground
