@@ -1,9 +1,11 @@
+local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local actors_misc = require 'klinklang.actors.misc'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
+local UpgradeScene = require 'neonphase.scenes.upgrade'
 
 
 local ChipLaser = actors_base.MobileActor:extend{
@@ -46,6 +48,7 @@ function ChipLaser:update(dt)
             end
             self.velocity = Vector(0, 0)
             self.sprite:set_pose('hit')
+            game.resource_manager:get('assets/sounds/hit4.ogg'):clone():play()
             worldscene.fluct:to(self, 0.25, {}):oncomplete(function() 
                 worldscene:remove_actor(self)
             end)
@@ -99,6 +102,7 @@ end
 function Chip:update(dt)
     if self.decision_fire and self.has_laser and self.can_fire then
         worldscene:add_actor(ChipLaser(self, self.pos + Vector(0, -8)))
+        game.resource_manager:get('assets/sounds/hit7.ogg'):clone():play()
         self.can_fire = false
         worldscene.tick:delay(function() self.can_fire = true end, 0.25)
     end
@@ -302,6 +306,7 @@ function UpgradeChip:on_collide(other, direction)
         -- TODO what if not chip?
         other.ptrs.chip.has_laser = true
         worldscene:remove_actor(self)
+        Gamestate.push(UpgradeScene(other.ptrs.chip))
     end
 end
 
