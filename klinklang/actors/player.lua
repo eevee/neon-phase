@@ -108,13 +108,13 @@ function Player:update(dt)
         -- FIXME hmm is this the right way to handle a maximum walking speed?
         -- it obviously doesn't work correctly in another frame of reference
         if self.velocity.x < self.max_speed then
-            self.velocity.x = self.velocity.x + self.xaccel * xmult * dt
+            self.velocity.x = math.min(self.max_speed, self.velocity.x + self.xaccel * xmult * dt)
         end
         self.facing_left = false
         pose = 'walk'
     elseif self.decision_walk < 0 then
         if self.velocity.x > -self.max_speed then
-            self.velocity.x = self.velocity.x - self.xaccel * xmult * dt
+            self.velocity.x = math.max(-self.max_speed, self.velocity.x - self.xaccel * xmult * dt)
         end
         self.facing_left = true
         pose = 'walk'
