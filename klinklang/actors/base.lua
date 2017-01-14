@@ -173,15 +173,12 @@ end
 -- TODO not a fan of using subclassing for this; other options include
 -- component-entity, or going the zdoom route and making everything have every
 -- behavior but toggled on and off via myriad flags
--- TODO convert these to native units once you're confident these are the same
 local TILE_SIZE = 16
-local PICO8V = TILE_SIZE / (1/30)
-local PICO8A = TILE_SIZE / (1/30) / (1/30)
 
 -- TODO these are a property of the world and should go on the world object
 -- once one exists
-local gravity = Vector(0, 0.75/32 * PICO8A)
-local terminal_velocity = 7/8 * PICO8V
+local gravity = Vector(0, 337.5)
+local terminal_velocity = 420
 
 local MobileActor = Actor:extend{
     __name = 'MobileActor',
@@ -190,10 +187,11 @@ local MobileActor = Actor:extend{
 
     -- Passive physics parameters
     -- Units are pixels and seconds!
-    min_speed = 1/256 * PICO8V,
-    max_speed = 1/4 * PICO8V,
+    min_speed = 1,
+    max_speed = 120,
     -- FIXME i feel like this is not done well.  floating should feel floatier
-    friction = 1/16 * PICO8A,  -- not actually from pico8
+    -- FIXME friction should probably be separate from deliberate deceleration?
+    friction = 900,
     ground_friction = 1,
     max_slope = Vector(1, 1),
     gravity_multiplier = 1,
@@ -203,10 +201,10 @@ local MobileActor = Actor:extend{
     -- Active physics parameters
     -- TODO these are a little goofy because friction works differently; may be
     -- worth looking at that again.
-    xaccel = 0.125 * PICO8A * 0.75,
+    xaccel = 1350,
     -- Max height of a projectile = vy² / (2g), so vy = √2gh
     -- Pick a jump velocity that gets us up 2 tiles, plus a margin of error
-    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2 * 0.875)),
+    jumpvel = math.sqrt(2 * gravity.y * (TILE_SIZE * 2.25)),
     jumpcap = 0.25,
     -- Multiplier for xaccel while airborne.  MUST be greater than the ratio of
     -- friction to xaccel, or the player won't be able to move while floating!
@@ -279,10 +277,14 @@ function MobileActor:_do_physics(dt)
     -- problems (like not recognizing the ground) when we end up moving less
     -- than requested; this may make us move faster than the physics constants
     -- would otherwise intend, but, oh well?
+    -- FIXME i changed this to round to an eighth of a pixel to avoid rounding
+    -- errors massively affecting the physics, but it should more aggressively
+    -- round when velocity is lower, so it's still possible to stop exactly on
+    -- a pixel
     local naive_movement = self.velocity * dt
     local goalpos = self.pos + naive_movement
-    goalpos.x = self.velocity.x < 0 and math.floor(goalpos.x) or math.ceil(goalpos.x)
-    goalpos.y = self.velocity.y < 0 and math.floor(goalpos.y) or math.ceil(goalpos.y)
+    goalpos.x = (self.velocity.x < 0 and math.floor or math.ceil)(goalpos.x * 8) / 8
+    goalpos.y = (self.velocity.y < 0 and math.floor or math.ceil)(goalpos.y * 8) / 8
     local movement = goalpos - self.pos
 
     ----------------------------------------------------------------------------
