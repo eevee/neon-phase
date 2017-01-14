@@ -144,6 +144,35 @@ function WorldScene:update(dt)
     self.fluct:update(dt)
     self.tick:update(dt)
 
+    -- Update the music to match the player's current position
+    local x, y = self.player.pos:unpack()
+    local new_music
+    for shape, music in pairs(self.map.music_zones) do
+        -- FIXME don't have a real api for this yet oops
+        local x0, y0, x1, y1 = shape:bbox()
+        if x0 <= x and x <= x1 and y0 <= y and y <= y1 then
+            new_music = music
+            break
+        end
+    end
+    if self.music == new_music then
+        -- Do nothing
+    elseif self.music == nil then
+        new_music:setLooping(true)
+        new_music:play()
+        self.music = new_music
+    elseif new_music == nil then
+        self.music:stop()
+        self.music = nil
+    else
+        -- FIXME crossfade
+        new_music:setLooping(true)
+        new_music:play()
+        new_music:seek(self.music:tell())
+        self.music:stop()
+        self.music = new_music
+    end
+
     for _, actor in ipairs(self.actors) do
         actor:update(dt)
     end
@@ -446,6 +475,7 @@ function WorldScene:load_map(map)
     self.collider = whammo.Collider(4 * map.tilewidth)
     self.map = map
     self.actors = {}
+    self.music = nil
     self.fluct = flux.group()
     self.tick = tick.group()
 

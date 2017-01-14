@@ -51,6 +51,10 @@
          "actor":"memo key",
          "sprite name":"memo key\/default"
         },
+     "48":
+        {
+         "sprite name":"chip's tractor beam\/default"
+        },
      "6":
         {
          "actor":"wire ew",
@@ -99,6 +103,10 @@
      "40":
         {
          "actor":"string",
+         "sprite name":"string"
+        },
+     "48":
+        {
          "sprite name":"string"
         },
      "6":
@@ -151,6 +159,87 @@
                  "duration":100,
                  "tileid":3
                 }]
+        },
+     "29":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "30":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":12,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":12,
+                     "x":2,
+                     "y":2
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "31":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":12,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":12,
+                     "x":2,
+                     "y":2
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
         },
      "32":
         {
@@ -263,6 +352,46 @@
              "x":0,
              "y":0
             }
+        },
+     "48":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":48
+                }, 
+                {
+                 "duration":100,
+                 "tileid":49
+                }, 
+                {
+                 "duration":100,
+                 "tileid":50
+                }, 
+                {
+                 "duration":100,
+                 "tileid":51
+                }, 
+                {
+                 "duration":100,
+                 "tileid":52
+                }, 
+                {
+                 "duration":100,
+                 "tileid":53
+                }, 
+                {
+                 "duration":100,
+                 "tileid":54
+                }, 
+                {
+                 "duration":100,
+                 "tileid":55
+                }, 
+                {
+                 "duration":100,
+                 "tileid":56
+                }]
         }
     },
  "tilewidth":16

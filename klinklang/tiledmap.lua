@@ -155,6 +155,7 @@ function TiledTileset:init(path, data, resource_manager)
 end
 
 local function _tiled_shape_to_whammo_shape(object, anchor)
+    anchor = anchor or Vector.zero
     local shape
     if object.polygon then
         local points = {}
@@ -347,6 +348,7 @@ function TiledMap:init(path, resource_manager)
     -- Detach any automatic actor tiles
     -- TODO also more explicit actors via object layers probably
     self.actor_templates = {}
+    self.music_zones = {}
     for _, layer in ipairs(self.layers) do
         -- TODO this is largely copy/pasted from below
         -- FIXME i think these are deprecated for layers maybe?
@@ -391,6 +393,9 @@ function TiledMap:init(path, resource_manager)
                     end
                 elseif object.type == 'player start' then
                     self.player_start = Vector(object.x, object.y)
+                elseif object.type == 'music zone' then
+                    local shape = _tiled_shape_to_whammo_shape(object)
+                    self.music_zones[shape] = resource_manager:load(object.properties.music)
                 end
             end
         end
