@@ -260,6 +260,20 @@ function Bulb:on_power_change(active)
 end
 
 
+local WirePlugNS = Wirable:extend{
+    name = 'wire plug ns',
+    sprite_name = 'wire plug ns',
+
+    nodes = {Vector(0, -8), Vector(0, 8)},
+}
+
+local WirePlugEW = Wirable:extend{
+    name = 'wire plug ew',
+    sprite_name = 'wire plug ew',
+
+    nodes = {Vector(-8, 0), Vector(8, 0)},
+}
+
 local WirePlugNE = Wirable:extend{
     name = 'wire plug ne',
     sprite_name = 'wire plug ne',
@@ -281,15 +295,25 @@ local WireSocket = Wirable:extend{
     is_usable = true,
 }
 
+function WireSocket:init(pos, props)
+    WireSocket.__super.init(self, pos)
+    if props then
+        self.spawn_with = props['contains plug']
+    end
+end
+
 function WireSocket:blocks()
     -- FIXME i'd like this to be blocking, but then you can't use it, because you use things you /overlap/
     return false
 end
 
 function WireSocket:on_enter()
-    local plug = WirePlugNW(self.pos)
-    self.ptrs.plug = plug
-    worldscene:add_actor(plug)
+    if self.spawn_with then
+        local plugtype = actors_base.Actor:get_named_type(self.spawn_with)
+        local plug = plugtype(self.pos)
+        self.ptrs.plug = plug
+        worldscene:add_actor(plug)
+    end
 end
 
 -- TODO it would be nice if we could be notified when our plug is removed
