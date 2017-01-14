@@ -73,6 +73,8 @@ local Chip = actors_base.Actor:extend{
 
     decision_fire = false,
 
+    last_move = nil,
+
     -- Goal-seeking, which sounds fancier than it is; Chip can fly to a point
     -- and then do something
     goal = nil,  -- Target position, possibly relative to an actor
@@ -84,6 +86,8 @@ local Chip = actors_base.Actor:extend{
     cargo_in_world = nil,  -- Whether we left the object in-world (player)
     cargo_anchor = nil,  -- Carrying point on the object, relative to its pos
     cargo_offset = Vector(0, 8),  -- Distance between our pos and the cargo anchor
+    cargo_sfx = nil,  -- Looping sound effect
+    cargo_sfx_delay = nil,  -- Timer for starting the sound effect
 
     overlay_sprite = nil,
 }
@@ -137,13 +141,8 @@ function Chip:update(dt)
     end
 
     if self.cargo and self.cargo ~= self.ptrs.owner then
-        -- FIXME this is wrong since the velocity might be purely vertical
-        local lag_offset = self.scalar_velocity / 60
-        -- FIXME ehh
-        if self.sprite.facing == 'right' then
-            lag_offset = -lag_offset
-        end
-        self.cargo.pos = self.pos + self.cargo_offset - self.cargo_anchor + Vector(lag_offset, 0)
+        self.cargo.pos = self.pos + self.cargo_offset - self.cargo_anchor
+        self.cargo.pos.x = self.cargo.pos.x - self.last_move.x * 1.5
     end
 
     actors_base.Actor.update(self, dt)
@@ -169,15 +168,18 @@ function Chip:_move_towards(goal, dt)
         end
         self.scalar_velocity = self.scalar_velocity + accel * dt
 
+        local old_pos = self.pos
         self.pos = self.pos + separation / distance * self.scalar_velocity * dt
         self.pos.x = math.floor(self.pos.x + 0.5)
         self.pos.y = math.floor(self.pos.y + 0.5)
+        self.last_move = self.pos - old_pos
         if math.abs(separation.x) > 1 then
             self.sprite:set_facing_right(separation.x > 0)
         end
         return false
     else
         self.scalar_velocity = 0
+        self.last_move = Vector.zero
         return true
     end
 end
@@ -258,6 +260,21 @@ function Chip:pick_up(actor, callback)
                 worldscene:remove_actor(actor)
             end
 
+            -- FIXME combine all this into a tiny helper type somehow?
+            if actor == self.ptrs.owner then
+                local sfx1 = game.resource_manager:get('assets/sounds/chippickup1.ogg')
+                local sfx2 = game.resource_manager:get('assets/sounds/chippickup2.ogg')
+                sfx2:setLooping(true)
+                sfx1:play()
+                self.cargo_sfx = sfx2
+                self.cargo_sfx_delay = worldscene.tick:delay(
+                    function() sfx2:play() end, sfx1:getDuration())
+            else
+                self.cargo_sfx = game.resource_manager:get('assets/sounds/carrylight.ogg')
+                self.cargo_sfx:setLooping(true)
+                self.cargo_sfx:play()
+            end
+
             self.overlay_sprite = game.sprites["chip's tractor beam"]:instantiate()
 
             if callback then
@@ -284,9 +301,18 @@ function Chip:set_down(point, callback)
                 worldscene:add_actor(self.cargo)
             end
 
+            if self.cargo_sfx_delay then
+                self.cargo_sfx_delay:stop()
+            end
+            if self.cargo_sfx then
+                self.cargo_sfx:stop()
+            end
+
             self.cargo = nil
             self.cargo_in_world = nil
             self.cargo_anchor = nil
+            self.cargo_sfx = nil
+            self.cargo_sfx_delay = nil
             self.overlay_sprite = nil
 
             if callback then
