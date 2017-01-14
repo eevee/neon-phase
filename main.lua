@@ -88,6 +88,7 @@ function love.load(args)
         'data/tilesets/chip.tsx.json',
         'data/tilesets/energyball.tsx.json',
         'data/tilesets/portraits.tsx.json',
+        'data/tilesets/decor.tsx.json',
     } do
         local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
         resource_manager:add(tspath, tileset)
@@ -99,8 +100,9 @@ function love.load(args)
     -- FIXME figure out the right value here
     -- FIXME note that unlike css, this doesn't vertically center; it trims
     -- space from the /bottom/, whereas m5x7 has extra space at the /top/
-    m5x7:setLineHeight(0.75)
+    --m5x7:setLineHeight(0.75)
     love.graphics.setFont(m5x7)
+    m5x7small = love.graphics.newFont('assets/fonts/m5x7.ttf', 16 * 1)
 
     game.maps = {
         'map.tmx.json',

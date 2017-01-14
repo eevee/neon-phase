@@ -22,6 +22,7 @@ local WorldScene = BaseScene:extend{
     fluct = nil,
     tick = nil,
 
+    using_gamepad = false,
     was_left_down = false,
     was_right_down = false,
 }
@@ -323,6 +324,28 @@ function WorldScene:draw()
         end
     end
 
+    -- Draw a button hint for the player when at something usable
+    if self.player.touching_mechanism then
+        local bubble = game.sprites['thought bubble']:instantiate()
+        local letter
+        if self.using_gamepad then
+            letter = 'X'
+            bubble:set_pose('button')
+        else
+            letter = 'E'
+            bubble:set_pose('key')
+        end
+        -- FIXME ugggh this is annoying, and i think i do it somewhere else too
+        bubble:update(0)
+        local anchor = self.player.pos + Vector(-4, -32)
+        bubble:draw_at(anchor)
+        love.graphics.push('all')
+        love.graphics.setColor(0, 0, 0)
+        love.graphics.setFont(m5x7small)
+        love.graphics.print(letter, math.floor(anchor.x - 8), math.floor(anchor.y - 28))
+        love.graphics.pop()
+    end
+
 
     if game.debug then
         --[[
@@ -404,6 +427,7 @@ end
 
 -- FIXME this is really /all/ game-specific
 function WorldScene:keypressed(key, scancode, isrepeat)
+    self.using_gamepad = false
     if isrepeat then
         return
     end
@@ -448,6 +472,7 @@ function WorldScene:keyreleased(key, scancode)
 end
 
 function WorldScene:gamepadpressed(joystick, button)
+    self.using_gamepad = true
     if button == 'a' then
         self.player:decide_jump()
     elseif button == 'x' then
