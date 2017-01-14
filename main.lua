@@ -66,6 +66,16 @@ function love.load(args)
     resource_manager.locked = false  -- TODO make an api for this lol
     game.resource_manager = resource_manager
 
+    -- Eagerly load all sound effects, which we will surely be needing
+    local sounddir = 'assets/sounds'
+    for _, filename in ipairs(love.filesystem.getDirectoryItems(sounddir)) do
+        -- FIXME recurse?
+        local path = sounddir .. '/' .. filename
+        if love.filesystem.isFile(path) then
+            resource_manager:load(path)
+        end
+    end
+
     -- FIXME parallax bgs -- should live in data somewhere
     resource_manager:load('assets/images/dustybg1.png')
     resource_manager:load('assets/images/dustybg2.png')
@@ -86,11 +96,14 @@ function love.load(args)
     -- FIXME probably want a way to specify fonts with named roles
     local fontscale = 2
     m5x7 = love.graphics.newFont('assets/fonts/m5x7.ttf', 16 * fontscale)
-    --m5x7:setLineHeight(0.75)  -- TODO figure this out for sure
+    -- FIXME figure out the right value here
+    -- FIXME note that unlike css, this doesn't vertically center; it trims
+    -- space from the /bottom/, whereas m5x7 has extra space at the /top/
+    m5x7:setLineHeight(0.75)
     love.graphics.setFont(m5x7)
 
     game.maps = {
-        'empty.tmx.json',
+        'map.tmx.json',
     }
     -- TODO should maps instead hardcode their next maps?  or should they just
     -- have a generic "exit" a la doom?
