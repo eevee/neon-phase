@@ -1,0 +1,269 @@
+{ "columns":8,
+ "image":"..\/..\/assets\/images\/blocks.png",
+ "imageheight":128,
+ "imagewidth":128,
+ "margin":0,
+ "name":"blocks",
+ "spacing":0,
+ "tilecount":64,
+ "tileheight":16,
+ "tileproperties":
+    {
+     "0":
+        {
+         "actor":"shootable block",
+         "sprite name":"shootable block\/default"
+        },
+     "1":
+        {
+         "sprite name":"shootable block\/busted"
+        },
+     "20":
+        {
+         "actor":"wire ne",
+         "sprite name":"wire ne\/default"
+        },
+     "29":
+        {
+         "actor":"wire socket",
+         "sprite name":"wire socket\/default"
+        },
+     "31":
+        {
+         "sprite name":"wire plug nw\/default"
+        },
+     "32":
+        {
+         "actor":"upgrade chip",
+         "sprite name":"upgrade chip\/default"
+        },
+     "38":
+        {
+         "actor":"bulb",
+         "sprite name":"bulb\/off"
+        },
+     "39":
+        {
+         "sprite name":"bulb\/on"
+        },
+     "40":
+        {
+         "actor":"memo key",
+         "sprite name":"memo key\/default"
+        },
+     "6":
+        {
+         "actor":"wire ew",
+         "sprite name":"wire ew\/default"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "1":
+        {
+         "sprite name":"string"
+        },
+     "20":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "29":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "31":
+        {
+         "sprite name":"string"
+        },
+     "32":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "38":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "39":
+        {
+         "sprite name":"string"
+        },
+     "40":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "6":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        }
+    },
+ "tiles":
+    {
+     "0":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "1":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":1
+                }, 
+                {
+                 "duration":100,
+                 "tileid":2
+                }, 
+                {
+                 "duration":100,
+                 "tileid":3
+                }]
+        },
+     "32":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":32
+                }, 
+                {
+                 "duration":100,
+                 "tileid":33
+                }, 
+                {
+                 "duration":100,
+                 "tileid":34
+                }, 
+                {
+                 "duration":100,
+                 "tileid":35
+                }, 
+                {
+                 "duration":100,
+                 "tileid":36
+                }, 
+                {
+                 "duration":100,
+                 "tileid":37
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":12,
+                     "x":2,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "40":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":40
+                }, 
+                {
+                 "duration":100,
+                 "tileid":41
+                }, 
+                {
+                 "duration":100,
+                 "tileid":42
+                }, 
+                {
+                 "duration":100,
+                 "tileid":43
+                }, 
+                {
+                 "duration":100,
+                 "tileid":44
+                }, 
+                {
+                 "duration":100,
+                 "tileid":45
+                }, 
+                {
+                 "duration":100,
+                 "tileid":46
+                }, 
+                {
+                 "duration":100,
+                 "tileid":47
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":12,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":0,
+                     "y":4
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        }
+    },
+ "tilewidth":16
+}

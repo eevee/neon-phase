@@ -1,11 +1,11 @@
 { "columns":1,
  "image":"..\/..\/assets\/images\/portraits.png",
- "imageheight":640,
+ "imageheight":800,
  "imagewidth":80,
  "margin":0,
  "name":"portraits",
  "spacing":0,
- "tilecount":8,
+ "tilecount":10,
  "tileheight":80,
  "tileproperties":
     {
