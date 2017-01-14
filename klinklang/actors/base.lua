@@ -300,7 +300,6 @@ function MobileActor:_do_physics(dt)
         movement.y = util.clamp(movement.y, mt - t, mb - b)
     end
 
-    local movement0 = movement:clone()
     local attempted = movement
     local movement, hits, last_clock = worldscene.collider:slide(self.shape, movement:unpack())
 
@@ -343,7 +342,7 @@ function MobileActor:_do_physics(dt)
         end
     end
     --print("and now it's", self.velocity)
-    --print("movement", movement, "movement0", movement0)
+    --print("movement", movement, "attempted", attempted)
 
     -- Ground test: from where we are, are we allowed to move straight down?
     -- TODO i really want to replace clocks with just normals
