@@ -155,6 +155,7 @@ function TiledTileset:init(path, data, resource_manager)
 end
 
 local function _tiled_shape_to_whammo_shape(object, anchor)
+    local shape
     if object.polygon then
         local points = {}
         for i, pt in ipairs(object.polygon) do
@@ -172,13 +173,21 @@ local function _tiled_shape_to_whammo_shape(object, anchor)
                 table.insert(points, pt.y + object.y - anchor.y)
             end
         end
-        return whammo_shapes.Polygon(unpack(points))
+        shape = whammo_shapes.Polygon(unpack(points))
+    else
+        -- TODO do the others, once whammo supports them
+        shape = whammo_shapes.Box(
+            object.x - anchor.x, object.y - anchor.y, object.width, object.height)
     end
 
-    -- TODO do the others, once whammo supports them
+    -- FIXME this is pretty bad, right?  the collision system shouldn't
+    -- need to know about this?  unless it should??  (a problem atm is
+    -- that it gets ignored on a subshape
+    if object.properties and object.properties['one-way platform'] then
+        shape._xxx_is_one_way_platform = true
+    end
 
-    return whammo_shapes.Box(
-        object.x - anchor.x, object.y - anchor.y, object.width, object.height)
+    return shape
 end
 
 function TiledTileset:get_collision(tileid)
@@ -216,13 +225,10 @@ function TiledTileset:get_collision(tileid)
             -- collision shape
             local new_shape = _tiled_shape_to_whammo_shape(obj, anchor)
 
-            -- FIXME this is pretty bad
-            if obj.properties and obj.properties['one-way platform'] then
-                new_shape._xxx_is_one_way_platform = true
-            end
-
             if shape then
-                shape = whammo_shapes.MultiShape(shape)
+                if not shape:isa(whammo_shapes.MultiShape) then
+                    shape = whammo_shapes.MultiShape(shape)
+                end
                 shape:add_subshape(new_shape)
             else
                 shape = new_shape
@@ -314,8 +320,14 @@ function TiledMap:init(path, resource_manager)
 
     -- Load layers
     self.layers = {}
-    for _, layer in ipairs(self.raw.layers) do
-        table.insert(self.layers, TiledMapLayer(layer))
+    for _, raw_layer in ipairs(self.raw.layers) do
+        local layer = TiledMapLayer(raw_layer)
+        table.insert(self.layers, layer)
+        if layer.type == 'imagelayer' then
+            -- FIXME doesn't belong here...  does it?
+            local imgpath = relative_path(path, layer.raw.image)
+            layer.image = resource_manager:load(imgpath)
+        end
     end
 
     -- Detach any automatic actor tiles
@@ -388,6 +400,14 @@ function TiledMap:add_to_collider(collider, submap_name)
                     end
                 end
             end
+        elseif layer.type == 'objectgroup' and layer.submap == submap_name then
+            for _, obj in ipairs(layer.objects) do
+                if obj.type == 'collision' then
+                    local shape = _tiled_shape_to_whammo_shape(obj, Vector.zero)
+                    self.shapes[shape] = true
+                    collider:add(shape)
+                end
+            end
         end
     end
 end
@@ -396,25 +416,29 @@ end
 function TiledMap:draw(layer_name, origin, width, height)
     -- TODO origin unused.  is it in tiles or pixels?
     local tw, th = self.raw.tilewidth, self.raw.tileheight
-    for _, layer in pairs(self.raw.layers) do
+    for _, layer in pairs(self.layers) do
         if layer.name == layer_name then
-        local width, height = layer.width, layer.height
-        local data = layer.data
-        for t = 0, width * height - 1 do
-            local gid = data[t + 1]
-            if gid ~= 0 then
-                local tile = self.tiles[gid]
-                local ty, tx = util.divmod(t, width)
-                -- TODO don't draw tiles not on the screen
-                love.graphics.draw(
-                    tile.tileset.image,
-                    tile.tileset.quads[tile.tilesetid],
-                    -- convert tile offsets to pixels
-                    tx * tw,
-                    (ty + 1) * th - tile.tileset.raw.tileheight,
-                    0, 1, 1)
+            if layer.type == 'tilelayer' then
+                local width, height = layer.width, layer.height
+                local data = layer.data
+                for t = 0, width * height - 1 do
+                    local gid = data[t + 1]
+                    if gid ~= 0 then
+                        local tile = self.tiles[gid]
+                        local ty, tx = util.divmod(t, width)
+                        -- TODO don't draw tiles not on the screen
+                        love.graphics.draw(
+                            tile.tileset.image,
+                            tile.tileset.quads[tile.tilesetid],
+                            -- convert tile offsets to pixels
+                            tx * tw,
+                            (ty + 1) * th - tile.tileset.raw.tileheight,
+                            0, 1, 1)
+                    end
+                end
+            elseif layer.type == 'imagelayer' then
+                love.graphics.draw(layer.image, layer.raw.offsetx, layer.raw.offsety)
             end
-        end
         end
     end
 end
