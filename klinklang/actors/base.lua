@@ -34,6 +34,15 @@ function BareActor:__tostring()
     return ("<%s %s at %s>"):format(self.__name, self.name, self.pos)
 end
 
+function BareActor:get_named_type(name)
+    local class = self._ALL_ACTOR_TYPES[name]
+    if class == nil then
+        error(("No such actor type %s"):format(name))
+    end
+    return class
+end
+
+
 -- Main update and draw loops
 function BareActor:update(dt)
 end

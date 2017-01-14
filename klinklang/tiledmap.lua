@@ -244,6 +244,20 @@ function TiledTileset:get_collision(tileid)
     return shape, anchor
 end
 
+function TiledTileset:tileprop(tileid, key)
+    local proptable = self.raw.tileproperties
+    if not proptable then
+        return
+    end
+
+    local props = proptable[tileid]
+    if not props then
+        return
+    end
+
+    return props[key]
+end
+
 --------------------------------------------------------------------------------
 -- TiledMapLayer
 -- Thin wrapper around a Tiled JSON layer.
@@ -345,26 +359,37 @@ function TiledMap:init(path, resource_manager)
                 -- TODO lol put this in the tileset jesus
                 -- TODO what about the tilepropertytypes
                 if tile then
-                    local proptable = tile.tileset.raw.tileproperties
-                    if proptable then
-                        local props = proptable[tile.tilesetid]
-                        if props and props.actor then
-                            local ty, tx = util.divmod(t, width)
-                            table.insert(self.actor_templates, {
-                                name = props.actor,
-                                submap = layer.submap,
-                                position = Vector(
-                                    tx * self.raw.tilewidth,
-                                    (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight),
-                            })
-                            data[t + 1] = 0
-                        end
+                    local class = tile.tileset:tileprop(tile.tilesetid, 'actor')
+                    if class then
+                        local ty, tx = util.divmod(t, width)
+                        table.insert(self.actor_templates, {
+                            name = class,
+                            submap = layer.submap,
+                            position = Vector(
+                                tx * self.raw.tilewidth,
+                                (ty + 1) * self.raw.tileheight - tile.tileset.raw.tileheight),
+                        })
+                        data[t + 1] = 0
                     end
                 end
             end
         elseif layer.type == 'objectgroup' then
             for _, object in ipairs(layer.objects) do
-                if object.type == 'player start' then
+                if object.gid then
+                    -- This is a "tile" object
+                    local tile = self.tiles[object.gid]
+                    if tile then
+                        local class = tile.tileset:tileprop(tile.tilesetid, 'actor')
+                        if class then
+                            table.insert(self.actor_templates, {
+                                name = class,
+                                submap = layer.submap,
+                                position = Vector(object.x, object.y - tile.tileset.raw.tileheight),
+                                properties = object.properties,
+                            })
+                        end
+                    end
+                elseif object.type == 'player start' then
                     self.player_start = Vector(object.x, object.y)
                 end
             end

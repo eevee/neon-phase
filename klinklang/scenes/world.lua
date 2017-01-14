@@ -515,12 +515,9 @@ end
 function WorldScene:_create_actors(submap)
     for _, template in ipairs(self.map.actor_templates) do
         if template.submap == submap then
-            local class = actors_base.Actor._ALL_ACTOR_TYPES[template.name]
-            if not class then
-                error(("No such actor type %s"):format(template.name))
-            end
+            local class = actors_base.Actor:get_named_type(template.name)
             local position = template.position:clone()
-            local actor = class(position)
+            local actor = class(position, template.properties)
             -- FIXME this feels...  hokey...
             if actor.sprite.anchor then
                 actor:move_to(position + actor.sprite.anchor)
