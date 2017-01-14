@@ -68,6 +68,8 @@ local Chip = actors_base.Actor:extend{
     can_fire = true,
     owner_gliding_offset = Vector(0, -24),
 
+    decision_fire = false,
+
     -- Goal-seeking, which sounds fancier than it is; Chip can fly to a point
     -- and then do something
     goal = nil,  -- Target position, possibly relative to an actor
@@ -90,13 +92,15 @@ function Chip:init(owner, ...)
     self.ptrs.owner = owner
 end
 
+function Chip:decide_fire(decision)
+    self.decision_fire = decision
+end
+
 function Chip:update(dt)
-    if self.has_laser and self.can_fire and love.keyboard.isScancodeDown('d') then
+    if self.decision_fire and self.has_laser and self.can_fire then
         worldscene:add_actor(ChipLaser(self, self.pos + Vector(0, -8)))
         self.can_fire = false
-        worldscene.fluct:to(self, 0.25, {}):oncomplete(function() 
-            self.can_fire = true
-        end)
+        worldscene.tick:delay(function() self.can_fire = true end, 0.25)
     end
 
     if self.goal then

@@ -30,6 +30,16 @@ Original source: https://github.com/rxi/flux
 
 License: MIT
 
+## tick
+
+Version 0.1.1
+
+Vendored on Jan 13, 2017
+
+Original source: https://github.com/rxi/flux
+
+License: MIT
+
 ## HUMP
 
 Commit 400c8ea7 from May 24, 2016
