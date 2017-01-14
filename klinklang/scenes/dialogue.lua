@@ -199,7 +199,7 @@ function DialogueScene:keypressed(key, scancode, isrepeat)
 end
 
 function DialogueScene:resize(w, h)
-    self.wrapped:resize(w, h)
+    -- FIXME redo stuff
 end
 
 return DialogueScene
