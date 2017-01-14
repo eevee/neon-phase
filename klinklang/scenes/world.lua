@@ -144,15 +144,6 @@ function WorldScene:update(dt)
     self.fluct:update(dt)
     self.tick:update(dt)
 
-    -- TODO i can't tell if this belongs here.  probably not, since it /should/
-    -- do a fadeout.  maybe on the game object itself?
-    if self.player and self.player.__EXIT then
-        self.player.__EXIT = false
-        game.map_index = game.map_index + 1
-        local map = tiledmap.TiledMap("data/maps/" .. game.maps[game.map_index], game.resource_manager)
-        self:load_map(map)
-    end
-
     for _, actor in ipairs(self.actors) do
         actor:update(dt)
     end
