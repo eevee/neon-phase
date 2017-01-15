@@ -41,6 +41,12 @@ function MagnetGoat:on_use(activator)
 end
 
 
+local Electroskunk2 = actors_base.Actor:extend{
+    name = 'electroskunk 2',
+    sprite_name = 'electroskunk 2',
+}
+
+
 return {
     MagnetGoat = MagnetGoat,
 }

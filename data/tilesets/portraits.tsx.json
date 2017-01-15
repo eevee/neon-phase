@@ -13,6 +13,10 @@
         {
          "sprite name":"kid neon portrait\/default"
         },
+     "1":
+        {
+         "sprite name":"chip portrait\/default"
+        },
      "7":
         {
          "sprite name":"magnet goat portrait\/default"
@@ -21,6 +25,10 @@
  "tilepropertytypes":
     {
      "0":
+        {
+         "sprite name":"string"
+        },
+     "1":
         {
          "sprite name":"string"
         },

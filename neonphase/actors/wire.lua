@@ -4,12 +4,10 @@ local actors_base = require 'klinklang.actors.base'
 local util = require 'klinklang.util'
 
 
-local WIRE_CONNECTIONS = {
-    north = Vector(0, -16),
-    south = Vector(0, 16),
-    east = Vector(16, 0),
-    west = Vector(-16, 0),
-}
+local NORTH = Vector(0, -8)
+local SOUTH = Vector(0, 8)
+local EAST = Vector(8, 0)
+local WEST = Vector(-8, 0)
 
 -- TODO i'd like to improve "powered" to a broader understanding of all current
 -- inputs, so other stuff can be sent over wires.  but at the same time, there
@@ -30,6 +28,8 @@ function Wirable:init(...)
 end
 
 function Wirable:on_enter()
+    local orig = self.powered
+
     -- FIXME get this stuff from the physics engine (but wait, how, if these lot don't have collision??)
     local nodes = {}
     for _, offset in ipairs(self.nodes) do
@@ -53,16 +53,20 @@ function Wirable:on_enter()
             if is_connection then
                 -- FIXME seems invasive
                 if actor.can_emit and self.can_receive then
-                    self:_receive_pulse(actor.powered > 0, actor)
                     if actor.powered > 0 then
+                        self.live_connections[actor] = -1
                         actor.live_connections[self] = 1
+                        self.powered = self.powered + 1
                     else
+                        self.live_connections[actor] = 0
                         actor.live_connections[self] = 0
                     end
                 end
                 if self.can_emit and actor.can_receive then
                     local powered = self.powered > 0
-                    if powered and self.live_connections[actor] == 0 then
+                    if self.live_connections[actor] == -1 then
+                        -- Already powering us; do nothing!
+                    elseif powered then
                         actor:_receive_pulse(true, self)
                         self.live_connections[actor] = 1
                     else
@@ -73,6 +77,9 @@ function Wirable:on_enter()
             end
         end
     end
+
+    self:_emit_pulse(self.powered > 0)
+    self:on_power_change(self.powered > 0)
 end
 
 function Wirable:on_leave()
@@ -80,6 +87,9 @@ function Wirable:on_leave()
     -- FIXME this seems, idk, kinda silly
     for connection, state in pairs(self.live_connections) do
         connection.live_connections[self] = nil
+        if state == -1 then
+            self.powered = self.powered - 1
+        end
     end
     self.live_connections = {}
 end
@@ -90,11 +100,11 @@ function Wirable:_emit_pulse(value)
     end
     for connection, state in pairs(self.live_connections) do
         if value == true and state == 0 then
-            connection:_receive_pulse(value, self)
             self.live_connections[connection] = 1
-        elseif value == false and state == 1 then
             connection:_receive_pulse(value, self)
+        elseif value == false and state == 1 then
             self.live_connections[connection] = 0
+            connection:_receive_pulse(value, self)
         end
     end
 end
@@ -126,6 +136,11 @@ function Wirable:_receive_pulse(value, source)
     elseif orig > 0 and self.powered == 0 then
         self._pending_pulse = false
         self:on_power_change(false)
+    elseif not value and orig > 0 and self.powered > 0 then
+        -- They lost power, but we still have some, so re-emit our current
+        -- pulse next frame.
+        -- This can happen if a circuit with a loop is reconfigured
+        self._pending_pulse = true
     end
 end
 
@@ -168,7 +183,7 @@ function Wirable:draw()
         end
         local midpoint = self.pos + direction / 4
         local perp = direction:perpendicular() / 4
-        love.graphics.line(midpoint.x - perp.x, midpoint.y - perp.y, midpoint.x + perp.x, midpoint.y + perp.y)
+        love.graphics.line(self.pos.x, self.pos.y, midpoint.x, midpoint.y)
     end
     love.graphics.setColor(255, 255, 255)
     ]]
@@ -197,50 +212,92 @@ local SmallBattery = Wirable:extend{
     is_active = false,
 }
 
+function SmallBattery:init(pos, props)
+    SmallBattery.__super.init(self, pos)
+
+    if props and props.active then
+        self:_set_active(true)
+    end
+end
+
 function SmallBattery:blocks()
     return true
 end
 
 function SmallBattery:damage(source, amount)
     if source and source.name == "chip's laser" then
-        self.is_active = not self.is_active
-        if self.is_active then
-            self.sprite:set_pose('on')
-            self.powered = 1
-        else
-            self.sprite:set_pose('off')
-            self.powered = 0
-        end
-        self:_emit_pulse(self.is_active)
+        self:_set_active(not self.is_active)
     end
+end
+
+function SmallBattery:_set_active(active)
+    if active then
+        self.sprite:set_pose('on')
+        self.powered = 1
+    else
+        self.sprite:set_pose('off')
+        self.powered = 0
+    end
+    if active ~= self.is_active then
+        self:_emit_pulse(active)
+    end
+    self.is_active = active
 end
 
 local WireNS = Wirable:extend{
     name = 'wire ns',
     sprite_name = 'wire ns',
 
-    nodes = {Vector(0, -8), Vector(0, 8)},
+    nodes = {NORTH, SOUTH},
 }
 
 local WireNE = Wirable:extend{
     name = 'wire ne',
     sprite_name = 'wire ne',
 
-    nodes = {Vector(0, -8), Vector(8, 0)},
+    nodes = {NORTH, EAST},
 }
 
 local WireNW = Wirable:extend{
     name = 'wire nw',
     sprite_name = 'wire nw',
 
-    nodes = {Vector(0, -8), Vector(-8, 0)},
+    nodes = {NORTH, WEST},
+}
+
+local WireSW = Wirable:extend{
+    name = 'wire sw',
+    sprite_name = 'wire sw',
+
+    nodes = {SOUTH, WEST},
+}
+
+local WireSE = Wirable:extend{
+    name = 'wire se',
+    sprite_name = 'wire se',
+
+    nodes = {SOUTH, EAST},
 }
 
 local WireEW = Wirable:extend{
     name = 'wire ew',
     sprite_name = 'wire ew',
 
-    nodes = {Vector(8, 0), Vector(-8, 0)},
+    nodes = {EAST, WEST},
+}
+
+local WireNEW = Wirable:extend{
+    name = 'wire new',
+    sprite_name = 'wire new',
+
+    nodes = {NORTH, EAST, WEST},
+}
+
+local WireNSW = Wirable:extend{
+    name = 'wire nsw',
+    sprite_name = 'wire nsw',
+
+    nodes = {NORTH, SOUTH, WEST},
 }
 
 local Bulb = Wirable:extend{
@@ -264,31 +321,38 @@ local WirePlugNS = Wirable:extend{
     name = 'wire plug ns',
     sprite_name = 'wire plug ns',
 
-    nodes = {Vector(0, -8), Vector(0, 8)},
+    nodes = {NORTH, SOUTH},
 }
 
 local WirePlugEW = Wirable:extend{
     name = 'wire plug ew',
     sprite_name = 'wire plug ew',
 
-    nodes = {Vector(-8, 0), Vector(8, 0)},
+    nodes = {EAST, WEST},
 }
 
 local WirePlugNE = Wirable:extend{
     name = 'wire plug ne',
     sprite_name = 'wire plug ne',
 
-    nodes = {Vector(0, -8), Vector(8, 0)},
+    nodes = {NORTH, EAST},
 }
 
 local WirePlugNW = Wirable:extend{
     name = 'wire plug nw',
     sprite_name = 'wire plug nw',
 
-    nodes = {Vector(0, -8), Vector(-8, 0)},
+    nodes = {NORTH, WEST},
 }
 
-local WireSocket = Wirable:extend{
+local WirePlugSE = Wirable:extend{
+    name = 'wire plug se',
+    sprite_name = 'wire plug se',
+
+    nodes = {SOUTH, EAST},
+}
+
+local WireSocket = actors_base.Actor:extend{
     name = 'wire socket',
     sprite_name = 'wire socket',
 
@@ -316,6 +380,16 @@ function WireSocket:on_enter()
     end
 end
 
+function WireSocket:on_collide(other, direction)
+    if other.is_player then
+        local chip = other.ptrs.chip
+        -- FIXME invasive
+        local chip_holding_plug = chip.cargo and chip.cargo:isa(Wirable) and true
+        local us_occupied = self.ptrs.plug and true
+        self.is_usable = other.ptrs.chip.has_carry and (chip_holding_plug ~= us_occupied)
+    end
+end
+
 -- TODO it would be nice if we could be notified when our plug is removed
 function WireSocket:on_use(activator)
     if not activator.is_player then
@@ -334,6 +408,26 @@ function WireSocket:on_use(activator)
         chip:set_down(self.pos:clone(), function(cargo)
             self.ptrs.plug = cargo
         end)
+    end
+end
+
+
+local Bolt = Wirable:extend{
+    name = 'bolt',
+    sprite_name = 'bolt',
+
+    nodes = {NORTH, SOUTH, EAST, WEST},
+}
+
+function Bolt:blocks()
+    return self.powered == 0
+end
+
+function Bolt:on_power_change(active)
+    if active then
+        self.sprite:set_pose('open')
+    else
+        self.sprite:set_pose('closed')
     end
 end
 

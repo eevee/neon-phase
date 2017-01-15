@@ -81,7 +81,7 @@ end
 -- first frame of the new pose.)
 -- Changing to the current pose is a no-op.
 function Sprite:set_pose(pose)
-    if pose == self.pose then
+    if pose == (self._pending_pose or self.pose) then
     elseif self.spriteset.poses[pose] then
         self._pending_pose = pose
     else

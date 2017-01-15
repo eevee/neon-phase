@@ -296,8 +296,8 @@ function WorldScene:draw()
     -- FIXME don't really like hardcoding layer names here; they /have/ an
     -- order, the main problem is just that there's no way to specify where the
     -- actors should be drawn
-    self.map:draw('main terrain', self.camera, w, h)
     self.map:draw('background', self.camera, w, h)
+    self.map:draw('main terrain', self.camera, w, h)
 
     if self.pushed_actors then
         for _, actor in ipairs(self.pushed_actors) do
@@ -501,6 +501,7 @@ function WorldScene:load_map(map)
     self.map = map
     self.actors = {}
     self.music = nil
+    self.stashed_submaps = {}
     self.fluct = flux.group()
     self.tick = tick.group()
 
@@ -532,7 +533,8 @@ function WorldScene:load_map(map)
                 if object.type == 'trigger' then
                     self:add_actor(TriggerZone(
                         Vector(object.x, object.y),
-                        Vector(object.width, object.height)))
+                        Vector(object.width, object.height),
+                        object.properties))
                 end
             end
         end
@@ -588,8 +590,21 @@ function WorldScene:enter_submap(name)
     self:remove_actor(self.player)
     self.pushed_actors = self.actors
     self.pushed_collider = self.collider
+
+    -- FIXME get rid of pushed in favor of this?  but still need to establish the stack
+    if self.stashed_submaps[name] then
+        self.actors = self.stashed_submaps[name].actors
+        self.collider = self.stashed_submaps[name].collider
+        self:add_actor(self.player)
+        return
+    end
+
     self.actors = {}
     self.collider = whammo.Collider(4 * self.map.tilewidth)
+    self.stashed_submaps[name] = {
+        actors = self.actors,
+        collider = self.collider,
+    }
     self.map:add_to_collider(self.collider, self.submap)
     self:add_actor(self.player)
 

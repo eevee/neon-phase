@@ -222,7 +222,7 @@ function TiledTileset:get_collision(tileid)
     for _, obj in ipairs(objects) do
         if obj.type == "anchor" then
             -- already taken care of
-        elseif obj.type == "" then
+        elseif obj.type == "" or obj.type == "collision" then
             -- collision shape
             local new_shape = _tiled_shape_to_whammo_shape(obj, anchor)
 
