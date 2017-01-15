@@ -14,8 +14,9 @@ local TEXT_MARGIN_Y = 16
 local DialogueScene = BaseScene:extend{
     __tostring = function(self) return "dialoguescene" end,
 
-    -- Default dialogue box image; set in a subclass (or just monkeypatch)
+    -- Default speaker settings; set in a subclass (or just monkeypatch)
     default_background = nil,
+    default_color = {255, 255, 255},
 }
 
 -- TODO as with DeadScene, it would be nice if i could formally eat keyboard input
@@ -39,28 +40,28 @@ function DialogueScene:init(speakers, script)
     for name, speaker in pairs(speakers) do
         -- FIXME maybe speakers should only provide a spriteset so i'm not
         -- changing out from under them
-        if speaker:isa(actors_base.BareActor) then
+        if speaker.isa and speaker:isa(actors_base.BareActor) then
             local actor = speaker
             speaker = {
                 sprite = game.sprites[actor.dialogue_sprite_name]:instantiate(),
                 position = actor.dialogue_position,
+                color = actor.dialogue_color,
             }
         end
         self.speakers[name] = speaker
 
         if speaker.sprite then
             speaker.sprite:set_scale(self.speaker_scale)
-            if speaker.position == 'right' then
-                speaker.sprite:set_facing_right(false)
-            end
         end
 
         if type(speaker.position) == 'table' then
             -- This is a list of preferred positions; the speaker will actually
             -- get the first one not otherwise spoken for
             seeking_position[name] = speaker.position
-        else
+        elseif speaker.position then
             claimed_positions[speaker.position] = true
+        elseif speaker.sprite then
+            error(("Speaker %s has a sprite but no position"):format(name))
         end
     end
 
@@ -93,6 +94,11 @@ function DialogueScene:init(speakers, script)
             self.speakers[name].position = position
             seeking_position[name] = nil
             claimed_positions[position] = true
+        end
+    end
+    for name, speaker in pairs(self.speakers) do
+        if speaker.sprite and speaker.position == 'right' then
+            speaker.sprite:set_facing_right(false)
         end
     end
 
@@ -137,7 +143,6 @@ function DialogueScene:update(dt)
             speaker.sprite:update(dt)
         end
     end
-    -- FIXME no way to specify facing direction atm
 
     if self.state == 'speaking' then
         self.phrase_timer = self.phrase_timer + dt * SCROLL_RATE
@@ -148,15 +153,25 @@ function DialogueScene:update(dt)
             self.curchar = self.curchar + 1
             if self.curchar > string.len(self.phrase_lines[self.curline]) then
                 self.phrase_texts[self.curline] = love.graphics.newText(self.font, self.phrase_lines[self.curline])
-                if self.curline == #self.phrase_lines then
+                self.curline = self.curline + 1
+                self.curchar = 0
+
+                if self.curline == #self.phrase_lines + 1 then
                     self.state = 'waiting'
+                    self.phrase_timer = 0
                     if self.phrase_speaker.sprite then
                         self.phrase_speaker.sprite:set_pose(self.phrase_speaker.sprite.spriteset.default_pose)
                     end
                     break
-                else
-                    self.curline = self.curline + 1
-                    self.curchar = 0
+                end
+
+                -- If we just maxed out the text box, pause before continuing
+                -- FIXME hardcoded max lines
+                -- FIXME this will pause on /every/ extra line; is that right?
+                if self.curline > 3 then
+                    self.state = 'waiting'
+                    self.phrase_timer = 0
+                    break
                 end
             end
             -- Count a non-whitespace character against the timer
@@ -164,7 +179,11 @@ function DialogueScene:update(dt)
                 self.phrase_timer = self.phrase_timer - 1
             end
         end
-        if need_redraw then
+        -- Re-render the visible part of the current line if the above loop
+        -- made any progress.  Note that it's important to NOT do this if we
+        -- haven't shown any of the current line yet, or we might shift
+        -- everything up just to draw a blank line.
+        if need_redraw and self.curchar > 0 then
             self.phrase_texts[self.curline] = love.graphics.newText(
                 self.font,
                 string.sub(self.phrase_lines[self.curline], 1, self.curchar))
@@ -182,6 +201,13 @@ function DialogueScene:_advance_script()
         self.state = 'waiting'
         return
     elseif self.state == 'menu' then
+        return
+    end
+
+    if self.phrase_lines and self.curline <= #self.phrase_lines then
+        -- We paused in the middle of a phrase (because it was too long), so
+        -- just continue from here
+        self.state = 'speaking'
         return
     end
 
@@ -379,6 +405,7 @@ function DialogueScene:draw()
         end
 
         -- Draw little triangles to indicate scrollability
+        -- FIXME magic numbers here...  should use sprites?  ugh
         love.graphics.setColor(255, 255, 255)
         if not (self.menu_top == 1 and self.menu_top_line == 1) then
             local x = TEXT_MARGIN_X
@@ -391,8 +418,22 @@ function DialogueScene:draw()
             love.graphics.polygon('fill', x, y + 4, x + 2, y, x - 2, y)
         end
     else
-        -- FIXME should scroll overly-large text
-        texts = self.phrase_texts
+        -- There may be more available lines than will fit in the textbox; if
+        -- so, only show the last few lines
+        -- FIXME should prompt to scroll when we hit the bottom, probably
+        local first_line_offset = math.max(0, #self.phrase_texts - max_lines)
+        for i = 1, max_lines do
+            texts[i] = self.phrase_texts[i + first_line_offset]
+        end
+
+        -- Draw a small chevron if we're waiting
+        -- FIXME more magic numbers
+        if self.state == 'waiting' then
+            local x = boxwidth - TEXT_MARGIN_X
+            local y = math.floor(h - TEXT_MARGIN_Y * 1.5)
+            love.graphics.setColor(self.phrase_speaker.color or self.default_color)
+            love.graphics.polygon('fill', x, y + 8, x - 4, y, x + 4, y)
+        end
     end
 
     local x, y = TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y
@@ -401,11 +442,7 @@ function DialogueScene:draw()
         love.graphics.setColor(0, 0, 0, 128)
         love.graphics.draw(text, x - 2, y + 2)
 
-        if self.phrase_speaker.color then
-            love.graphics.setColor(self.phrase_speaker.color)
-        else
-            love.graphics.setColor(255, 255, 255)
-        end
+        love.graphics.setColor(self.phrase_speaker.color or self.default_color)
         love.graphics.draw(text, x, y)
 
         y = y + self.font:getHeight()
