@@ -70,7 +70,8 @@ function TriggerZone:on_collide(other, direction)
             },
         }, {
             -- Script
-            { "ERROR.  CARRYING AN OBJECT DOWN HERE WILL RENDER THIS PUZZLE IMPOSSIBLE.", speaker = 'chip' },
+            { "ERROR.  CARRYING AN OBJECT DOWN HERE MAY RENDER THIS PUZZLE IMPOSSIBLE.", speaker = 'chip' },
+            { "What shoddy design.", speaker = 'kidneon' },
         }))
     end
 end
