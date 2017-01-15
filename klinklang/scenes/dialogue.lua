@@ -12,6 +12,9 @@ local TEXT_MARGIN_Y = 16
 
 local DialogueScene = BaseScene:extend{
     __tostring = function(self) return "dialoguescene" end,
+
+    -- Default dialogue box image; set in a subclass (or just monkeypatch)
+    default_background = nil,
 }
 
 -- TODO as with DeadScene, it would be nice if i could formally eat keyboard input
@@ -84,7 +87,7 @@ function DialogueScene:update(dt)
                 if self.curline == #self.phrase_lines then
                     self.state = 'waiting'
                     if self.phrase_speaker.sprite then
-                        self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
+                        self.phrase_speaker.sprite:set_pose(self.phrase_speaker.sprite.spriteset.default_pose)
                     end
                     break
                 else
@@ -101,6 +104,12 @@ function DialogueScene:update(dt)
 end
 
 function DialogueScene:_advance_script()
+    if self.state == 'speaking' then
+        self.curline = #self.phrase_lines
+        self.curchar = #self.phrase_lines[self.curline]
+        return
+    end
+
     while true do
         if self.script_index >= #self.script then
             -- TODO actually not sure what should happen here
@@ -119,7 +128,7 @@ function DialogueScene:_advance_script()
             -- TODO euugh.  not only is this gross, it's wrong, because isaac faces left in this sprite
             -- FIXME need a less hardcoded way to specify talking sprites; probably just only animate them while talking
             if self.phrase_speaker.sprite then
-                self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
+                self.phrase_speaker.sprite:set_pose(self.phrase_speaker.sprite.spriteset.default_pose)
             end
             self.phrase_timer = 0
             self.curline = 1
@@ -149,7 +158,7 @@ function DialogueScene:draw()
     -- Draw the dialogue box, which is slightly complicated because it involves
     -- drawing the ends and then repeating the middle bit to fit the screen
     -- size
-    local background = self.phrase_speaker.background
+    local background = self.phrase_speaker.background or self.default_background
     -- TODO this feels rather hardcoded; surely the background should flex to fit the height rather than defining it.
     local boxheight = background:getHeight()
     boxheight = 120
@@ -191,17 +200,20 @@ function DialogueScene:draw()
     love.graphics.draw(text, TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y)
 
     -- Draw the speakers
-    -- FIXME speakers really need to have, like, positions.  this is very hardcoded
-    -- Left
     for _, speaker in pairs(self.speakers) do
         local sprite = speaker.sprite
         if sprite then
             local sw, sh = sprite.anim:getDimensions()
             local x
-            if speaker.position == 'left' then
+            if speaker.position == 'far left' then
+                x = math.floor(boxwidth / 8)
+            elseif speaker.position == 'left' then
                 x = math.floor(boxwidth / 4)
             elseif speaker.position == 'right' then
                 x = math.floor(boxwidth * 3 / 4)
+            else
+                print("unrecognized speaker position:", speaker.position)
+                x = 0
             end
             local pos = Vector(x - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
             if speaker == self.phrase_speaker then
@@ -218,9 +230,13 @@ end
 
 function DialogueScene:keypressed(key, scancode, isrepeat)
     if key == 'space' then
-        if self.state == 'waiting' then
-            self:_advance_script()
-        end
+        self:_advance_script()
+    end
+end
+
+function DialogueScene:gamepadpressed(joystick, button)
+    if button == 'a' then
+        self:_advance_script()
     end
 end
 

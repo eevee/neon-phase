@@ -3,6 +3,7 @@ local utf8 = require 'utf8'
 local Gamestate = require 'vendor.hump.gamestate'
 
 local ResourceManager = require 'klinklang.resources'
+local DialogueScene = require 'klinklang.scenes.dialogue'
 local WorldScene = require 'klinklang.scenes.world'
 local SpriteSet = require 'klinklang.sprite'
 local tiledmap = require 'klinklang.tiledmap'
@@ -80,6 +81,8 @@ function love.load(args)
     resource_manager:load('assets/images/dustybg1.png')
     resource_manager:load('assets/images/dustybg2.png')
     resource_manager:load('assets/images/dustybg3.png')
+
+    DialogueScene.default_background = game.resource_manager:load('assets/images/dialoguebox.png')
 
     -- Load all the graphics upfront
     -- FIXME should...  iterate through tilesets i guess?
