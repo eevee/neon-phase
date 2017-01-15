@@ -1,6 +1,7 @@
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
+local actors_base = require 'klinklang.actors.base'
 local BaseScene = require 'klinklang.scenes.base'
 
 local SPEAKER_SCALE = 4
@@ -32,19 +33,80 @@ function DialogueScene:init(speakers, script)
     self.speaker_scale = math.floor((winheight - boxheight) / self.speaker_height)
 
     -- TODO a good start, but
-    self.speakers = speakers
+    self.speakers = {}
+    local claimed_positions = {}
+    local seeking_position = {}
     for name, speaker in pairs(speakers) do
         -- FIXME maybe speakers should only provide a spriteset so i'm not
         -- changing out from under them
+        if speaker:isa(actors_base.BareActor) then
+            local actor = speaker
+            speaker = {
+                sprite = game.sprites[actor.dialogue_sprite_name]:instantiate(),
+                position = actor.dialogue_position,
+            }
+        end
+        self.speakers[name] = speaker
+
         if speaker.sprite then
             speaker.sprite:set_scale(self.speaker_scale)
             if speaker.position == 'right' then
                 speaker.sprite:set_facing_right(false)
             end
         end
+
+        if type(speaker.position) == 'table' then
+            -- This is a list of preferred positions; the speaker will actually
+            -- get the first one not otherwise spoken for
+            seeking_position[name] = speaker.position
+        else
+            claimed_positions[speaker.position] = true
+        end
+    end
+
+    -- Resolve position preferences
+    while true do
+        local new_positions = {}
+        local any_remaining = false
+        for name, positions in pairs(seeking_position) do
+            any_remaining = true
+            for _, position in ipairs(positions) do
+                if not claimed_positions[position] then
+                    if new_positions[position] then
+                        -- This is mainly to prevent nondeterministic results
+                        -- TODO maybe there are some better rules for this,
+                        -- like if one only has one pref left but the other has
+                        -- two
+                        error(("position conflict: %s and %s both want %s, please resolve manually")
+                            :format(name, new_positions[position], position))
+                    end
+                    new_positions[position] = name
+                    break
+                end
+            end
+        end
+        if not any_remaining then
+            break
+        end
+
+        for position, name in pairs(new_positions) do
+            self.speakers[name].position = position
+            seeking_position[name] = nil
+            claimed_positions[position] = true
+        end
     end
 
     self.script = script
+    self.labels = {}  -- name -> index
+    for i, step in ipairs(self.script) do
+        if step.label then
+            if self.labels[step.label] then
+                error(("Duplicate label: %s"):format(step.label))
+            end
+            self.labels[step.label] = i
+        end
+    end
+
     -- TODO should rig up a whole thing for who to display and where, pose to use, etc., but for now these bits are hardcoded i guess
     self.font = m5x7  -- TODO global, should use resourcemanager probably
     
@@ -79,11 +141,13 @@ function DialogueScene:update(dt)
 
     if self.state == 'speaking' then
         self.phrase_timer = self.phrase_timer + dt * SCROLL_RATE
+        local need_redraw = (self.phrase_timer >= 1)
         -- Show as many new characters as necessary, based on time elapsed
         while self.phrase_timer >= 1 do
             -- Advance cursor, continuing across lines if necessary
             self.curchar = self.curchar + 1
             if self.curchar > string.len(self.phrase_lines[self.curline]) then
+                self.phrase_texts[self.curline] = love.graphics.newText(self.font, self.phrase_lines[self.curline])
                 if self.curline == #self.phrase_lines then
                     self.state = 'waiting'
                     if self.phrase_speaker.sprite then
@@ -100,13 +164,24 @@ function DialogueScene:update(dt)
                 self.phrase_timer = self.phrase_timer - 1
             end
         end
+        if need_redraw then
+            self.phrase_texts[self.curline] = love.graphics.newText(
+                self.font,
+                string.sub(self.phrase_lines[self.curline], 1, self.curchar))
+        end
     end
 end
 
 function DialogueScene:_advance_script()
     if self.state == 'speaking' then
-        self.curline = #self.phrase_lines
-        self.curchar = #self.phrase_lines[self.curline]
+        for l = self.curline, #self.phrase_lines do
+            self.phrase_texts[l] = love.graphics.newText(self.font, self.phrase_lines[l])
+        end
+        self.curline = #self.phrase_lines + 1
+        self.curchar = 0
+        self.state = 'waiting'
+        return
+    elseif self.state == 'menu' then
         return
     end
 
@@ -120,10 +195,16 @@ function DialogueScene:_advance_script()
         self.script_index = self.script_index + 1
         local step = self.script[self.script_index]
 
+        -- Flags
+        if step.set then
+            game.progress.flags[step.set] = true
+        end
+
         if step[1] then
             self.state = 'speaking'
             local _textwidth
             _textwidth, self.phrase_lines = self.font:getWrap(step[1], self.wraplimit)
+            self.phrase_texts = {}
             self.phrase_speaker = self.speakers[step.speaker]
             -- TODO euugh.  not only is this gross, it's wrong, because isaac faces left in this sprite
             -- FIXME need a less hardcoded way to specify talking sprites; probably just only animate them while talking
@@ -134,16 +215,105 @@ function DialogueScene:_advance_script()
             self.curline = 1
             self.curchar = 0
             break
-        else
-            -- Textless steps are commands
+        elseif step.menu then
+            self.state = 'menu'
+            self.phrase_speaker = self.speakers[step.speaker]
+            self.menu_items = {}
+            self.menu_cursor = 1
+            self.menu_top = 1
+            self.menu_top_line = 1
+            for i, item in ipairs(step.menu) do
+                if not item.condition or item.condition() then
+                    local jump = item[1]
+                    local _textwidth, lines = self.font:getWrap(item[2], self.wraplimit)
+                    local texts = {}
+                    for i, line in ipairs(lines) do
+                        texts[i] = love.graphics.newText(self.font, line)
+                    end
+                    table.insert(self.menu_items, {
+                        jump = jump,
+                        lines = lines,
+                        texts = texts,
+                    })
+                end
+            end
+            break
+        elseif step.jump then
+            if not step.condition or step.condition() then
+                -- FIXME fuck this -1
+                self.script_index = self.labels[step.jump] - 1
+            end
+        elseif step.pose then
             -- TODO this is super hokey at the moment dang
             local speaker = self.speakers[step.speaker]
             speaker.pose = step.pose
             if speaker.sprite then
                 speaker.sprite:set_pose(step.pose)
             end
+        elseif step.bail then
+            self.state = 'done'
+            Gamestate.pop()
+            return
         end
     end
+end
+
+function DialogueScene:_cursor_up()
+    if self.state ~= 'menu' then
+        return
+    end
+    if self.menu_cursor == 1 then
+        return
+    end
+
+    -- Move up just enough to see the entirety of the newly-selected item.
+    -- If it's already visible, we're done; otherwise, just put it at the top
+    if self.menu_top >= self.menu_cursor - 1 then
+        self.menu_top = self.menu_cursor - 1
+        self.menu_top_line = 1
+    end
+
+    self.menu_cursor = self.menu_cursor - 1
+end
+
+function DialogueScene:_cursor_down()
+    if self.state ~= 'menu' then
+        return
+    end
+    if self.menu_cursor == #self.menu_items then
+        return
+    end
+
+    -- Move down just enough to see the entirety of the newly-selected item.
+    -- First, figure out where it is relative to the top of the dialogue box
+    local relative_row = #self.menu_items[self.menu_top].lines - self.menu_top_line + 1
+    for l = self.menu_top + 1, self.menu_cursor do
+        relative_row = relative_row + #self.menu_items[l].lines
+    end
+    -- FIXME hardcoded the line count
+    relative_row = relative_row + math.min(3, #self.menu_items[self.menu_cursor + 1].lines)
+
+    for i = 1, relative_row - 3 do
+        self.menu_top_line = self.menu_top_line + 1
+        if self.menu_top_line > #self.menu_items[self.menu_top].lines then
+            self.menu_top = self.menu_top + 1
+            self.menu_top_line = 1
+        end
+    end
+
+    self.menu_cursor = self.menu_cursor + 1
+end
+
+function DialogueScene:_cursor_accept()
+    if self.state ~= 'menu' then
+        return
+    end
+
+    local item = self.menu_items[self.menu_cursor]
+    -- FIXME lol this -1 is a dumb hack because _advance_script always starts by moving ahead by 1
+    self.script_index = self.labels[item.jump] - 1
+    self.state = 'waiting'
+    self:_advance_script()
 end
 
 function DialogueScene:draw()
@@ -175,31 +345,74 @@ function DialogueScene:draw()
     local boxquadr = love.graphics.newQuad(boxrepeatright, 0, background:getWidth() - boxrepeatright, background:getHeight(), background:getDimensions())
     love.graphics.draw(background, boxquadr, w - (background:getWidth() - boxrepeatright) * BOXSCALE, boxtop, 0, BOXSCALE)
 
-    -- Compute the text we should be displaying so far
-    -- TODO it bugs me slightly that we re-render the entire string every
-    -- frame, but i don't know any way to reduce the work done here using the
-    -- primitives love offers.  probably not that big a deal anyway
-    -- TODO ah, shouldn't rerender this if it didn't change though
-    local joinedtext = ""
-    for line = 1, self.curline do
-         if line == self.curline then
-            joinedtext = joinedtext .. string.sub(self.phrase_lines[line], 1, self.curchar)
-        else
-            joinedtext = joinedtext .. self.phrase_lines[line] .. "\n"
+    -- Print the text
+    local max_lines = math.floor((boxheight - TEXT_MARGIN_Y * 2) / self.font:getHeight())
+    local texts = {}
+    if self.state == 'menu' then
+        -- FIXME i don't reeeally like this clumsy-ass two separate cases thing
+        local lines = 0
+        local m = self.menu_top
+        local is_bottom = false
+        for m = self.menu_top, #self.menu_items do
+            local item = self.menu_items[m]
+            local start_line = 1
+            if m == self.menu_top then
+                start_line = self.menu_top_line
+            end
+            for l = start_line, #item.lines do
+                table.insert(texts, item.texts[l])
+                if m == self.menu_cursor then
+                    love.graphics.setColor(255, 255, 255, 64)
+                    love.graphics.rectangle('fill', TEXT_MARGIN_X * 3/4, boxtop + TEXT_MARGIN_Y + self.font:getHeight() * lines, boxwidth - TEXT_MARGIN_X * 6/4, self.font:getHeight())
+                end
+                if m == #self.menu_items and l == #item.lines then
+                    is_bottom = true
+                end
+                lines = lines + 1
+                if lines >= max_lines then
+                    break
+                end
+            end
+            if lines >= max_lines then
+                break
+            end
         end
-    end
-    -- Draw the text, twice: once for a drop shadow, then the text itself
-    local text = love.graphics.newText(m5x7, joinedtext)
-    love.graphics.setColor(0, 0, 0, 128)
-    love.graphics.draw(text, TEXT_MARGIN_X - 2, boxtop + TEXT_MARGIN_Y + 2)
-    if self.phrase_speaker.color then
-        love.graphics.setColor(self.phrase_speaker.color)
-    else
+
+        -- Draw little triangles to indicate scrollability
         love.graphics.setColor(255, 255, 255)
+        if not (self.menu_top == 1 and self.menu_top_line == 1) then
+            local x = TEXT_MARGIN_X
+            local y = boxtop + TEXT_MARGIN_Y
+            love.graphics.polygon('fill', x, y - 4, x + 2, y, x - 2, y)
+        end
+        if not is_bottom then
+            local x = TEXT_MARGIN_X
+            local y = h - TEXT_MARGIN_Y
+            love.graphics.polygon('fill', x, y + 4, x + 2, y, x - 2, y)
+        end
+    else
+        -- FIXME should scroll overly-large text
+        texts = self.phrase_texts
     end
-    love.graphics.draw(text, TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y)
+
+    local x, y = TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y
+    for _, text in ipairs(texts) do
+        -- Draw the text, twice: once for a drop shadow, then the text itself
+        love.graphics.setColor(0, 0, 0, 128)
+        love.graphics.draw(text, x - 2, y + 2)
+
+        if self.phrase_speaker.color then
+            love.graphics.setColor(self.phrase_speaker.color)
+        else
+            love.graphics.setColor(255, 255, 255)
+        end
+        love.graphics.draw(text, x, y)
+
+        y = y + self.font:getHeight()
+    end
 
     -- Draw the speakers
+    -- FIXME the draw order differs per run!
     for _, speaker in pairs(self.speakers) do
         local sprite = speaker.sprite
         if sprite then
@@ -231,12 +444,19 @@ end
 function DialogueScene:keypressed(key, scancode, isrepeat)
     if key == 'space' then
         self:_advance_script()
+    elseif key == 'up' then
+        self:_cursor_up()
+    elseif key == 'down' then
+        self:_cursor_down()
+    elseif key == 'return' then
+        self:_cursor_accept()
     end
 end
 
 function DialogueScene:gamepadpressed(joystick, button)
     if button == 'a' then
         self:_advance_script()
+    -- FIXME other buttons too
     end
 end
 

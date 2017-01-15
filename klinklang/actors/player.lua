@@ -11,6 +11,8 @@ local Player = actors_base.MobileActor:extend{
     name = 'kid neon',
     -- FIXME game-specific
     sprite_name = 'kid neon',
+    dialogue_position = 'left',
+    dialogue_sprite_name = 'kid neon portrait',
 
     is_player = true,
 

@@ -17,9 +17,33 @@
         {
          "sprite name":"chip portrait\/default"
         },
+     "2":
+        {
+         "sprite name":"pearl portrait\/default"
+        },
+     "4":
+        {
+         "sprite name":"stoplight cat portrait\/default"
+        },
+     "5":
+        {
+         "sprite name":"napoleon portrait\/default"
+        },
+     "6":
+        {
+         "sprite name":"flower thing portrait\/default"
+        },
      "7":
         {
          "sprite name":"magnet goat portrait\/default"
+        },
+     "8":
+        {
+         "sprite name":"anise portrait\/default"
+        },
+     "9":
+        {
+         "sprite name":"twigs portrait\/default"
         }
     },
  "tilepropertytypes":
@@ -32,7 +56,31 @@
         {
          "sprite name":"string"
         },
+     "2":
+        {
+         "sprite name":"string"
+        },
+     "4":
+        {
+         "sprite name":"string"
+        },
+     "5":
+        {
+         "sprite name":"string"
+        },
+     "6":
+        {
+         "sprite name":"string"
+        },
      "7":
+        {
+         "sprite name":"string"
+        },
+     "8":
+        {
+         "sprite name":"string"
+        },
+     "9":
         {
          "sprite name":"string"
         }

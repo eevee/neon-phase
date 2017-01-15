@@ -63,6 +63,8 @@ end
 local Chip = actors_base.Actor:extend{
     name = 'chip',
     sprite_name = 'chip',
+    dialogue_position = {'right', 'far left'},
+    dialogue_sprite_name = 'chip portrait',
 
     owner_offset = Vector(-16, -24),
     max_scalar_acceleration = 512,
