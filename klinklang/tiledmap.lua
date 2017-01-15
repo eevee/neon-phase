@@ -174,7 +174,16 @@ local function _tiled_shape_to_whammo_shape(object, anchor)
                 table.insert(points, pt.y + object.y - anchor.y)
             end
         end
-        shape = whammo_shapes.Polygon(unpack(points))
+        -- FIXME really this should be in Polygon, somehow?
+        -- FIXME also MultiShape should avoid nesting.  but MultiShape should do a lot of things
+        if love.math.isConvex(points) then
+            shape = whammo_shapes.Polygon(unpack(points))
+        else
+            shape = whammo_shapes.MultiShape()
+            for _, triangle in ipairs(love.math.triangulate(points)) do
+                shape:add_subshape(whammo_shapes.Polygon(unpack(triangle)))
+            end
+        end
     else
         -- TODO do the others, once whammo supports them
         shape = whammo_shapes.Box(
