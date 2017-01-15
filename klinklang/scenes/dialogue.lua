@@ -233,7 +233,7 @@ function DialogueScene:_advance_script()
         self.curline = 1
         self.curchar = 0
         local _textwidth
-        _textwidth, self.phrase_lines = self.font:getWrap(step[self.curphrase], self.wraplimit)
+        _textwidth, self.phrase_lines = self.font:getWrap(self.script[self.script_index][self.curphrase], self.wraplimit)
         self.phrase_texts = {}
         self.state = 'speaking'
         return
