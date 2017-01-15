@@ -267,7 +267,7 @@ function Player:grab_chip()
         return
     end
 
-    chip:pick_up(self, function() self.gravity_multiplier_down = 0.25 end)
+    chip:pick_up(self, function() self.gravity_multiplier_down = 0.125 end)
 end
 function Player:release_chip()
     local chip = self.ptrs.chip

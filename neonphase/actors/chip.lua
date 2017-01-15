@@ -68,6 +68,7 @@ local Chip = actors_base.Actor:extend{
     max_scalar_acceleration = 512,
     scalar_velocity = 0,
     has_laser = false,
+    has_carry = false,
     can_fire = true,
     owner_gliding_offset = Vector(0, -24),
 
@@ -229,6 +230,9 @@ end
 
 -- Ask Chip to move towards something and pick it up
 function Chip:pick_up(actor, callback)
+    if not self.has_carry then
+        return
+    end
     if self.cargo then
         return
     end
@@ -325,16 +329,55 @@ end
 local UpgradeChip = actors_base.Actor:extend{
     name = 'upgrade chip',
     sprite_name = 'upgrade chip',
+
+    chip_prop = 'has_laser',
+    upgrade_name_sfx = 'assets/sounds/energyball.ogg',
+    script = {
+        { "Nice.  This upgrade chip will let me, ah, upgrade Chip.", speaker = 'kidneon' },
+        { "BZZT.  I UPGRADED MYSELF WHILE YOU WERE TALKING.", speaker = 'chip' },
+        { "I CAN NOW FIRE AN ENERGY BALL THAT WILL RECHARGE DEVICES AND DESTROY SOME KINDS OF RUBBLE.", speaker = 'chip' },
+        -- FIXME not if you're using a controller, champ
+        { "\"Some\" kinds of rubble?", speaker = 'kidneon' },
+        { "CORRECT.  SPECIFICALLY, CRACKED ORANGE BLOCKS.", speaker = 'chip' },
+        { "That's... very specific.", speaker = 'kidneon' },
+        { "I DON'T MAKE THE RULES.", speaker = 'chip' },
+        { "I see.  Well, I'll bind this to my [D] key.", speaker = 'kidneon' },
+        { "[D] for...  devastating.", speaker = 'kidneon' },
+        { "BZZT.  IT REALLY ISN'T.", speaker = 'chip' },
+    },
 }
 
 function UpgradeChip:on_collide(other, direction)
     if other.is_player then
         -- TODO what if not chip?
-        other.ptrs.chip.has_laser = true
+        other.ptrs.chip[self.chip_prop] = true
         worldscene:remove_actor(self)
-        Gamestate.push(UpgradeScene(other.ptrs.chip))
+        Gamestate.push(UpgradeScene(other.ptrs.chip, self.upgrade_name_sfx, self.script))
     end
 end
+
+local UpgradeChip2 = UpgradeChip:extend{
+    name = 'upgrade chip 2',
+    sprite_name = 'upgrade chip 2',
+
+    chip_prop = 'has_carry',
+    upgrade_name_sfx = 'assets/sounds/carry.ogg',
+    script = {
+        { "Another upgrade chip.", speaker = 'kidneon' },
+        { "...", speaker = 'chip' },
+        { "...", speaker = 'kidneon' },
+        { "*ahem*", speaker = 'kidneon' },
+        { "ERROR.  EMPTY INPUT.  BZZT.", speaker = 'chip' },
+        { "Did you upgrade yourself already?", speaker = 'kidneon' },
+        { "BZZT.  OLD NEWS.  UPGRADE COMPLETED THIRTEEN GIGACYCLES AGO.", speaker = 'chip' },
+        { "So what does the upgrade do?", speaker = 'kidneon' },
+        { "I AM NOW CAPABLE OF CARRYING A SMALL SQUARE PURPLE OBJECT.", speaker = 'chip' },
+        { "That's all?  Couldn't you carry, say, me?", speaker = 'kidneon' },
+        { "ERROR.  YOU DO NOT FIT ANY OF THE REQUIREMENTS.", speaker = 'chip' },
+        { "AT MAXIMUM POWER, I COULD ONLY PERFORM A GLIDE.", speaker = 'chip' },
+        { "That still sounds useful.  I'll bind it to [S].", speaker = 'kidneon' },
+    },
+}
 
 
 return Chip

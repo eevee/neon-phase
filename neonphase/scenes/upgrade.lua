@@ -11,10 +11,12 @@ local UpgradeScene = BaseScene:extend{
 --------------------------------------------------------------------------------
 -- hump.gamestate hooks
 
-function UpgradeScene:init(chip, ...)
+function UpgradeScene:init(chip, name_sfx, script, ...)
     BaseScene.init(self, ...)
 
     self.chip = chip
+    self.name_sfx = name_sfx
+    self.script = script
     self.timer = 0
     self.tick = tick.group()
 end
@@ -28,7 +30,7 @@ function UpgradeScene:enter(previous_scene)
     local sfx = game.resource_manager:get('assets/sounds/upgrade.ogg')
     sfx:play()
     self.sfx_timer = sfx:getDuration()
-    self.sfx2 = game.resource_manager:get('assets/sounds/energyball.ogg')
+    self.sfx2 = game.resource_manager:get(self.name_sfx)
     self.wait = self.sfx_timer + self.sfx2:getDuration() + 0.5
 end
 
@@ -47,16 +49,21 @@ function UpgradeScene:update(dt)
         Gamestate.switch(DialogueScene({
             -- Speakers
             kidneon = {
+                position = 'left',
                 sprite = game.sprites['kid neon portrait']:instantiate(),
                 background = dialoguebox,
                 pose = 'default',
             },
-        }, {
+            chip = {
+                position = 'right',
+                sprite = game.sprites['chip portrait']:instantiate(),
+                background = dialoguebox,
+                pose = 'default',
+            },
+        },
             -- Script
-            { "An upgrade chip.  Now I can...  ah...  upgrade Chip.", speaker = 'kidneon' },
-            { "Boosting Chip's power efficiency by 3.2% should allow it to fire its pulse cannon, which will be useful for recharging devices.  I'll bind it to my [D] key.", speaker = 'kidneon' },
-            { "[D] for...  devastating.", speaker = 'kidneon' },
-        }))
+            self.script
+        ))
     else
         self.upgrade_sprite:update(dt)
     end
