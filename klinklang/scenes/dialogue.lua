@@ -204,9 +204,21 @@ function DialogueScene:_advance_script()
         return
     end
 
+    -- State should be 'waiting' if we got here
+
     if self.phrase_lines and self.curline <= #self.phrase_lines then
         -- We paused in the middle of a phrase (because it was too long), so
         -- just continue from here
+        self.state = 'speaking'
+        return
+    end
+    if self.curphrase and self.curphrase < #self.script[self.script_index] then
+        self.curphrase = self.curphrase + 1
+        self.curline = 1
+        self.curchar = 0
+        local _textwidth
+        _textwidth, self.phrase_lines = self.font:getWrap(step[self.curphrase], self.wraplimit)
+        self.phrase_texts = {}
         self.state = 'speaking'
         return
     end
@@ -226,7 +238,7 @@ function DialogueScene:_advance_script()
             game.progress.flags[step.set] = true
         end
 
-        if step[1] then
+        if #step > 0 then
             self.state = 'speaking'
             local _textwidth
             _textwidth, self.phrase_lines = self.font:getWrap(step[1], self.wraplimit)
@@ -238,6 +250,7 @@ function DialogueScene:_advance_script()
                 self.phrase_speaker.sprite:set_pose(self.phrase_speaker.sprite.spriteset.default_pose)
             end
             self.phrase_timer = 0
+            self.curphrase = 1
             self.curline = 1
             self.curchar = 0
             break
