@@ -1,3 +1,5 @@
+local utf8 = require 'utf8'
+
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
@@ -117,6 +119,7 @@ function DialogueScene:init(speakers, script)
     self.font = m5x7  -- TODO global, should use resourcemanager probably
     
     -- State of the current phrase
+    self.curphrase = 1
     self.curline = 1
     self.curchar = 0
     self.phrase_lines = nil  -- set below
@@ -149,9 +152,19 @@ function DialogueScene:update(dt)
         local need_redraw = (self.phrase_timer >= 1)
         -- Show as many new characters as necessary, based on time elapsed
         while self.phrase_timer >= 1 do
-            -- Advance cursor, continuing across lines if necessary
-            self.curchar = self.curchar + 1
-            if self.curchar > string.len(self.phrase_lines[self.curline]) then
+            -- Advance cursor, continuing across lines if necessary.
+            -- curchar is used as the end of a slice, so we want it to point to
+            -- the /end/ of a UTF-8 byte sequence.  To get that, we ask
+            -- utf8.offset for the start of the SECOND character after the
+            -- current one, then subtract a byte to get the end of the first
+            -- character.  (The utf8 library apparently saw this use case
+            -- coming, because it will happily return one byte past the end of
+            -- the string as an offset.)
+            local second_char_offset = utf8.offset(self.phrase_lines[self.curline], 2, self.curchar + 1)
+            if second_char_offset then
+                self.curchar = second_char_offset - 1
+            else
+                -- There is no second byte, so we've hit the end of the line
                 self.phrase_texts[self.curline] = love.graphics.newText(self.font, self.phrase_lines[self.curline])
                 self.curline = self.curline + 1
                 self.curchar = 0
@@ -174,7 +187,9 @@ function DialogueScene:update(dt)
                     break
                 end
             end
-            -- Count a non-whitespace character against the timer
+            -- Count a non-whitespace character against the timer.
+            -- Note that this is a byte slice of the end of a UTF-8 character,
+            -- but spaces are a single byte in UTF-8, so it's fine.
             if string.sub(self.phrase_lines[self.curline], self.curchar, self.curchar) ~= " " then
                 self.phrase_timer = self.phrase_timer - 1
             end
@@ -212,7 +227,8 @@ function DialogueScene:_advance_script()
         self.state = 'speaking'
         return
     end
-    if self.curphrase and self.curphrase < #self.script[self.script_index] then
+    -- FIXME another check required because script_index is initially zero...
+    if self.curphrase and self.script[self.script_index] and self.curphrase < #self.script[self.script_index] then
         self.curphrase = self.curphrase + 1
         self.curline = 1
         self.curchar = 0
