@@ -33,7 +33,12 @@ function DialogueScene:init(speakers, script)
     for name, speaker in pairs(speakers) do
         -- FIXME maybe speakers should only provide a spriteset so i'm not
         -- changing out from under them
-        speaker.sprite:set_scale(self.speaker_scale)
+        if speaker.sprite then
+            speaker.sprite:set_scale(self.speaker_scale)
+            if speaker.position == 'right' then
+                speaker.sprite:set_facing_right(false)
+            end
+        end
     end
 
     self.script = script
@@ -63,7 +68,9 @@ end
 
 function DialogueScene:update(dt)
     for _, speaker in pairs(self.speakers) do
-        speaker.sprite:update(dt)
+        if speaker.sprite then
+            speaker.sprite:update(dt)
+        end
     end
     -- FIXME no way to specify facing direction atm
 
@@ -76,7 +83,9 @@ function DialogueScene:update(dt)
             if self.curchar > string.len(self.phrase_lines[self.curline]) then
                 if self.curline == #self.phrase_lines then
                     self.state = 'waiting'
-                    self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
+                    if self.phrase_speaker.sprite then
+                        self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
+                    end
                     break
                 else
                     self.curline = self.curline + 1
@@ -109,7 +118,9 @@ function DialogueScene:_advance_script()
             self.phrase_speaker = self.speakers[step.speaker]
             -- TODO euugh.  not only is this gross, it's wrong, because isaac faces left in this sprite
             -- FIXME need a less hardcoded way to specify talking sprites; probably just only animate them while talking
-            self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
+            if self.phrase_speaker.sprite then
+                self.phrase_speaker.sprite:set_pose(self.phrase_speaker.pose)
+            end
             self.phrase_timer = 0
             self.curline = 1
             self.curchar = 0
@@ -117,8 +128,11 @@ function DialogueScene:_advance_script()
         else
             -- Textless steps are commands
             -- TODO this is super hokey at the moment dang
-            self.speakers[step.speaker].pose = step.pose
-            self.speakers[step.speaker].sprite:set_pose(step.pose)
+            local speaker = self.speakers[step.speaker]
+            speaker.pose = step.pose
+            if speaker.sprite then
+                speaker.sprite:set_pose(step.pose)
+            end
         end
     end
 end
@@ -169,22 +183,34 @@ function DialogueScene:draw()
     local text = love.graphics.newText(m5x7, joinedtext)
     love.graphics.setColor(0, 0, 0, 128)
     love.graphics.draw(text, TEXT_MARGIN_X - 2, boxtop + TEXT_MARGIN_Y + 2)
-    love.graphics.setColor(255, 255, 255)
+    if self.phrase_speaker.color then
+        love.graphics.setColor(self.phrase_speaker.color)
+    else
+        love.graphics.setColor(255, 255, 255)
+    end
     love.graphics.draw(text, TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y)
 
     -- Draw the speakers
     -- FIXME speakers really need to have, like, positions.  this is very hardcoded
     -- Left
-    local sprite = self.speakers.kidneon.sprite
-    local sw, sh = sprite.anim:getDimensions()
-    local pos = Vector(math.floor(boxwidth / 4) - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
-    sprite:draw_at(pos)
-    -- Right
-    if self.speakers.magnetgoat then
-        local sprite = self.speakers.magnetgoat.sprite
-        local sw, sh = sprite.anim:getDimensions()
-        local pos = Vector(math.floor(boxwidth * 3 / 4) - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
-        sprite:draw_at(pos)
+    for _, speaker in pairs(self.speakers) do
+        local sprite = speaker.sprite
+        if sprite then
+            local sw, sh = sprite.anim:getDimensions()
+            local x
+            if speaker.position == 'left' then
+                x = math.floor(boxwidth / 4)
+            elseif speaker.position == 'right' then
+                x = math.floor(boxwidth * 3 / 4)
+            end
+            local pos = Vector(x - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
+            if speaker == self.phrase_speaker then
+                love.graphics.setColor(255, 255, 255)
+            else
+                love.graphics.setColor(128, 128, 128)
+            end
+            sprite:draw_at(pos)
+        end
     end
 
     love.graphics.pop()
