@@ -566,8 +566,8 @@ function NyapoIon:on_use(activator)
             { jump = 'found pizza', condition = 'got pizza box' },
             { "If you don't have my hecking pizza, then just... just leave me alone...", speaker = 'nyapoion' },
             { "(They're just staring off into a corner. I don't have anything for them...)", speaker = 'kidneon' },
+            { execute = function() game.resource_manager:get('assets/sounds/pizzachip.ogg'):play() end },
             { "PLAYING INSPIRATIONAL CLIP.", speaker = 'chip' },
-            -- FIXME (im gonna make a tiny pizza jingle)
             { "...Chip.", speaker = 'kidneon' },
             { "NEON.", speaker = 'chip' },
             { "Delete that.", speaker = 'kidneon' },
@@ -591,6 +591,7 @@ function NyapoIon:on_use(activator)
             { "(The cat's already fast asleep on their new bed.)", speaker = 'kidneon' },
             { "All... right. ", speaker = 'kidneon' },
             { "Guess all's well that ends well, huh, Chip?", speaker = 'kidneon' },
+            { execute = function() game.resource_manager:get('assets/sounds/pizzachip.ogg'):play() end },
             { "PLAYING INSPIRATIONAL CLIP.", speaker = 'chip' },
             { "I'm going to turn you off and punt you into the horizon.", speaker = 'kidneon' },
             {
