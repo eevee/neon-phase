@@ -128,6 +128,7 @@ function Chip:update(dt)
     elseif self.cargo == self.ptrs.owner then
         -- Carrying the player; update our position accordingly
         self.pos = self.cargo.pos - self.cargo_offset + self.cargo_anchor
+        self.sprite:set_facing_right(not self.ptrs.owner.facing_left)
     elseif self.ptrs.owner then
         -- Following the player, and possibly carrying something else
         local offset = self.owner_offset
@@ -258,6 +259,7 @@ function Chip:pick_up(actor, callback)
         self.cargo_anchor - self.cargo_offset,
         function()
             self.cargo = actor
+            self.sprite:set_pose('jump')
 
             -- If we're carrying the player, we should leave them in the world and
             -- follow their movement, rather than vice versa
@@ -314,6 +316,7 @@ function Chip:set_down(point, callback)
                 self.cargo_sfx:stop()
             end
 
+            self.sprite:set_pose('stand')
             self.cargo = nil
             self.cargo_in_world = nil
             self.cargo_anchor = nil

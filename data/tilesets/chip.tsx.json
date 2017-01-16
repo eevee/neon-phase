@@ -16,6 +16,10 @@
      "13":
         {
          "sprite name":"chip overlay\/flash"
+        },
+     "4":
+        {
+         "sprite name":"chip\/jump"
         }
     },
  "tilepropertytypes":
@@ -25,6 +29,10 @@
          "sprite name":"string"
         },
      "13":
+        {
+         "sprite name":"string"
+        },
+     "4":
         {
          "sprite name":"string"
         }
@@ -81,6 +89,59 @@
                 {
                  "duration":75,
                  "tileid":17
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":8,
+                     "y":12
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "4":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":6
+                }, 
+                {
+                 "duration":100,
+                 "tileid":5
+                }, 
+                {
+                 "duration":200,
+                 "tileid":4
+                }, 
+                {
+                 "duration":100,
+                 "tileid":5
+                }, 
+                {
+                 "duration":100,
+                 "tileid":6
+                }, 
+                {
+                 "duration":100,
+                 "tileid":0
                 }],
          "objectgroup":
             {
