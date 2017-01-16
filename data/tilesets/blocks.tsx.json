@@ -782,6 +782,18 @@
                      "width":16,
                      "x":0,
                      "y":4
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":4,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":6,
+                     "y":16
                     }],
              "opacity":1,
              "type":"objectgroup",

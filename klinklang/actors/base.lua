@@ -133,8 +133,9 @@ function Actor:init(position)
 
     -- FIXME progress!  but this should update when the sprite changes, argh!
     if self.sprite.shape then
-        -- FIXME hang on, the sprite is our own instance, why do we need to clone it at all
+        -- FIXME hang on, the sprite is our own instance, why do we need to clone it at all--  oh, because Sprite doesn't actually clone it, whoops
         self.shape = self.sprite.shape:clone()
+        self.shape._xxx_is_one_way_platform = self.sprite.shape._xxx_is_one_way_platform
         self.anchor = Vector.zero
         self.shape:move_to(position:unpack())
     end

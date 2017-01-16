@@ -155,6 +155,4 @@ function MemoKey:on_collide(other, direction)
 end
 
 
-return {
-    MemoKey = MemoKey,
-}
+return MemoKey

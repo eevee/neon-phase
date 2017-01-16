@@ -127,7 +127,7 @@ function Colorbird1:init(...)
 
     self.pos0 = self.pos
     self.flutter_amplitude = math.random(32, 96)
-    self.flutter_frequency = math.random() * 2 + 1
+    self.flutter_frequency = math.random() + 0.5
 end
 
 function Colorbird1:blocks()

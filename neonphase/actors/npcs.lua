@@ -7,6 +7,8 @@ local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
 
+local MemoKey = require 'neonphase.actors.memokey'
+
 
 local Twigs = actors_base.Actor:extend{
     name = 'twigs',
@@ -153,7 +155,44 @@ local Anise = actors_base.Actor:extend{
     dialogue_sprite_name = 'anise portrait',
 
     is_usable = true,
+    has_moved = false,
+    clip_top = 0,
+    clip_bottom = 0,
 }
+
+function Anise:move_to_stall()
+    if self.has_moved then
+        return
+    end
+    self.has_moved = true
+    self.is_usable = false
+
+    local x0, y0, x1, y1 = self.shape:bbox()
+    worldscene.fluct:to(self, 0.25, { clip_top = y1 - y0 })
+        :oncomplete(function()
+            self:move_to(Vector(284, 1414))
+            self.clip_bottom = 5
+        end)
+        :after(0.5, { clip_top = 0 })
+        :oncomplete(function()
+            self.is_usable = true
+        end)
+end
+
+function Anise:draw()
+    if self.clip_top == 0 and self.clip_bottom == 0 then
+        Anise.__super.draw(self)
+    else
+        love.graphics.push('all')
+        local x0, y0, x1, y1 = self.shape:bbox()
+        local w = x1 - x0
+        local h = y1 - y0
+        local clip_top = math.floor(self.clip_top)
+        love.graphics.setScissor(x0 - worldscene.camera.x, y0 + clip_top - worldscene.camera.y, w, math.max(0, h - clip_top - self.clip_bottom))
+        self.sprite:draw_at(self.pos + Vector(0, self.clip_top))
+        love.graphics.pop()
+    end
+end
 
 function Anise:on_use(activator)
     if activator.is_player then
@@ -163,8 +202,14 @@ function Anise:on_use(activator)
             chip = activator.ptrs.chip,
             anise = self,
         }, {
+            -- Too early
+            { jump = 'ring bell', condition = function() return self.has_moved end },
+            { "AOWWRR!!!  I'M VERY BUSY!!!!  PLEASE RING THE BELL IF YOU NEED ASSISTANCE!!", speaker = 'anise' },
+            { bail = true },
+
             -- Ring the bell
-            { jump = 'out of items', condition = function() return game.progress.flags['anise: weird rectangle'] end },
+            { label = 'ring bell' },
+            { jump = 'out of items', condition = 'anise: weird rectangle' },
             { "HI WELCOME TO STAR SHOP ANISE!!!!!!!! REOWOW!!! I'M STAR ANISE AND THESE DEALS CAN'T BE BEAT!!!!!", speaker = 'anise' },
             { "Is all of this stuff for sale?", speaker = 'kidneon' },
             { "Yes.", speaker = 'anise' },
@@ -189,6 +234,7 @@ function Anise:on_use(activator)
                             and game.progress.flags['anise: floor kibble']
                             and game.progress.flags['anise: mesh bag']
                     end },
+                    { 'nevermind', "nothing - the worst??  doesn't taste OR sound good" },
                 },
             },
 
@@ -230,8 +276,7 @@ function Anise:on_use(activator)
             { "The... the weird rectangle.", speaker = 'kidneon' },
             { "Oh, that. You don't want it. ", speaker = 'anise' },
             { "I kind of actually do, though.", speaker = 'kidneon' },
-            { "No. Trust me. I've been trying to break it for ages, buddy. I've got a Space PhD in reverse engineering and even ~I~ can't figure this thing out.... Doesn't even", speaker = 'anise' },
-            { "make a good noise when you hit it! It's useless, by any metric.", speaker = 'anise' },
+            { "No. Trust me. I've been trying to break it for ages, buddy. I've got a Space PhD in reverse engineering and even ~I~ can't figure this thing out.... Doesn't even make a good noise when you hit it! It's useless, by any metric.", speaker = 'anise' },
             { "Say someone did want it, though. How much?", speaker = 'kidneon' },
             { "15 space dollars.", speaker = 'anise' },
             { "Er. Shoot. Is there any way we can work out a deal? ", speaker = 'kidneon' },
@@ -245,14 +290,23 @@ function Anise:on_use(activator)
             { "AND THEN RATE STAR SHOP ANISE 5 STARS ON NYELP!!! AAOORRW!!!!! ", speaker = 'anise' },
             { "Yeah. All right. I'll be sure to leave a... stellar review. Heh.", speaker = 'kidneon' },
             { "(The cat responds by putting a note on the counter.)", speaker = 'anise' },
+            { execute = function() worldscene:add_actor(MemoKey(Vector(258, 1424), { ['script name'] = 'anise' })) end },
             { bail = true },
-            --(after getting the weird rectangle, end the convo with anise and have the memo key be spawned next to the shop)
 
             -- (after all items are checked and you get the memo key and talk to anise)
             { label = 'out of items' },
             { "Hey--", speaker = 'kidneon' },
-            { "WE'RE OUT OF BUSINESS!!!! AOORWWW!!! CAN'T YOU READ???? ", speaker = 'anise' },
+            { "WE'RE OUT OF BUSINESS!!!! AOORWWW!!! CAN'T YOU READ????", speaker = 'anise' },
             { "(You look at the note the cat placed on the counter earlier. It's just a scrap of paper with a dirty pawprint on it.)", speaker = 'anise' },
+            { bail = true },
+
+            { label = 'nevermind' },
+            { "Hmm.  I guess I don't need any of this.", speaker = 'kidneon' },
+            { "Wh...  what?", speaker = 'anise' },
+            { "What?", speaker = 'kidneon' },
+            { "I'm afraid I don't understand.", speaker = 'anise' },
+            { "I don't want anything.", speaker = 'kidneon' },
+            { "Yes.  That's what I don't understand.", speaker = 'anise' },
         }))
     end
 end

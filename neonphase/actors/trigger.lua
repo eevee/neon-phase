@@ -24,7 +24,7 @@ function TriggerZone:init(pos, size, props)
     end
 
     -- FIXME should probably have a trigger...  mode
-    if self.action == 'submap' then
+    if self.action == 'submap' or self.action == 'summon anise' then
         self.is_usable = true
     end
 
@@ -83,6 +83,20 @@ function TriggerZone:on_use(activator)
             worldscene:leave_submap()
         else
             worldscene:enter_submap('inside house 1')
+        end
+    elseif self.action == 'summon anise' then
+        worldscene:remove_actor(self)
+
+        -- FIXME ugh
+        local anise
+        for _, actor in ipairs(worldscene.actors) do
+            if actor.name == 'anise' and not actor.has_moved then
+                anise = actor
+                break
+            end
+        end
+        if anise then
+            anise:move_to_stall()
         end
     end
 end
