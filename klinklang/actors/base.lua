@@ -290,9 +290,13 @@ function MobileActor:_do_physics(dt)
     -- then gets rounded to zero, but i guess my recent fixes to ground
     -- detection work pretty well because it doesn't seem to have any ill
     -- effects!  it makes me a little wary though so i should examine later
+    -- FIXME i had to make this round to the nearest eighth because i found a
+    -- place where standing on a gentle slope would make you vibrate back and
+    -- forth between pixels.  i would really like to get rid of the "slope
+    -- cancelling" force somehow, i think it's fucking me up
     local goalpos = self.pos + self.velocity * dt
-    goalpos.x = math.floor(goalpos.x + 0.5)
-    goalpos.y = math.floor(goalpos.y + 0.5)
+    goalpos.x = math.floor(goalpos.x * 8 + 0.5) / 8
+    goalpos.y = math.floor(goalpos.y * 8 + 0.5) / 8
     local movement = goalpos - self.pos
 
     ----------------------------------------------------------------------------
