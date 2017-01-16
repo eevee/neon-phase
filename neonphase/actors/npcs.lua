@@ -135,6 +135,17 @@ Enter the bunker?
 end
 
 
+-- Doesn't actually do anything; just needs to be an actor to be animated
+local AnisePlatform = actors_base.Actor:extend{
+    name = 'anise platform',
+    sprite_name = 'anise platform',
+}
+
+function AnisePlatform:blocks()
+    return true
+end
+
+
 local Anise = actors_base.Actor:extend{
     name = 'anise',
     sprite_name = 'anise',
