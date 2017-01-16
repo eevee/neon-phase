@@ -1,11 +1,11 @@
 { "columns":1,
  "image":"..\/..\/assets\/images\/portraits.png",
- "imageheight":800,
+ "imageheight":1040,
  "imagewidth":80,
  "margin":0,
  "name":"portraits",
  "spacing":0,
- "tilecount":10,
+ "tilecount":13,
  "tileheight":80,
  "tileproperties":
     {
@@ -17,9 +17,25 @@
         {
          "sprite name":"chip portrait\/default"
         },
+     "10":
+        {
+         "sprite name":"smiley portrait\/default"
+        },
+     "11":
+        {
+         "sprite name":"electroskunk 2 portrait\/default"
+        },
+     "12":
+        {
+         "sprite name":"electroskunk portrait\/default"
+        },
      "2":
         {
-         "sprite name":"pearl portrait\/default"
+         "sprite name":"purrl portrait\/default"
+        },
+     "3":
+        {
+         "sprite name":"radio goat portrait\/default"
         },
      "4":
         {
@@ -27,11 +43,11 @@
         },
      "5":
         {
-         "sprite name":"napoleon portrait\/default"
+         "sprite name":"nyapo-ion portrait\/default"
         },
      "6":
         {
-         "sprite name":"flower thing portrait\/default"
+         "sprite name":"iridd portrait\/default"
         },
      "7":
         {
@@ -56,7 +72,23 @@
         {
          "sprite name":"string"
         },
+     "10":
+        {
+         "sprite name":"string"
+        },
+     "11":
+        {
+         "sprite name":"string"
+        },
+     "12":
+        {
+         "sprite name":"string"
+        },
      "2":
+        {
+         "sprite name":"string"
+        },
+     "3":
         {
          "sprite name":"string"
         },

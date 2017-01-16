@@ -13,6 +13,19 @@ local SCROLL_RATE = 64  -- characters per second
 local TEXT_MARGIN_X = 24
 local TEXT_MARGIN_Y = 16
 
+
+local function _evaluate_condition(condition)
+    if condition == nil then
+        return true
+    elseif type(condition) == 'string' then
+        return game.progress.flags[condition]
+    else
+        return condition()
+    end
+end
+
+
+
 local DialogueScene = BaseScene:extend{
     __tostring = function(self) return "dialoguescene" end,
 
@@ -207,11 +220,20 @@ function DialogueScene:update(dt)
 end
 
 function DialogueScene:_advance_script()
+    -- Fill the textbox
     if self.state == 'speaking' then
-        for l = self.curline, #self.phrase_lines do
+        -- FIXME hardcoding max lines again
+        local lastline
+        if self.curline > 3 then
+            lastline = self.curline
+        else
+            lastline = math.min(3, #self.phrase_lines)
+        end
+
+        for l = self.curline, lastline do
             self.phrase_texts[l] = love.graphics.newText(self.font, self.phrase_lines[l])
         end
-        self.curline = #self.phrase_lines + 1
+        self.curline = lastline + 1
         self.curchar = 0
         self.state = 'waiting'
         return
@@ -278,7 +300,7 @@ function DialogueScene:_advance_script()
             self.menu_top = 1
             self.menu_top_line = 1
             for i, item in ipairs(step.menu) do
-                if not item.condition or item.condition() then
+                if _evaluate_condition(item.condition) then
                     local jump = item[1]
                     local _textwidth, lines = self.font:getWrap(item[2], self.wraplimit)
                     local texts = {}
@@ -294,9 +316,14 @@ function DialogueScene:_advance_script()
             end
             break
         elseif step.jump then
-            if not step.condition or step.condition() then
+            if _evaluate_condition(step.condition) then
                 -- FIXME fuck this -1
                 self.script_index = self.labels[step.jump] - 1
+            end
+        elseif step.execute then
+            -- FIXME you could reasonably have this alongside a jump, etc
+            if _evaluate_condition(step.condition) then
+                step.execute()
             end
         elseif step.pose then
             -- TODO this is super hokey at the moment dang

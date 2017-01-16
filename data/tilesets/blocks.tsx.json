@@ -1,11 +1,11 @@
 { "columns":8,
  "image":"..\/..\/assets\/images\/blocks.png",
- "imageheight":128,
+ "imageheight":256,
  "imagewidth":128,
  "margin":0,
  "name":"blocks",
  "spacing":0,
- "tilecount":64,
+ "tilecount":128,
  "tileheight":16,
  "tileproperties":
     {
@@ -28,6 +28,11 @@
          "actor":"wire sw",
          "sprite name":"wire sw\/default"
         },
+     "14":
+        {
+         "actor":"wire new",
+         "sprite name":"wire new\/default"
+        },
      "20":
         {
          "actor":"wire ne",
@@ -37,6 +42,11 @@
         {
          "actor":"wire nw",
          "sprite name":"wire nw\/default"
+        },
+     "23":
+        {
+         "actor":"wire nsw",
+         "sprite name":"wire nsw\/default"
         },
      "29":
         {
@@ -84,6 +94,11 @@
          "actor":"wire plug ew",
          "sprite name":"wire plug ew\/default"
         },
+     "57":
+        {
+         "actor":"wire plug se",
+         "sprite name":"wire plug se\/default"
+        },
      "58":
         {
          "actor":"upgrade chip 2",
@@ -94,10 +109,31 @@
          "actor":"wire ew",
          "sprite name":"wire ew\/default"
         },
+     "64":
+        {
+         "sprite name":"joystick\/default"
+        },
      "7":
         {
          "actor":"wire plug ns",
          "sprite name":"wire plug ns\/default"
+        },
+     "72":
+        {
+         "sprite name":"battery pickup\/default"
+        },
+     "80":
+        {
+         "sprite name":"vacuum\/default"
+        },
+     "88":
+        {
+         "sprite name":"nectar\/default"
+        },
+     "96":
+        {
+         "actor":"pizza box",
+         "sprite name":"pizza box\/default"
         }
     },
  "tilepropertytypes":
@@ -121,12 +157,22 @@
          "actor":"string",
          "sprite name":"string"
         },
+     "14":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
      "20":
         {
          "actor":"string",
          "sprite name":"string"
         },
      "21":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "23":
         {
          "actor":"string",
          "sprite name":"string"
@@ -177,6 +223,11 @@
          "actor":"string",
          "sprite name":"string"
         },
+     "57":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
      "58":
         {
          "actor":"string",
@@ -187,7 +238,28 @@
          "actor":"string",
          "sprite name":"string"
         },
+     "64":
+        {
+         "sprite name":"string"
+        },
      "7":
+        {
+         "actor":"string",
+         "sprite name":"string"
+        },
+     "72":
+        {
+         "sprite name":"string"
+        },
+     "80":
+        {
+         "sprite name":"string"
+        },
+     "88":
+        {
+         "sprite name":"string"
+        },
+     "96":
         {
          "actor":"string",
          "sprite name":"string"
@@ -294,6 +366,34 @@
              "y":0
             }
         },
+     "14":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":8,
+                     "y":8
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "20":
         {
          "objectgroup":
@@ -323,6 +423,34 @@
             }
         },
      "21":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":8,
+                     "y":8
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "23":
         {
          "objectgroup":
             {
@@ -767,6 +895,45 @@
              "y":0
             }
         },
+     "57":
+        {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":8,
+                     "y":8
+                    }, 
+                    {
+                     "height":12,
+                     "id":3,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":12,
+                     "x":2,
+                     "y":2
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "58":
         {
          "animation":[
@@ -847,6 +1014,66 @@
              "y":0
             }
         },
+     "64":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":64
+                }, 
+                {
+                 "duration":100,
+                 "tileid":65
+                }, 
+                {
+                 "duration":100,
+                 "tileid":66
+                }, 
+                {
+                 "duration":100,
+                 "tileid":67
+                }, 
+                {
+                 "duration":100,
+                 "tileid":68
+                }, 
+                {
+                 "duration":100,
+                 "tileid":69
+                }, 
+                {
+                 "duration":100,
+                 "tileid":70
+                }, 
+                {
+                 "duration":100,
+                 "tileid":71
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
      "7":
         {
          "objectgroup":
@@ -877,6 +1104,246 @@
                      "width":12,
                      "x":2,
                      "y":2
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "72":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":72
+                }, 
+                {
+                 "duration":100,
+                 "tileid":73
+                }, 
+                {
+                 "duration":100,
+                 "tileid":74
+                }, 
+                {
+                 "duration":100,
+                 "tileid":75
+                }, 
+                {
+                 "duration":100,
+                 "tileid":76
+                }, 
+                {
+                 "duration":100,
+                 "tileid":77
+                }, 
+                {
+                 "duration":100,
+                 "tileid":78
+                }, 
+                {
+                 "duration":100,
+                 "tileid":79
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":14,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":0,
+                     "y":2
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":8,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "80":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":80
+                }, 
+                {
+                 "duration":100,
+                 "tileid":81
+                }, 
+                {
+                 "duration":100,
+                 "tileid":82
+                }, 
+                {
+                 "duration":100,
+                 "tileid":83
+                }, 
+                {
+                 "duration":100,
+                 "tileid":84
+                }, 
+                {
+                 "duration":100,
+                 "tileid":85
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":0,
+                     "y":0
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "88":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":88
+                }, 
+                {
+                 "duration":100,
+                 "tileid":89
+                }, 
+                {
+                 "duration":100,
+                 "tileid":90
+                }, 
+                {
+                 "duration":100,
+                 "tileid":91
+                }, 
+                {
+                 "duration":100,
+                 "tileid":92
+                }, 
+                {
+                 "duration":100,
+                 "tileid":93
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":12,
+                     "x":2,
+                     "y":0
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":8,
+                     "y":16
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "96":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":96
+                }, 
+                {
+                 "duration":100,
+                 "tileid":97
+                }, 
+                {
+                 "duration":100,
+                 "tileid":98
+                }, 
+                {
+                 "duration":100,
+                 "tileid":99
+                }, 
+                {
+                 "duration":100,
+                 "tileid":100
+                }, 
+                {
+                 "duration":100,
+                 "tileid":101
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "height":16,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"",
+                     "visible":true,
+                     "width":16,
+                     "x":0,
+                     "y":0
                     }],
              "opacity":1,
              "type":"objectgroup",
