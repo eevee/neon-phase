@@ -31,7 +31,6 @@ game = {
         local MAX_WIDTH = 50 * 16
         local MAX_HEIGHT = 30 * 16
         self.scale = math.ceil(math.max(w / MAX_WIDTH, h / MAX_HEIGHT))
-        print(self.scale)
     end,
 
     getDimensions = function(self)
