@@ -281,23 +281,24 @@ function MobileActor:_do_physics(dt)
         self.velocity = self.velocity:normalized() * self.constant_velocity
     end
 
-    -- Calculate the desired movement, always trying to move us such that we
-    -- end up on the edge of a pixel.  Round away from zero, to avoid goofy
-    -- problems (like not recognizing the ground) when we end up moving less
-    -- than requested; this may make us move faster than the physics constants
-    -- would otherwise intend, but, oh well?
-    -- FIXME i changed this to round to an eighth of a pixel to avoid rounding
-    -- errors massively affecting the physics, but it should more aggressively
-    -- round when velocity is lower, so it's still possible to stop exactly on
-    -- a pixel
-    local naive_movement = self.velocity * dt
-    local goalpos = self.pos + naive_movement
-    goalpos.x = (self.velocity.x < 0 and math.floor or math.ceil)(goalpos.x * 8) / 8
-    goalpos.y = (self.velocity.y < 0 and math.floor or math.ceil)(goalpos.y * 8) / 8
+    -- Fudge the movement to try ending up aligned to the pixel grid.
+    -- This helps compensate for the physics engine's love of gross float
+    -- coordinates, and should allow the player to position themselves
+    -- pixel-perfectly when standing on pixel-perfect (i.e. flat) ground.
+    -- FIXME this causes us to not actually /collide/ with the ground most of
+    -- the time, because initial gravity only pulls us down a little bit and
+    -- then gets rounded to zero, but i guess my recent fixes to ground
+    -- detection work pretty well because it doesn't seem to have any ill
+    -- effects!  it makes me a little wary though so i should examine later
+    local goalpos = self.pos + self.velocity * dt
+    goalpos.x = math.floor(goalpos.x + 0.5)
+    goalpos.y = math.floor(goalpos.y + 0.5)
     local movement = goalpos - self.pos
 
     ----------------------------------------------------------------------------
     -- Collision time!
+    --print()
+    --print()
     --print()
     --print("Collision time!  position", self.pos, "velocity", self.velocity, "movement", movement)
 
@@ -319,7 +320,9 @@ function MobileActor:_do_physics(dt)
     if self.on_ground then
         -- FIXME how far should we try this?
         -- FIXME again, don't do this off the edges of the map...  depending on map behavior...  sigh
+        --print("/// doing drop")
         local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, 0, 2, true)
+        --print("\\\\\\ end drop")
         local any_hit = false
         for shape, touchtype in pairs(drop_hits) do
             if touchtype > 0 then
@@ -374,7 +377,7 @@ function MobileActor:_do_physics(dt)
     self.pos = self.pos + movement
     --print("FINAL POSITION:", self.pos)
     if self.shape then
-    self.shape:move_to(self.pos:unpack())
+        self.shape:move_to(self.pos:unpack())
     end
 
     -- Tell everyone we've hit them

@@ -214,6 +214,71 @@ describe("Collision", function()
         local successful, hits = collider:slide(player, 0, 10)
         assert.are.equal(1, hits[floor])
     end)
+    it("should quantize correctly", function()
+        --[[
+            +-----+--------+
+            |wall/| player |
+            |   / +--------+
+            |  /
+            | /
+            |/
+            +-------+
+            | floor |
+            +-------+
+            movement is exactly parallel to the wall.  however, the floor is
+            not pixel-aligned, so the final position won't be either, and we'll
+            need to back up to find a valid pixel.  we should NOT end up inside
+            the wall.
+
+            FIXME for bonus points, do this in all eight directions
+        ]]
+        local collider = whammo.Collider(64)
+        local wall = whammo_shapes.Polygon(0, 0, 100, 0, 0, 200)
+        collider:add(wall)
+        -- yes, the floor overlaps the wall, it's fine
+        local floor = whammo_shapes.Box(0, 199.5, 200, 200)
+        collider:add(floor)
+
+        local player = whammo_shapes.Box(100, 0, 100, 100)
+        local successful, hits = collider:slide(player, -100, 200)
+        --assert.are.equal(Vector(-49, 98), successful)
+        assert.are.equal(1, hits[wall])
+        assert.are.equal(1, hits[floor])
+        local successful, hits = collider:slide(player, -100, 200)
+        local successful, hits = collider:slide(player, -100, 200)
+        local successful, hits = collider:slide(player, -100, 200)
+    end)
+    it("should not round you into a wall", function()
+        --[[
+            +-----+
+            |wall/
+            |   /   +--------+
+            |  /    | player |
+            | /     +--------+
+            |/
+            +
+            movement is left and down; should slide along the wall and NOT be
+            inside it on the next frame
+        ]]
+        local collider = whammo.Collider(64)
+        -- Unlike above, this does not make a triangle with nice angles; the
+        -- results are messy floats.
+        -- Also, if it weren't obvious, this was taken from an actual game.
+        local x, y = 492, 1478
+        local wall = whammo_shapes.Polygon(x + 0, y + 0, x - 18, y + 62, x - 18, y + 0)
+        collider:add(wall)
+        local floor = whammo_shapes.Box(510 - 62, 1540, 62, 14)
+        collider:add(floor)
+
+        local player = whammo_shapes.Box(491.125 - 8, 1537.75 - 29, 13, 28)
+        local successful, hits = collider:slide(player, -1, 2.25)
+        assert.are.equal(1, hits[wall])
+
+        -- We don't actually care about the exact results; we just want to be
+        -- sure we aren't inside the slope on the next tic
+        local successful, hits = collider:slide(player, -0.875, 2.375)
+        assert.are.equal(1, hits[wall])
+    end)
     it("should not register slides against objects out of range", function()
         --[[
             +--------+

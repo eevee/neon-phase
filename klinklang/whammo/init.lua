@@ -135,6 +135,8 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
 
             -- Restrict our slide angle if the object blocks us
             if is_passable then
+                -- FIXME this means the caller will never get a touchtype of
+                -- -1?  do i care?  i have a test for it but idk if it matters
                 collision.touchtype = 0
             else
                 combined_clock:intersect(collision.clock)
@@ -203,22 +205,20 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
         successful = successful + first_collision.move
 
         -- Slide along the extreme that's closest to the direction of movement
+        -- FIXME this logic is wrong, and it's because of the clock, naturally!
+        -- if we collide with two surfaces simultaneously, there IS no slide!
         --print("combined_clock:", combined_clock)
         local slide = combined_clock:closest_extreme(attempted)
         if slide and attempted ~= first_collision.move then
             local remaining = attempted - first_collision.move
             attempted = remaining:projectOn(slide)
-            --print("slide!  remaining", remaining, "-> attempted", attempted)
-            -- FIXME this still isn't right.  it causes some overlaps when
-            -- QUANTUM is 1/8, and even with QUANTUM as 1 it causes some forced
-            -- bailouts
-            shapes.round_movement_to_quantum(attempted, slide:perpendicular())
-            --print(" ... rounded to", attempted)
         else
             attempted = Vector.zero:clone()
         end
 
-        if math.abs(attempted.x) < 0.125 and math.abs(attempted.y) < 0.125 then
+        -- FIXME these values are completely arbitrary and i cannot justify them
+        if math.abs(attempted.x) < 1/16 and math.abs(attempted.y) < 1/16 then
+            attempted = Vector.zero:clone()
             break
         end
     end
@@ -226,8 +226,15 @@ function Collider:slide(shape, dx, dy, xxx_no_slide)
     -- Whatever's left over is unopposed
     --print("moving by leftovers", attempted)
     shape:move(attempted:unpack())
-    --debug_hits = allhits
-    return successful + attempted, allhits, lastclock
+    successful = successful + attempted
+    --print("TOTAL MOVEMENT:", successful, "OUT OF", dx, dy)
+
+    -- FIXME i would very much like to round movement to the nearest pixel, but
+    -- doing so requires finding a rounding direction that's not already
+    -- blocked, and at the moment i seem to have much better luck doing no
+    -- rounding whatsoever
+
+    return successful, allhits, lastclock
 end
 
 function Collider:fire_ray(start, direction, collision_check_func)

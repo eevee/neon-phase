@@ -3,30 +3,10 @@ local Vector = require 'vendor.hump.vector'
 local Object = require 'klinklang.object'
 local util = require 'klinklang.util'
 
--- Smallest unit of distance, in pixels.  Movement is capped to a multiple of
--- this, and any surfaces closer than this distance are considered touching.
--- Should be exactly representable as a float (i.e., a power of two) else
--- you're kinda defeating the point.
-local QUANTUM = 1 / 8
 -- Allowed rounding error when comparing whether two shapes are overlapping.
 -- If they overlap by only this amount, they'll be considered touching.
 local PRECISION = 1e-8
 
-local function round_movement_to_quantum(v, axis)
-    -- Round away from the axis of movement, to avoid accidentally clipping
-    -- into an odd shape
-    axis = axis or v
-    if axis.x < 0 then
-        v.x = math.ceil(v.x / QUANTUM) * QUANTUM
-    else
-        v.x = math.floor(v.x / QUANTUM) * QUANTUM
-    end
-    if axis.y < 0 then
-        v.y = math.ceil(v.y / QUANTUM) * QUANTUM
-    else
-        v.y = math.floor(v.y / QUANTUM) * QUANTUM
-    end
-end
 
 local Segment = Object:extend()
 
@@ -66,8 +46,6 @@ function Segment:move(dx, dy)
     self.y0 = self.y0 + dy
     self.y1 = self.y1 + dy
 end
-
-
 
 
 local Shape = Object:extend{
@@ -304,10 +282,8 @@ function Polygon:slide_towards(other, movement)
             -- Likewise, flip the axis so it points towards them
             fullaxis = -fullaxis
         end
-        -- Critically, don't round /up/ from a negative value of less than one
-        -- quantum, because that could make us ignore a non-trivial overlap.
-        -- round_to_quantum is only appropriate for the movement vector!
-        if -PRECISION < dist and dist < QUANTUM then
+        -- Ignore extremely tiny overlaps, which are likely precision errors
+        if math.abs(dist) < PRECISION then
             dist = 0
         end
         --print("    axis:", fullaxis, "dist:", dist, "sep:", sep)
@@ -343,13 +319,19 @@ function Polygon:slide_towards(other, movement)
     if maxdist < 0 then
         -- Shapes are already colliding
         -- FIXME should have /some/ kind of gentle rejection here
+        --print("ALREADY COLLIDING", maxdist, worldscene.collider:get_owner(other))
         --error("seem to be inside something!!  stopping so you can debug buddy  <3")
-        --print("ALREADY COLLIDING", worldscene.collider:get_owner(other))
         return Vector.zero, -1, util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
         --return
     end
 
     local gap = maxsep:projectOn(maxdir)
+    if math.abs(gap.x) < PRECISION then
+        gap.x = 0
+    end
+    if math.abs(gap.y) < PRECISION then
+        gap.y = 0
+    end
     local allowed = movement:projectOn(maxdir)
     --print("  max dist:", maxdist, "in dir:", maxdir, "  gap:", gap, "allowed:", allowed, "clock:", clock)
     if cant_collide then
@@ -377,7 +359,6 @@ function Polygon:slide_towards(other, movement)
     else
         mv = movement * gap.y / allowed.y
     end
-    round_movement_to_quantum(mv, maxdir)
     local move_len2 = mv:len2()
     if move_len2 > movement:len2() then
         -- Won't actually hit!
@@ -530,5 +511,4 @@ return {
     MultiShape = MultiShape,
     Polygon = Polygon,
     Segment = Segment,
-    round_movement_to_quantum = round_movement_to_quantum,
 }
