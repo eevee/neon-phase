@@ -1312,7 +1312,7 @@ function Smiley:on_use(activator)
             { bail = true },
 
             -- (talk to Smiley again)
-            { label = 'spoken to smiley' },
+            { label = 'second time' },
             { "HELLO AGAIN, FRIEND.", speaker = 'smiley' },
             { "Hey.", speaker = 'kidneon' },
             { "STILL ENJOYING THE YARD?", speaker = 'smiley' },

@@ -8,6 +8,13 @@ local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
 
 
+-- Doesn't do anything; just needs an actor to be animated
+local Glowmeleon = actors_base.Actor:extend{
+    name = 'glowmeleon',
+    sprite_name = 'glowmeleon',
+}
+
+
 local DustBunny = actors_base.MobileActor:extend{
     name = 'dustbunny',
     sprite_name = 'dustbunny',
