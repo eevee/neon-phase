@@ -256,9 +256,7 @@ function WorldScene:draw()
         love.graphics.setColor(255, 255, 255)
         -- FIXME stop hardcoding fuckin layer names
         self.map:draw(self.submap, self.camera, w, h)
-        for _, actor in ipairs(self.actors) do
-            self:_draw_actors(self.actors)
-        end
+        self:_draw_actors(self.actors)
     end
 
     -- Draw a button hint for the player when at something usable
@@ -282,7 +280,6 @@ function WorldScene:draw()
         love.graphics.print(letter, math.floor(anchor.x - 8), math.floor(anchor.y - 28))
         love.graphics.pop()
     end
-
 
     if game.debug then
         --[[
