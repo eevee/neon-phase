@@ -267,24 +267,28 @@ end
 function WorldScene:update_camera()
     -- Update camera position
     -- TODO i miss having a box type
-    -- FIXME if you resize the window, the camera can point outside of the
-    -- map??  but that shouldn't be possible, we check against the map size,
-    -- what
     -- FIXME would like some more interesting features here like smoothly
     -- catching up with the player, platform snapping?
     if self.player then
         local focus = self.player.pos
         local w, h = game:getDimensions()
         local mapx, mapy = 0, 0
+
         local marginx = CAMERA_MARGIN * w
+        local x0 = marginx
+        local x1 = w - marginx
+        local minx = 0
+        local maxx = self.map.width - w
+        local newx = self.camera.x
+        if focus.x - newx < x0 then
+            newx = focus.x - x0
+        elseif focus.x - newx > x1 then
+            newx = focus.x - x1
+        end
+        newx = math.max(minx, math.min(maxx, newx))
+        self.camera.x = math.floor(newx)
+
         local marginy = CAMERA_MARGIN * h
-        self.camera.x = math.floor(math.max(
-            math.min(self.camera.x, math.max(mapx, math.floor(focus.x) - marginx)),
-            math.min(self.map.width, math.floor(focus.x) + marginx) - w))
-        --self.camera.y = math.floor(math.max(
-        --    math.min(self.camera.y, math.max(mapy, math.floor(focus.y) - marginy)),
-        --    math.min(self.map.height, math.floor(focus.y) + marginy) - h))
-        -- FIXME hmm, finish this up probably, maybe stuff it in a type
         local y0 = marginy
         local y1 = h - marginy
         local miny = 0
