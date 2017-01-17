@@ -36,8 +36,19 @@ function ChipLaser:blocks()
 end
 
 function ChipLaser:update(dt)
-    -- FIXME probably don't bother with this if we're already in a hit
+    if self.exploding then
+        actors_base.Actor.update(self, dt)
+        return
+    end
+
     actors_base.MobileActor.update(self, dt)
+    local x0, y0, x1, y1 = self.shape:bbox()
+    if x0 <= 0 or y0 <= 0 or x1 >= worldscene.map.width or y1 >= worldscene.map.height then
+        -- Vanish off the edge of the map
+        worldscene:remove_actor(self)
+        return
+    end
+
     for shape, touchtype in pairs(self._stupid_hits_hack) do
         -- FIXME seems to be a recurring problem of having certain individual
         -- objects ignore collision with certain other individual objects;
@@ -48,6 +59,7 @@ function ChipLaser:update(dt)
                 obstacle:damage(self, 10)
             end
             self.velocity = Vector(0, 0)
+            self.exploding = true
             self.sprite:set_pose('hit')
             game.resource_manager:get('assets/sounds/hit4.ogg'):clone():play()
             worldscene.fluct:to(self, 0.3, {}):oncomplete(function()

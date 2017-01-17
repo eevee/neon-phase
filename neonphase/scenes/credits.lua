@@ -37,7 +37,7 @@ function CreditsScene:init()
             sprite = game.sprites['twig']:instantiate(),
             portrait = game.sprites['twig portrait']:instantiate(),
             illus = love.graphics.newImage('assets/images/creditstwig.png'),
-            name = 'BRANCH COMMANDER\nTWIG',
+            name = 'BRANCH CMDR\nTWIG',
             quip = "Returning at last to his own bed",
         },
         {
