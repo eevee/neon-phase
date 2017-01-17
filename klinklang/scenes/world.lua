@@ -5,6 +5,7 @@ local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local Player = require 'klinklang.actors.player'
+local Object = require 'klinklang.object'
 local BaseScene = require 'klinklang.scenes.base'
 local PauseScene = require 'klinklang.scenes.pause'
 local whammo = require 'klinklang.whammo'
@@ -15,6 +16,84 @@ local CAMERA_MARGIN = 0.4
 
 -- FIXME game-specific...  but maybe it doesn't need to be
 local TriggerZone = require 'neonphase.actors.trigger'
+
+local Glitch = Object:extend()
+
+function Glitch:init()
+    local shader = love.graphics.newShader([[
+        extern int y_bands;  // number of horizontal bands
+        extern int y_chunk;  // how many bands constitute a chunk
+        extern int y_offset;  // which band in each chunk is distorted
+        extern float x_distortion;  // how much to offset x (in TEXTURES, not pixels!)
+
+        vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
+            int y = int(texture_coords.y * y_bands);
+            while (y >= y_chunk) y -= y_chunk;
+            if (y == y_offset) {
+                texture_coords.x += x_distortion * sin(texture_coords.y * 6.28 * y_bands);
+            }
+            vec4 texcolor = Texel(texture, texture_coords);
+            return texcolor * color;
+        }
+    ]])
+    shader:send('y_bands', 128)
+    shader:send('y_offset', 0)
+    shader:send('x_distortion', 1/64)
+    self.shader = shader
+    self.active = false
+
+    self.tick = tick.group()
+
+    self:play_glitch_effect()
+end
+
+function Glitch:play_glitch_effect()
+    if self.event then
+        self.event:stop()
+    end
+
+    self.shader:send('y_chunk', 16)
+    self.shader:send('y_offset', math.random(0, 31))
+    self.active = false
+    self.event = self.tick:delay(function()
+        self.active = true
+    end, math.random() * 4 + 8)
+    self.event:after(function()
+            self.active = false
+            self:play_glitch_effect()
+        end, 0.05)
+end
+
+function Glitch:play_transition_effect()
+    if self.event then
+        self.event:stop()
+    end
+
+    self.active = false
+    self.shader:send('y_chunk', 1)
+    self.shader:send('y_offset', 0)
+    self.event = self.tick:delay(function()
+        self.active = true
+    end, 0.05)
+    self.event:after(function()
+            self.active = false
+            self:play_glitch_effect()
+        end, 0.05)
+end
+
+
+function Glitch:update(dt)
+    self.tick:update(dt)
+end
+
+function Glitch:apply()
+    if self.active then
+        love.graphics.setShader(self.shader)
+    end
+    --self._xxx_shader:send('y_offset', math.random(0, 7))
+end
+
+
 
 local WorldScene = BaseScene:extend{
     __tostring = function(self) return "worldscene" end,
@@ -35,6 +114,8 @@ function WorldScene:init(...)
 
     self.camera = Vector()
     self:_refresh_canvas()
+
+    self.glitch = Glitch()
 end
 
 function WorldScene:_refresh_canvas()
@@ -145,6 +226,7 @@ function WorldScene:update(dt)
 
     self.fluct:update(dt)
     self.tick:update(dt)
+    self.glitch:update(dt)
 
     -- Update the music to match the player's current position
     local x, y = self.player.pos:unpack()
@@ -387,8 +469,10 @@ function WorldScene:draw()
 
     love.graphics.pop()
 
+    self.glitch:apply()
     love.graphics.setCanvas()
-    love.graphics.draw(self.canvas, 0, 0, 0, self.scale, self.scale)
+    love.graphics.draw(self.canvas, 0, 0, 0, game.scale, game.scale)
+    love.graphics.setShader()
 
     if game.debug then
         self:_draw_blockmap()
@@ -563,14 +647,6 @@ function WorldScene:load_map(map)
 
     self.camera = self.player.pos:clone()
 
-    self._xxx_shader = love.graphics.newShader([[
-        vec4 effect(vec4 color, Image texture, vec2 texture_coords, vec2 screen_coords) {
-            texture_coords.x += sin(texture_coords.y * 6.28 * 16) * 0.125;
-            vec4 texcolor = Texel(texture, texture_coords);
-            return texcolor * color;
-        }
-    ]])
-    self._xxx_timer = 0
 end
 
 function WorldScene:reload_map()
@@ -593,6 +669,8 @@ function WorldScene:_create_actors(submap)
 end
 
 function WorldScene:enter_submap(name)
+    self.glitch:play_transition_effect()
+
     -- FIXME this is extremely half-baked
     self.submap = name
     self:remove_actor(self.player)
@@ -633,6 +711,8 @@ function WorldScene:enter_submap(name)
 end
 
 function WorldScene:leave_submap(name)
+    self.glitch:play_transition_effect()
+
     -- FIXME this is extremely half-baked
     self.submap = nil
     self:remove_actor(self.player)
