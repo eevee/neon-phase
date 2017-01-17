@@ -112,14 +112,11 @@ function love.load(args)
     love.graphics.setFont(m5x7)
     m5x7small = love.graphics.newFont('assets/fonts/m5x7.ttf', 16 * 1)
 
-    map = tiledmap.TiledMap("data/maps/map.tmx.json", resource_manager)
     worldscene = WorldScene()
-    worldscene:load_map(map)
 
     Gamestate.registerEvents()
-    Gamestate.push(worldscene)
-    --local TitleScene = require('neonphase.scenes.title')
-    --Gamestate.push(TitleScene(worldscene))
+    local TitleScene = require('neonphase.scenes.title')
+    Gamestate.switch(TitleScene(worldscene, "data/maps/map.tmx.json"))
     --local CreditsScene = require('neonphase.scenes.credits')
     --Gamestate.switch(CreditsScene())
 end
