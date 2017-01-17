@@ -280,7 +280,7 @@ function WorldScene:draw()
             letter = 'X'
             bubble:set_pose('button')
         else
-            letter = 'E'
+            letter = love.keyboard.getKeyFromScancode('e'):upper()
             bubble:set_pose('key')
         end
         -- FIXME ugggh this is annoying, and i think i do it somewhere else too
