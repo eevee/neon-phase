@@ -44,7 +44,7 @@ local function change_state(stack_offset, to, ...)
 	initialized_states[to] = __NULL__
 
 	stack[#stack+stack_offset] = to
-	state_is_dirty = true
+	-- XXX EEVEE THIS IS SO FUCKING ANNOYING -- state_is_dirty = true
 	return (to.enter or __NULL__)(to, pre, ...)
 end
 
@@ -66,7 +66,7 @@ function GS.pop(...)
 	local pre, to = stack[#stack], stack[#stack-1]
 	stack[#stack] = nil
 	;(pre.leave or __NULL__)(pre)
-	state_is_dirty = true
+	-- XXX EEVEE THIS IS SO FUCKING ANNOYING -- state_is_dirty = true
 	return (to.resume or __NULL__)(to, pre, ...)
 end
 
