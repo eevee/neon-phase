@@ -135,7 +135,7 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key, scancode, isrepeat)
-    if key == 'return' and not isrepeat and love.keyboard.isDown('lalt', 'ralt') then
+    if scancode == 'return' and not isrepeat and love.keyboard.isDown('lalt', 'ralt') then
         if love.window.getFullscreen() then
             love.window.setFullscreen(false)
             -- FIXME this freezes X for me until i ssh in and killall love, so.

@@ -128,7 +128,7 @@ function WorldScene:update(dt)
     end
 
     if self.player.ptrs.chip then
-        local chip_fire = love.keyboard.isDown('d')
+        local chip_fire = love.keyboard.isScancodeDown('d')
         for i, joystick in ipairs(love.joystick.getJoysticks()) do
             if joystick:isGamepad() then
                 if joystick:isGamepadDown('b') then
@@ -399,7 +399,7 @@ function WorldScene:keypressed(key, scancode, isrepeat)
 
     if scancode == 'space' then
         self.player:decide_jump()
-    elseif key == 'e' then
+    elseif scancode == 'e' then
         -- Use inventory item, or nearby thing
         -- FIXME this should be separate keys maybe?
         if self.player.touching_mechanism then
@@ -410,7 +410,7 @@ function WorldScene:keypressed(key, scancode, isrepeat)
     elseif scancode == 's' and not isrepeat then
         -- FIXME if initial attempt doesn't work, every subsequent frame should try again
         self.player:grab_chip()
-    elseif key == 'pause' then
+    elseif scancode == 'pause' then
         -- FIXME ignore if modifiers?
         Gamestate.push(PauseScene())
     end

@@ -31,7 +31,7 @@ function PauseScene:draw()
 end
 
 function PauseScene:keypressed(key, scancode, isrepeat)
-    if (key == 'escape' or key == 'pause') and not love.keyboard.isDown('lctrl', 'rctrl', 'lalt', 'ralt', 'lgui', 'rgui') then
+    if (scancode == 'escape' or scancode == 'pause') and not love.keyboard.isScancodeDown('lctrl', 'rctrl', 'lalt', 'ralt', 'lgui', 'rgui') then
         Gamestate.pop()
     end
 end

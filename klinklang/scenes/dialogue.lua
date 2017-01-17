@@ -556,15 +556,15 @@ function DialogueScene:draw()
 end
 
 function DialogueScene:keypressed(key, scancode, isrepeat)
-    if key == 'space' or key == 'e' then
+    if scancode == 'space' or scancode == 'e' then
         if self.state == 'menu' then
             self:_cursor_accept()
         else
             self:_advance_script()
         end
-    elseif key == 'up' then
+    elseif scancode == 'up' then
         self:_cursor_up()
-    elseif key == 'down' then
+    elseif scancode == 'down' then
         self:_cursor_down()
     end
 end
