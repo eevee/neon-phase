@@ -385,7 +385,7 @@ function UpgradeChip:get_script()
 
     if worldscene.using_gamepad then
         table.insert(script, { "I see.  Well, I'll bind this to my (B) button.", speaker = 'kidneon' })
-        table.insert(script, { "(B) for...  badass.", speaker = 'kidneon' })
+        table.insert(script, { "(B) for...  brutal.", speaker = 'kidneon' })
         table.insert(script, { "BZZT.  IT REALLY ISN'T.", speaker = 'chip' })
     else
         local key = love.keyboard.getKeyFromScancode('d')
