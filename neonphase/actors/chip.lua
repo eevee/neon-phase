@@ -327,9 +327,8 @@ function Chip:set_down(point, callback)
         point - self.cargo_offset + self.cargo_anchor,
         function()
             local cargo = self.cargo
-            cargo.pos = point
-
             if not self.cargo_in_world then
+                cargo.pos = point
                 worldscene:add_actor(self.cargo)
             end
 
