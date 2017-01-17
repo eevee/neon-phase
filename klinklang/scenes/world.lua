@@ -399,20 +399,6 @@ function WorldScene:keypressed(key, scancode, isrepeat)
 
     if scancode == 'space' then
         self.player:decide_jump()
-    elseif key == 'q' then
-        -- Switch inventory items
-        if not self.inventory_switch then
-            local old_item = self.player.inventory[self.player.inventory_cursor]
-            self.player.inventory_cursor = self.player.inventory_cursor + 1
-            if self.player.inventory_cursor > #self.player.inventory then
-                self.player.inventory_cursor = 1
-            end
-            self.inventory_switch = {
-                old_item = old_item,
-                new_name = love.graphics.newText(m5x7, self.player.inventory[self.player.inventory_cursor].display_name),
-                progress = 0
-            }
-        end
     elseif key == 'e' then
         -- Use inventory item, or nearby thing
         -- FIXME this should be separate keys maybe?
