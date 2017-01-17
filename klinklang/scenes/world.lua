@@ -300,79 +300,16 @@ function WorldScene:update_camera()
     end
 end
 
-PARALLAXES = {
-    {
-        -- always at the top
-        path = 'assets/images/dustybg1.png',
-        x = 0,
-        y = 0,
-        scale = 2,
-        xfactor = 0,
-        yfactor = 0,
-        ypos = 0,
-    },
-    {
-        -- FIXME bottom edge cannot go more than 48 pixels below the previous layer's bottom edge!
-        path = 'assets/images/dustybg2.png',
-        x = 0,
-        y = 32,
-        scale = 2,
-        xfactor = 0.125,
-        yfactor = 0.4,
-        ypos = 0.5,
-        overlap_height = -48,
-    },
-    {
-        -- at the bottom when you're at the bottom
-        -- at +Y when you're at the top, where Y is the furthest down it can go...?
-        path = 'assets/images/dustybg3.png',
-        x = 0,
-        y = 64,
-        scale = 2,
-        xfactor = 0.25,
-        yfactor = 0.25,
-        ypos = 1,
-        overlap_height = -32,
-    },
-    total_height = 240,
-    max_height = 480,
-}
 function WorldScene:draw()
     local w, h = game:getDimensions()
     love.graphics.setCanvas(self.canvas)
 
-    -- FIXME game-specific
-    -- FIXME these can be negative if u fuck up
-    -- FIXME only really have an ad-hoc solution to the real problem here,
-    -- which is that the images leave gaps if they spread too far apart
-    local yrange = self.map.height - h
-    local yscale = 1
-    if self.map.height > PARALLAXES.max_height then
-        yscale = PARALLAXES.max_height / self.map.height
-    end
-    local running_overlap_height = 0
-    for _, parallax in ipairs(PARALLAXES) do
-        local img = game.resource_manager:get(parallax.path)
-        local iw, ih = img:getDimensions()
-        --[[
-        local parallax_yrange = h - (ih + parallax.y) * parallax.scale
-        local yoff = (
-            parallax_yrange * parallax.ypos
-            + (yrange - self.camera.y) * parallax.yfactor * yscale
-        )
-        ]]
-        running_overlap_height = running_overlap_height - (parallax.overlap_height or 0)
-        local yoff = (1 - self.camera.y / yrange) * running_overlap_height
-        -- FIXME doesn't take wrapping into account
-        love.graphics.draw(
-            img,
-            parallax.x * parallax.scale - self.camera.x * parallax.xfactor,
-            parallax.y * parallax.scale + yoff,
-            0, parallax.scale)
-    end
-
     love.graphics.push('all')
     love.graphics.translate(-self.camera.x, -self.camera.y)
+
+    -- TODO later this can expand into drawing all the layers automatically
+    -- (the main problem is figuring out where exactly the actor layer lives)
+    self.map:draw_parallax_background(self.camera, w, h)
 
     -- TODO once the camera is set up, consider rigging the map to somehow
     -- auto-expand to fill the screen?

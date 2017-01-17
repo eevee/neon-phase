@@ -484,6 +484,34 @@ function TiledMap:draw(layer_name, origin, width, height)
     end
 end
 
+function TiledMap:draw_parallax_background(camera, sw, sh)
+    local mw, mh = self.width, self.height
+    for _, layer in ipairs(self.layers) do
+        local y_anchor = layer:prop('parallax anchor y')
+        if layer.type == 'imagelayer' and y_anchor then
+            -- TODO it would be nice to have explicit pixel limits on how far
+            -- apart the pieces can go, but this was complicated enough, so
+            local x_rate = layer:prop('parallax rate x') or 0
+            local y_rate = layer:prop('parallax rate y') or 0
+            local scale = layer:prop('parallax scale') or 1
+            local iw, ih = layer.image:getDimensions()
+            iw = iw * scale
+            ih = ih * scale
+            local x = camera.x * x_rate
+            local y_amount = 0
+            if mh > sh then
+                y_amount = camera.y / (mh - sh)
+            end
+            local y_camera_offset = y_rate * (y_amount - y_anchor)
+            local y = (mh - ih) * y_anchor + (mh - sh) * y_camera_offset
+
+            -- TODO this ignores the layer's own offsets?  do they make sense here?
+            love.graphics.draw(layer.image, x, y, 0, scale)
+        end
+    end
+end
+
+
 return {
     TiledMap = TiledMap,
     TiledTileset = TiledTileset,
