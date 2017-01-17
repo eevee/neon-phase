@@ -66,7 +66,7 @@ local Chip = actors_base.Actor:extend{
     sprite_name = 'chip',
     dialogue_position = {'right', 'far left'},
     dialogue_sprite_name = 'chip portrait',
-    z = 999,
+    z = 1001,  -- just in front of the player, so tractor beam is also in front of them
 
     owner_offset = Vector(-16, -24),
     max_scalar_acceleration = 512,

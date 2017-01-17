@@ -25,7 +25,7 @@ end
 local PlotCover = actors_base.Actor:extend{
     name = 'plot cover shh',
     sprite_name = 'plot cover shh',
-    z = 100000,
+    z = 999,  -- just behind the player, so it looks like geometry when stepped on
 }
 
 function PlotCover:blocks()
@@ -365,6 +365,7 @@ function Twig:on_use(activator)
         }, {
             -- Script
             -- First time
+            { jump = 'just fix the ship' },
             { jump = 'second time', condition = 'spoken to twig' },
             { set = 'spoken to twig' },
             { "Greetings. ", speaker = 'kidneon' },

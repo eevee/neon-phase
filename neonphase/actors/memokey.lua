@@ -9,7 +9,6 @@ local MEMO_KEY_SCRIPTS = {
     junkyard = {
         { "Another uneventful day...", speaker = 'memo' },
         { "No, wait, I did catch a glimpse of a surveilleon. I hope no one thinks I'm goofing off...  I don't know why else they'd be spying on me like that. I didn't do anything wrong, did I?", speaker = 'memo' },
-        { "wrong, did I?", speaker = 'memo' },
         { "Oh, I just saw a flicker. I keep seeing it. It's driving me mad. Is something wrong with my eyes? I want to ask if someone else can see it, or if it's just me... ", speaker = 'memo' },
         { "I haven't seen any other workers in weeks, though, so that'll have to wait.", speaker = 'memo' },
         { "Back to work.", speaker = 'memo' },
