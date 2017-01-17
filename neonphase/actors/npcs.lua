@@ -33,6 +33,20 @@ function PlotCover:blocks()
 end
 
 
+local BunkerBGone = actors_base.Actor:extend{
+    name = 'bunker be gone',
+    sprite_name = 'bunker be gone',
+
+    active = false,
+}
+
+function BunkerBGone:draw()
+    if self.active then
+        BunkerBGone.__super.draw(self)
+    end
+end
+
+
 local function _graveyard_convo(player)
     Gamestate.push(DialogueScene({
         kidneon = player,
@@ -151,6 +165,7 @@ function VoidPlayer:update(...)
                             worldscene.player.chip:teleport_to_shoulder(worldscene.player)
                             worldscene:load_map(game.resource_manager:get("data/maps/map.tmx.json"))
                             worldscene:remove_actor(_find_actor_by_type_name('plot cover shh'))
+                            _find_actor_by_type_name('bunker be gone').active = true
                             worldscene:add_actor(worldscene.player)
                             worldscene:update_camera()
                             -- A zero update fixes state (like whether the
