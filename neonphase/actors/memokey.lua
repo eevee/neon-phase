@@ -141,8 +141,6 @@ end
 function MemoKey:on_collide(other, direction)
     if other.is_player then
         worldscene:remove_actor(self)
-        -- TODO am i doing this or not?
-        local dialoguebox_memo = game.resource_manager:load('assets/images/dialoguebox-memo.png')
         Gamestate.push(DialogueScene({
             -- Speakers
             memo = {

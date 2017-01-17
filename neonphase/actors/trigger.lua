@@ -50,23 +50,29 @@ function TriggerZone:blocks(other, direction)
 end
 
 function TriggerZone:on_collide(other, direction)
-    -- FIXME direction is the direction of movement, not the direction OR side we're being hit, which is a shame
-    if self:_check_for_softlock(other) and direction.x > 0 then
-        local dialoguebox = game.resource_manager:load('assets/images/dialoguebox.png')
+    if not other.is_player then
+        return
+    end
+
+    if self.action == 'empty house' then
         Gamestate.push(DialogueScene({
             -- Speakers
-            kidneon = {
-                position = 'left',
-                sprite = game.sprites['kid neon portrait']:instantiate(),
-                background = dialoguebox,
-                pose = 'default',
-            },
-            chip = {
-                position = 'right',
-                sprite = game.sprites['chip portrait']:instantiate(),
-                background = dialoguebox,
-                pose = 'default',
-            },
+            kidneon = other,
+            chip = other.ptrs.chip,
+        }, {
+            -- Script
+            { "How'd I miss this place?", speaker = 'kidneon' },
+            { "...", speaker = 'chip' },
+            { "...", speaker = 'kidneon' },
+            { "I guess it doesn't matter either way. There's nothing here for us.", speaker = 'kidneon' },
+        }))
+        worldscene:remove_actor(self)
+    -- FIXME direction is the direction of movement, not the direction OR side we're being hit, which is a shame
+    elseif self:_check_for_softlock(other) and direction.x > 0 then
+        Gamestate.push(DialogueScene({
+            -- Speakers
+            kidneon = other,
+            chip = other.ptrs.chip,
         }, {
             -- Script
             { "ERROR.  CARRYING AN OBJECT DOWN HERE MAY RENDER THIS PUZZLE IMPOSSIBLE.", speaker = 'chip' },

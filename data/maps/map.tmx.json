@@ -113,7 +113,7 @@
              "sprite name":"string"
             },
          "type":"tilelayer",
-         "visible":true,
+         "visible":false,
          "width":120,
          "x":0,
          "y":0
@@ -10056,7 +10056,7 @@
              "submap":"string"
             },
          "type":"imagelayer",
-         "visible":false,
+         "visible":true,
          "width":120,
          "x":0,
          "y":0
@@ -11694,6 +11694,27 @@
                  "width":16,
                  "x":1664,
                  "y":1106
+                }, 
+                {
+                 "height":80,
+                 "id":737,
+                 "name":"",
+                 "properties":
+                    {
+                     "action":"empty house",
+                     "once":true
+                    },
+                 "propertytypes":
+                    {
+                     "action":"string",
+                     "once":"bool"
+                    },
+                 "rotation":0,
+                 "type":"trigger",
+                 "visible":true,
+                 "width":48,
+                 "x":128,
+                 "y":1568
                 }],
          "opacity":1,
          "properties":
@@ -11710,7 +11731,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":737,
+ "nextobjectid":738,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":16,

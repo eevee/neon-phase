@@ -656,8 +656,8 @@ function WorldScene:load_map(map)
     -- FIXME this is invasive
     -- FIXME should probably just pass the slightly-munged object right to the constructor, instead of special casing these
     -- FIXME could combine this with player start detection maybe
-    for _, layer in pairs(map.raw.layers) do
-        if layer.type == 'objectgroup' and layer.visible then
+    for _, layer in pairs(map.layers) do
+        if layer.type == 'objectgroup' and layer.submap == nil then
             for _, object in ipairs(layer.objects) do
                 if object.type == 'trigger' then
                     self:add_actor(TriggerZone(
@@ -735,13 +735,14 @@ function WorldScene:enter_submap(name)
     self:_create_actors(self.submap)
 
     -- FIXME this is also invasive
-    for _, layer in pairs(map.raw.layers) do
-        if layer.type == 'objectgroup' and layer.properties and layer.properties['submap'] == self.submap then
+    for _, layer in pairs(map.layers) do
+        if layer.type == 'objectgroup' and layer.submap == self.submap then
             for _, object in ipairs(layer.objects) do
                 if object.type == 'trigger' then
                     self:add_actor(TriggerZone(
                         Vector(object.x, object.y),
-                        Vector(object.width, object.height)))
+                        Vector(object.width, object.height),
+                        object.properties))
                 end
             end
         end
