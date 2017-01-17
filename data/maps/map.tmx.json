@@ -9314,8 +9314,8 @@
                  "type":"player start",
                  "visible":true,
                  "width":0,
-                 "x":18,
-                 "y":408
+                 "x":8,
+                 "y":424
                 }, 
                 {
                  "height":24,
@@ -9977,6 +9977,63 @@
                  "width":880,
                  "x":432,
                  "y":1456
+                }, 
+                {
+                 "height":192,
+                 "id":734,
+                 "name":"",
+                 "properties":
+                    {
+                     "music":"assets\/music\/abandonedyard4.ogg"
+                    },
+                 "propertytypes":
+                    {
+                     "music":"string"
+                    },
+                 "rotation":0,
+                 "type":"music zone",
+                 "visible":true,
+                 "width":96,
+                 "x":336,
+                 "y":1504
+                }, 
+                {
+                 "height":192,
+                 "id":735,
+                 "name":"",
+                 "properties":
+                    {
+                     "music":"assets\/music\/glitchcity.ogg"
+                    },
+                 "propertytypes":
+                    {
+                     "music":"string"
+                    },
+                 "rotation":0,
+                 "type":"music zone",
+                 "visible":true,
+                 "width":336,
+                 "x":0,
+                 "y":1504
+                }, 
+                {
+                 "height":224,
+                 "id":736,
+                 "name":"",
+                 "properties":
+                    {
+                     "music":"assets\/music\/glitchcity.ogg"
+                    },
+                 "propertytypes":
+                    {
+                     "music":"string"
+                    },
+                 "rotation":0,
+                 "type":"music zone",
+                 "visible":true,
+                 "width":432,
+                 "x":0,
+                 "y":1696
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -11653,7 +11710,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":734,
+ "nextobjectid":737,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":16,
