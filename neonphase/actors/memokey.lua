@@ -140,6 +140,9 @@ end
 
 function MemoKey:on_collide(other, direction)
     if other.is_player then
+        if self.script_name ~= 'graveyard' then
+            game.progress.keys = (game.progress.keys or 0) + 1
+        end
         worldscene:remove_actor(self)
         Gamestate.push(DialogueScene({
             -- Speakers

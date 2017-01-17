@@ -23,7 +23,7 @@ function TriggerZone:init(pos, size, props)
         self.action = 'submap'
     end
 
-    if self.action == 'submap' or self.action == 'summon anise' or self.action == 'anise wrong bell' then
+    if self.action == 'submap' or self.action == 'summon anise' or self.action == 'anise wrong bell' or self.action == 'THE END' then
         self.is_usable = true
     end
 
@@ -111,6 +111,53 @@ function TriggerZone:on_use(activator)
                 anise:wrong_bell(activator)
             end
         end
+    elseif self.action == 'THE END' then
+        Gamestate.push(DialogueScene({
+            -- Speakers
+            kidneon = activator,
+            chip = activator.ptrs.chip,
+        }, {
+            -- Script
+            { jump = 'all keys', condition = function() return game.progress.keys and game.progress.keys >= 5 end },
+            { jump = 'some keys', condition = function() return game.progress.keys and game.progress.keys > 0 end },
+            { "It's locked. I need to find all the key data. It's usually around here somewhere.", speaker = 'kidneon' },
+            { bail = true },
+
+            { label = 'some keys' },
+            { "It's locked. I don't have enough key data. Gotta keep looking.", speaker = 'kidneon' },
+            { bail = true },
+
+            { label = 'all keys' },
+            {
+                "Here we go...",
+                "And...",
+                "Unlocked.",
+                "You know...",
+                "It's weird, but I kind of like it here. I don't know if it's the familiarity, or... that overwhelming feeling of deja vu, maybe. ",
+                "...Haha. Yeah. I think that's why I like it. Simply because I know it. No regard for if it's good or bad or healthy or not.",
+                "That's really weird, isn't it?",
+                "I know it's dangerous, but... but this place is really familiar to me, so I keep coming back.",
+                "Even if I can't really remember it...",
+                "I want to come back.",
+                "I don't really know what I'm supposed to do with that feeling. ",
+                "Is it bad? ",
+                "...",
+                "No, it's not bad... ",
+                "Of course it's not bad.",
+                "Because it's not anything. ",
+                "It's wrong to even try to quantify it by some arbitrary moral standards.",
+                "It is what it is, I guess.",
+                "An urge, based on an echo of the past.",
+                "...",
+                "Do you ever get that, Chip? Do you ever get deja vu? Or anything like it?",
+                speaker = 'kidneon',
+            },
+            { "NO. MY MEMORY DATA IS NEVER IN FLUX LIKE YOURS.", speaker = 'chip' },
+            { "Yeah... Yeah. I know. I don't know why I asked. Sorry.", speaker = 'kidneon' },
+            { "So. About how long do you estimate until it'll be safe to come back out?", speaker = 'kidneon' },
+            { "BZZT. DIFFICULT TO ESTIMATE. WILD FLUCTUATIONS PROJECTED TO OCCUR FOR UNKNOWN PERIODS OF TIME.", speaker = 'chip' },
+            { "Oh, well. C'mon, then. Let's go wait it out.", speaker = 'kidneon' },
+        }))
     end
 end
 

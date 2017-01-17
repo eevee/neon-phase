@@ -9437,16 +9437,16 @@
                  "name":"",
                  "properties":
                     {
-                     "submap layer":"inside"
+                     "action":"THE END"
                     },
                  "propertytypes":
                     {
-                     "submap layer":"string"
+                     "action":"string"
                     },
                  "rotation":0,
                  "type":"trigger",
                  "visible":true,
-                 "width":4,
+                 "width":6,
                  "x":1808,
                  "y":662
                 }, 
@@ -10056,7 +10056,7 @@
              "submap":"string"
             },
          "type":"imagelayer",
-         "visible":true,
+         "visible":false,
          "width":120,
          "x":0,
          "y":0
@@ -11520,25 +11520,6 @@
                 }, 
                 {
                  "height":24,
-                 "id":235,
-                 "name":"",
-                 "properties":
-                    {
-                     "submap layer":"inside"
-                    },
-                 "propertytypes":
-                    {
-                     "submap layer":"string"
-                    },
-                 "rotation":0,
-                 "type":"trigger",
-                 "visible":true,
-                 "width":4,
-                 "x":1808,
-                 "y":662
-                }, 
-                {
-                 "height":24,
                  "id":537,
                  "name":"",
                  "properties":
@@ -11726,12 +11707,12 @@
              "submap":"string"
             },
          "type":"objectgroup",
-         "visible":true,
+         "visible":false,
          "width":120,
          "x":0,
          "y":0
         }],
- "nextobjectid":738,
+ "nextobjectid":739,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tileheight":16,
