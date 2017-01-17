@@ -361,19 +361,6 @@ local UpgradeChip = actors_base.Actor:extend{
 
     chip_prop = 'has_laser',
     upgrade_name_sfx = 'assets/sounds/energyball.ogg',
-    script = {
-        { "Nice.  This upgrade chip will let me, ah, upgrade Chip.", speaker = 'kidneon' },
-        { "BZZT.  I UPGRADED MYSELF WHILE YOU WERE TALKING.", speaker = 'chip' },
-        { "I CAN NOW FIRE AN ENERGY BALL THAT WILL RECHARGE DEVICES AND DESTROY SOME KINDS OF RUBBLE.", speaker = 'chip' },
-        { "\"Some\" kinds of rubble?", speaker = 'kidneon' },
-        { "CORRECT.  SPECIFICALLY, CRACKED ORANGE BLOCKS.", speaker = 'chip' },
-        { "That's... very specific.", speaker = 'kidneon' },
-        { "I DON'T MAKE THE RULES.", speaker = 'chip' },
-        { "I see.  Well, I'll bind this to my [D] key.", speaker = 'kidneon' },
-        -- FIXME not if you're using a controller, champ
-        { "[D] for...  devastating.", speaker = 'kidneon' },
-        { "BZZT.  IT REALLY ISN'T.", speaker = 'chip' },
-    },
 }
 
 function UpgradeChip:on_collide(other, direction)
@@ -381,9 +368,39 @@ function UpgradeChip:on_collide(other, direction)
         -- TODO what if not chip?
         other.ptrs.chip[self.chip_prop] = true
         worldscene:remove_actor(self)
-        Gamestate.push(UpgradeScene(other.ptrs.chip, self.upgrade_name_sfx, self.script))
+        Gamestate.push(UpgradeScene(other.ptrs.chip, self.upgrade_name_sfx, self:get_script()))
     end
 end
+
+function UpgradeChip:get_script()
+    local script = {
+        { "Nice.  This upgrade chip will let me, ah, upgrade Chip.", speaker = 'kidneon' },
+        { "BZZT.  I UPGRADED MYSELF WHILE YOU WERE TALKING.", speaker = 'chip' },
+        { "I CAN NOW FIRE AN ENERGY BALL THAT WILL RECHARGE DEVICES AND DESTROY SOME KINDS OF RUBBLE.", speaker = 'chip' },
+        { "\"Some\" kinds of rubble?", speaker = 'kidneon' },
+        { "CORRECT.  SPECIFICALLY, CRACKED ORANGE BLOCKS.", speaker = 'chip' },
+        { "That's... very specific.", speaker = 'kidneon' },
+        { "I DON'T MAKE THE RULES.", speaker = 'chip' },
+    }
+
+    if worldscene.using_gamepad then
+        table.insert(script, { "I see.  Well, I'll bind this to my (B) button.", speaker = 'kidneon' })
+        table.insert(script, { "(B) for...  badass.", speaker = 'kidneon' })
+        table.insert(script, { "BZZT.  IT REALLY ISN'T.", speaker = 'chip' })
+    else
+        local key = love.keyboard.getKeyFromScancode('d')
+        if key == 'd' then
+            table.insert(script, { "I see.  Well, I'll bind this to my [D] key.", speaker = 'kidneon' })
+            table.insert(script, { "[D] for...  devastating.", speaker = 'kidneon' })
+            table.insert(script, { "BZZT.  IT REALLY ISN'T.", speaker = 'chip' })
+        else
+            table.insert(script, { ("I see.  Well, I'll bind this to my [%s] key."):format(key:upper()), speaker = 'kidneon' })
+        end
+    end
+
+    return script
+end
+
 
 local UpgradeChip2 = UpgradeChip:extend{
     name = 'upgrade chip 2',
@@ -391,7 +408,17 @@ local UpgradeChip2 = UpgradeChip:extend{
 
     chip_prop = 'has_carry',
     upgrade_name_sfx = 'assets/sounds/carry.ogg',
-    script = {
+}
+
+function UpgradeChip2:get_script()
+    local binding
+    if worldscene.using_gamepad then
+        binding = "(L)"
+    else
+        binding = "[" .. love.keyboard.getKeyFromScancode('s'):upper() .. "]"
+    end
+
+    return {
         { "Another upgrade chip.", speaker = 'kidneon' },
         { "...", speaker = 'chip' },
         { "...", speaker = 'kidneon' },
@@ -404,10 +431,9 @@ local UpgradeChip2 = UpgradeChip:extend{
         { "That's all?  Couldn't you carry, say, me?", speaker = 'kidneon' },
         { "ERROR.  YOU DO NOT FIT ANY OF THE GIVEN PARAMETERS.", speaker = 'chip' },
         { "AT MAXIMUM POWER, I COULD ONLY PERFORM A GLIDE.", speaker = 'chip' },
-        -- FIXME not if you're using a controller, champ
-        { "That still sounds useful.  I'll bind it to [S].", speaker = 'kidneon' },
-    },
-}
+        { ("That still sounds useful.  I'll bind it to %s."):format(binding), speaker = 'kidneon' },
+    }
+end
 
 
 return Chip
