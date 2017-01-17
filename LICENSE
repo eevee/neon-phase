@@ -1,16 +1,13 @@
 The following components are the property of third parties and are used with
 permission:
 
-- The Flora setting belongs to GlitchedPuppet and is licensed as CC BY-SA 3.0.
-  http://floraverse.com/faqs/
-
 - The "vendor" directory contains third-party Lua code; see the README in that
   directory for attribution, and the source files for licenses.
 
 - The "assets/fonts" directory contains third-party fonts; see the README in
   that directory for attribution and licenses.
 
-All other work is copyright ©2016 Lexy Munroe aka Eevee.
+Code and art are ©2017 Eevee and GlitchedPuppet.
 
 --------------------------------------------------------------------------------
 

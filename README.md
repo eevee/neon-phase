@@ -1,16 +1,18 @@
-# Isaac's Descent HD Remix
+# NEON PHASE
 
-This is a puzzle-platformer based on the PICO-8 game I did for Ludum Dare 36, [Isaac's Descent](https://c.eev.ee/isaacs-descent/).
+This is a video game, created along with [GlitchedPuppet](http://glitchedpuppet.com/), set in their [Flora](http://floraverse.com/) world.  It was made in a week — err, nineish days — for the [Games Made Quick](https://itch.io/jam/games-made-quick) jam.  It's based on the code from my (incomplete as of this writing) game, [Isaac's Descent: HD Remix](https://github.com/eevee/isaacs-descent).
 
-It requires [LÖVE](https://love2d.org/) 0.10+ and nothing else.
+It requires [LÖVE](https://love2d.org/) 0.10 and nothing else.
 
 
 ## Running
 
-Just install LÖVE and run this repository with it.
+You can get a build from [the page on itch](https://eevee.itch.io/neon-phase).
 
-    git clone https://github.com/eevee/isaacs-descent.git
-    love isaacs-descent
+Or install LÖVE and run this repository with it.
+
+    git clone https://github.com/eevee/neon-phase
+    love neon-phase
 
 
 ## Built with
@@ -20,8 +22,6 @@ Just install LÖVE and run this repository with it.
 - [Vim](http://www.vim.org/), a text editor for nerds
 
 - [Aseprite](http://www.aseprite.org/), a pixel art editor
-
-- AndroidArts's 64-color [Famicube](http://androidarts.com/palette/Famicube.htm) palette
 
 - [Tiled](http://www.mapeditor.org/), a map editor
 
