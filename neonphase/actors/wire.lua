@@ -19,6 +19,7 @@ local Wirable = actors_base.Actor:extend{
     powered = 0,
     can_emit = true,
     can_receive = true,
+    z = 2000,  -- in front of the player
 }
 
 function Wirable:init(...)
@@ -355,6 +356,7 @@ local WirePlugSE = Wirable:extend{
 local WireSocket = actors_base.Actor:extend{
     name = 'wire socket',
     sprite_name = 'wire socket',
+    z = 1999,  -- in front of the player but behind its wire
 
     is_usable = true,
 }
@@ -415,6 +417,7 @@ end
 local Bolt = Wirable:extend{
     name = 'bolt',
     sprite_name = 'bolt',
+    z = -1,
 
     nodes = {NORTH, SOUTH, EAST, WEST},
 }

@@ -11,6 +11,7 @@ local UpgradeScene = require 'neonphase.scenes.upgrade'
 local ChipLaser = actors_base.MobileActor:extend{
     name = "chip's laser",
     sprite_name = "chip's laser",
+    z = 1001,  -- in front of player
 
     gravity_multiplier = 0,
     ground_friction = 0,
@@ -49,7 +50,7 @@ function ChipLaser:update(dt)
             self.velocity = Vector(0, 0)
             self.sprite:set_pose('hit')
             game.resource_manager:get('assets/sounds/hit4.ogg'):clone():play()
-            worldscene.fluct:to(self, 0.25, {}):oncomplete(function() 
+            worldscene.fluct:to(self, 0.3, {}):oncomplete(function()
                 worldscene:remove_actor(self)
             end)
             return
@@ -65,6 +66,7 @@ local Chip = actors_base.Actor:extend{
     sprite_name = 'chip',
     dialogue_position = {'right', 'far left'},
     dialogue_sprite_name = 'chip portrait',
+    z = 999,
 
     owner_offset = Vector(-16, -24),
     max_scalar_acceleration = 512,

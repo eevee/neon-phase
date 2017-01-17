@@ -25,6 +25,7 @@ end
 local PlotCover = actors_base.Actor:extend{
     name = 'plot cover shh',
     sprite_name = 'plot cover shh',
+    z = 100000,
 }
 
 function PlotCover:blocks()

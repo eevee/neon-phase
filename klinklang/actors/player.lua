@@ -13,6 +13,7 @@ local Player = actors_base.MobileActor:extend{
     sprite_name = 'kid neon',
     dialogue_position = 'left',
     dialogue_sprite_name = 'kid neon portrait',
+    z = 1000,
 
     is_player = true,
 

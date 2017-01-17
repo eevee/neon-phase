@@ -250,14 +250,11 @@ function WorldScene:draw()
     self.map:draw('background', self.camera, w, h)
     self.map:draw('main terrain', self.camera, w, h)
 
+    local actors_faucet
     if self.pushed_actors then
-        for _, actor in ipairs(self.pushed_actors) do
-            actor:draw()
-        end
+        self:_draw_actors(self.pushed_actors)
     else
-        for _, actor in ipairs(self.actors) do
-            actor:draw()
-        end
+        self:_draw_actors(self.actors)
     end
 
     self.map:draw('objects', self.camera, w, h)
@@ -271,7 +268,7 @@ function WorldScene:draw()
         -- FIXME stop hardcoding fuckin layer names
         self.map:draw(self.submap, self.camera, w, h)
         for _, actor in ipairs(self.actors) do
-            actor:draw()
+            self:_draw_actors(self.actors)
         end
     end
 
@@ -344,6 +341,21 @@ function WorldScene:draw()
 
     if game.debug then
         self:_draw_blockmap()
+    end
+end
+
+function WorldScene:_draw_actors(actors)
+    local sorted_actors = {}
+    for k, v in ipairs(actors) do
+        sorted_actors[k] = v
+    end
+
+    table.sort(sorted_actors, function(actor1, actor2)
+        return (actor1.z or 0) < (actor2.z or 0)
+    end)
+
+    for _, actor in ipairs(sorted_actors) do
+        actor:draw()
     end
 end
 
