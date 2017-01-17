@@ -5,6 +5,8 @@ local actors_base = require 'klinklang.actors.base'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
+local CreditsScene = require 'neonphase.scenes.credits'
+local SceneFader = require 'klinklang.scenes.fader'
 
 
 local TriggerZone = actors_base.BareActor:extend{
@@ -157,6 +159,15 @@ function TriggerZone:on_use(activator)
             { "So. About how long do you estimate until it'll be safe to come back out?", speaker = 'kidneon' },
             { "BZZT. DIFFICULT TO ESTIMATE. WILD FLUCTUATIONS PROJECTED TO OCCUR FOR UNKNOWN PERIODS OF TIME.", speaker = 'chip' },
             { "Oh, well. C'mon, then. Let's go wait it out.", speaker = 'kidneon' },
+            { execute = function()
+                local fader = SceneFader(CreditsScene(), false, 2, {0, 0, 0})
+                if worldscene.music then
+                    fader:fade_out_music(worldscene.music)
+                end
+                Gamestate.switch(fader)
+            end },
+            -- FIXME this seems to be necessary idk
+            { "...", speaker = 'chip' },
         }))
     end
 end

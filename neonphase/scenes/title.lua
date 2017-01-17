@@ -22,7 +22,7 @@ function TitleScene:init(next_scene, map_path)
 
     self.title_image = love.graphics.newImage('assets/images/title.png')
     local grid = anim8.newGrid(800, 480, self.title_image:getDimensions())
-    self.title_anim = anim8.newAnimation(grid('1-6', 1), { 2, ['2-6'] = 0.1 })
+    self.title_anim = anim8.newAnimation(grid('2-6', 1, 1, 1), { ['1-5'] = 0.1, [6] = 2 })
 
     self.map_path = map_path
     self.load_state = 0
