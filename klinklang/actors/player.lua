@@ -42,8 +42,7 @@ function Player:on_enter()
         chip = self.chip
         self.chip = nil
     else
-        -- FIXME chip should spawn at their desired location
-        chip = Chip(self, self.pos:clone())
+        chip = Chip(self)
     end
     self.ptrs.chip = chip
     worldscene:add_actor(chip)

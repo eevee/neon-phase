@@ -1,6 +1,7 @@
 local utf8 = require 'utf8'
 
 local Gamestate = require 'vendor.hump.gamestate'
+local tick = require 'vendor.tick'
 
 local ResourceManager = require 'klinklang.resources'
 local DialogueScene = require 'klinklang.scenes.dialogue'
@@ -95,6 +96,7 @@ function love.load(args)
         'data/tilesets/energyball.tsx.json',
         'data/tilesets/portraits.tsx.json',
         'data/tilesets/decor.tsx.json',
+        'data/tilesets/voidkn.tsx.json',
     } do
         local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
         resource_manager:add(tspath, tileset)
@@ -110,18 +112,20 @@ function love.load(args)
     love.graphics.setFont(m5x7)
     m5x7small = love.graphics.newFont('assets/fonts/m5x7.ttf', 16 * 1)
 
-    game.maps = {
-        'map.tmx.json',
-    }
-    -- TODO should maps instead hardcode their next maps?  or should they just
-    -- have a generic "exit" a la doom?
-    game.map_index = 1
-    map = tiledmap.TiledMap("data/maps/" .. game.maps[game.map_index], resource_manager)
+    map = tiledmap.TiledMap("data/maps/map.tmx.json", resource_manager)
     worldscene = WorldScene()
     worldscene:load_map(map)
 
     Gamestate.registerEvents()
-    Gamestate.switch(worldscene)
+    Gamestate.push(worldscene)
+    --local TitleScene = require('neonphase.scenes.title')
+    --Gamestate.push(TitleScene(worldscene))
+    --local CreditsScene = require('neonphase.scenes.credits')
+    --Gamestate.switch(CreditsScene())
+end
+
+function love.update(dt)
+    tick.update(dt)
 end
 
 function love.draw()

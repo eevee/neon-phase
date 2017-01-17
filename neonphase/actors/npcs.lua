@@ -3,6 +3,7 @@ local Vector = require 'vendor.hump.vector'
 
 local actors_base = require 'klinklang.actors.base'
 local actors_misc = require 'klinklang.actors.misc'
+local Player = require 'klinklang.actors.player'
 local util = require 'klinklang.util'
 local whammo_shapes = require 'klinklang.whammo.shapes'
 local DialogueScene = require 'klinklang.scenes.dialogue'
@@ -21,6 +22,184 @@ local function _find_actor_by_type_name(name)
 end
 
 
+local function _graveyard_convo(player)
+    Gamestate.push(DialogueScene({
+        kidneon = player,
+        chip = player.ptrs.chip,
+    }, {
+        { "...", speaker = 'kidneon' },
+        { "BZZT. GOOD MORNING.", speaker = 'chip' },
+        { "What? ", speaker = 'kidneon' },
+        { "What?! Where are we?", speaker = 'kidneon' },
+        { "SECTOR 5 OF TESLIC YARD'S OUTER RING.", speaker = 'chip' },
+        { "I don't recognize this place. How'd we get here?", speaker = 'kidneon' },
+        { "YOU WALKED HERE AND I FOLLOWED.", speaker = 'chip' },
+        {
+            "I don't... remember doing that.",
+            "But here we are, so.",
+            "Damn it. What were we doing before that?",
+            speaker = 'kidneon',
+        },
+        { "COLLECTING KEY DATA.", speaker = 'chip' },
+        { "No, like...", speaker = 'kidneon' },
+        { "weren't we going somewhere?", speaker = 'kidneon' },
+        { "BZZT. WE ARE TRYING TO GO INSIDE THE LOCKED BUILDING.", speaker = 'chip' },
+        {
+            "Okay. All right.",
+            "...",
+            "No. That can't be it.",
+            "What really happened? Tell me.",
+            speaker = 'kidneon',
+        },
+        { "ENTERING IDLE MODE.", speaker = 'chip' },
+        { "...", speaker = 'kidneon' },
+    }))
+end
+
+
+local MaskedSun = actors_base.Actor:extend{
+    name = 'masked sun',
+    sprite_name = 'masked sun',
+    dialogue_position = 'right',
+    dialogue_sprite_name = 'masked sun portrait',
+    dialogue_background = 'assets/images/voiddialoguebox.png',
+}
+
+
+local VoidPlayer = Player:extend{
+    name = 'void player',
+    sprite_name = 'void player',
+    dialogue_position = 'left',
+    dialogue_sprite_name = 'void player portrait',
+    dialogue_background = 'assets/images/voiddialoguebox.png',
+    dialogue_color = {64, 64, 64},
+
+    xaccel = 600,
+    -- FIXME friction is stupid
+    friction = 400,
+    max_speed = 60,
+}
+
+function VoidPlayer:on_enter()
+    -- Don't spawn a Chip
+end
+
+function VoidPlayer:on_leave()
+    -- Don't take a Chip either
+end
+
+function VoidPlayer:decide_jump()
+    -- Nope
+end
+
+function VoidPlayer:update(...)
+    if self.done then
+    elseif self.pos.x >= 1216 then
+        self.done = true
+        Gamestate.push(DialogueScene({
+            -- Speakers
+            kidneon = self,
+            maskedsun = _find_actor_by_type_name('masked sun'),
+        }, {
+            { "This isn't an ideal outcome.", speaker = 'maskedsun' },
+            { "it's over", speaker = 'kidneon' },
+            { "As a matter of fact, it's hardly an outcome at all. This isn't how it ends. So, get up.", speaker = 'maskedsun' },
+            { "no point", speaker = 'kidneon' },
+            { "Wrong. It's important. To keep thinking and imagining and dreaming. That's the point. To do better. To be better. Everyone's in this, together.", speaker = 'maskedsun' },
+            { "tired", speaker = 'kidneon' },
+            { "Everyone's tired. Everyone's stretched so, so thin. ", speaker = 'maskedsun' },
+            { "Keep going. Can't give up. Must keep going. We've got to keep going.", speaker = 'maskedsun' },
+            { "it's so hard", speaker = 'kidneon' },
+            {
+                "We've achieved so much already...",
+                "But...",
+                "There's nothing left for us if I give up now. ",
+                "Nothing left for us, and nothing left for anyone.",
+                "And yes, it's difficult.",
+                "It's a very difficult role.",
+                "Of course it is! Because it's mine. It's ours!",
+                "And that's what makes it so important!",
+                "A sacred chance, to learn anew!",
+                "And in that role... in our difficult existence...",
+                "There is value.",
+                "Even if I don't know how to try harder...",
+                "Or better...",
+                "I'm trying.",
+                "And for now, that is enough.",
+                "Let's go.",
+                speaker = 'maskedsun',
+            },
+            {
+                execute = function()
+                    worldscene.glitch:play_extreme_glitch_transition()
+                    worldscene.tick:delay(function()
+                        local fader = SceneFader(worldscene, true, 3.75, {255, 255, 255}, function()
+                            worldscene:remove_actor(worldscene.player)
+                            worldscene.player = worldscene.stashed_player
+                            worldscene.player:move_to(Vector(96, 1872))
+                            worldscene.player.chip:teleport_to_shoulder(worldscene.player)
+                            worldscene:load_map(game.resource_manager:get("data/maps/map.tmx.json"))
+                            worldscene:add_actor(worldscene.player)
+                            worldscene:update_camera()
+                            -- A zero update fixes state (like whether the
+                            -- player was touching something) without advancing
+                            -- time
+                            worldscene:update(0)
+                            -- And this fires the graveyard convo the moment
+                            -- the world scene regains control
+                            worldscene.tick:delay(function()
+                                _graveyard_convo(worldscene.player)
+                            end, 0)
+                        end)
+                        if worldscene.music then
+                            fader:fade_out_music(worldscene.music)
+                        end
+                        Gamestate.push(fader)
+                    end, 0.25)
+                end
+            },
+        }))
+    else
+        VoidPlayer.__super.update(self, ...)
+    end
+end
+
+local VOID_TEXTS = {
+    "too much",
+    "it's too much",
+    "going back is hard",
+    "can't",
+    "don't want to",
+    "it's over",
+    "never worth it",
+    "can't do anything",
+    "can't be anything",
+    "...",
+    "why bother",
+}
+function VoidPlayer:draw()
+    VoidPlayer.__super.draw(self)
+
+    local text_duration = 4
+    local i = math.min(#VOID_TEXTS, math.floor(self.timer / text_duration) + 1)
+    local t = self.timer % text_duration
+
+    if t < text_duration - 1 then
+        love.graphics.push('all')
+        local alpha = 255
+        if t < 0.5 then
+            alpha = alpha * t
+        elseif t > text_duration - 1.5 then
+            alpha = alpha * (text_duration - t - 1)
+        end
+        love.graphics.setColor(0, 0, 0, alpha)
+        local w, h = game:getDimensions()
+        love.graphics.printf(VOID_TEXTS[i], worldscene.camera.x, worldscene.camera.y + 80, w, "center")
+        love.graphics.pop()
+    end
+end
+
+
 local Bunker = actors_base.BareActor:extend{
     shape = whammo_shapes.Box(646, 714, 76, 6),
 
@@ -35,6 +214,8 @@ function Bunker:on_use(activator)
             chip = activator.ptrs.chip,
         }, {
             -- Script
+            { jump = 'second time', condition = 'bunker: visited weird place' },
+            { set = 'bunker: visited weird place' },
             { "Hey, Chip. Last chance. I'm not gonna let you get away with pretending like you already knew about whatever we find.", speaker = 'kidneon' },
             { "...unless you tell me right now and end up being right, I mean.", speaker = 'kidneon' },
             { "YOU WILL FIND NOTHING.", speaker = 'chip' },
@@ -50,8 +231,40 @@ function Bunker:on_use(activator)
                 },
             },
             { label = 'continue' },
-            -- FIXME aand weirdplace from here
-            { "BZZT.  ERROR.  CUTSCENE MISSING.", speaker = 'chip' },
+            { execute = function()
+                local fader = SceneFader(worldscene, true, 1, {0, 0, 0}, function()
+                    local tiledmap = require('klinklang.tiledmap')
+                    map = tiledmap.TiledMap("data/maps/weirdplace.tmx.json", game.resource_manager)
+                    -- Fuck it
+                    worldscene.stashed_player = worldscene.player
+                    worldscene:remove_actor(worldscene.player)
+                    worldscene.player = VoidPlayer(worldscene.player.pos)
+                    worldscene:load_map(map)
+                    worldscene.glitch:play_very_glitch_effect()
+                    worldscene.music = love.audio.newSource('assets/music/weirdplace.ogg')
+                    worldscene.music:setLooping(true)
+                    worldscene.music:play()
+                end)
+                if worldscene.music then
+                    fader:fade_out_music(worldscene.music)
+                end
+                Gamestate.switch(fader)
+            end },
+            -- FIXME the execute doesn't seem to execute without this lmao
+            { "...", speaker = 'chip' },
+            { bail = true },
+
+            { label = 'second time' },
+            { "Huh. Hey, Chip. Do you have any idea what's in there?", speaker = 'kidneon' },
+            { "DIRT. ROCKS. ETC. ETC.", speaker = 'chip' },
+            { "NOTHING IMPORTANT.", speaker = 'chip' },
+            {
+                "Let's see about that...",
+                "(You pry the door open. It's a solid dirt wall.)",
+                "Guess so.",
+                "Boring.",
+                speaker = 'kidneon',
+            },
         }))
     end
 end

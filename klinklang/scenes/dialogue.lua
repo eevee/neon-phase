@@ -62,6 +62,9 @@ function DialogueScene:init(speakers, script)
                 position = actor.dialogue_position,
                 color = actor.dialogue_color,
             }
+            if actor.dialogue_background then
+                speaker.background = game.resource_manager:load(actor.dialogue_background)
+            end
         end
         self.speakers[name] = speaker
 

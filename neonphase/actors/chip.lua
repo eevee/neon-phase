@@ -95,11 +95,21 @@ local Chip = actors_base.Actor:extend{
     overlay_sprite = nil,
 }
 
-function Chip:init(owner, ...)
-    actors_base.Actor.init(self, ...)
+function Chip:init(owner)
+    actors_base.Actor.init(self, owner.pos)
 
+    self:teleport_to_shoulder(owner)
     self.velocity = Vector(0, 0)
     self.ptrs.owner = owner
+end
+
+function Chip:teleport_to_shoulder(owner)
+    local offset = self.owner_offset:clone()
+    if owner.facing_left then
+        offset.x = -offset.x
+    end
+    self:move_to(owner.pos + offset)
+    self.sprite:set_facing_right(not owner.facing_left)
 end
 
 function Chip:decide_fire(decision)

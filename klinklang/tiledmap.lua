@@ -411,6 +411,8 @@ function TiledMap:init(path, resource_manager)
             end
         end
     end
+
+    resource_manager:add(path, self)
 end
 
 function TiledMap:add_to_collider(collider, submap_name)
