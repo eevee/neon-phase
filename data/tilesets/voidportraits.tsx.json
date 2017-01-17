@@ -1,0 +1,33 @@
+{ "columns":2,
+ "image":"..\/..\/assets\/images\/voidportraits.png",
+ "imageheight":96,
+ "imagewidth":192,
+ "margin":0,
+ "name":"voidportraits",
+ "spacing":0,
+ "tilecount":2,
+ "tileheight":96,
+ "tileproperties":
+    {
+     "0":
+        {
+         "sprite name":"void player portrait\/default"
+        },
+     "1":
+        {
+         "sprite name":"masked sun portrait\/default"
+        }
+    },
+ "tilepropertytypes":
+    {
+     "0":
+        {
+         "sprite name":"string"
+        },
+     "1":
+        {
+         "sprite name":"string"
+        }
+    },
+ "tilewidth":96
+}

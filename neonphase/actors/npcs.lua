@@ -395,6 +395,7 @@ function Twig:on_use(activator)
 
             -- (Talk to twig after getting all the items you need, and after the reveal in the pearl convo)
             { label = 'just fix the ship' },
+            { set = 'fixed the ship' },
             {
                 "You know what? This ship is archaic, so I think I've actually got everything I'd need to fix it up.",
                 "I can use the joystick to fix the control panel...",

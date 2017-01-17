@@ -97,6 +97,8 @@ function love.load(args)
         'data/tilesets/portraits.tsx.json',
         'data/tilesets/decor.tsx.json',
         'data/tilesets/voidkn.tsx.json',
+        'data/tilesets/voidportraits.tsx.json',
+        'data/tilesets/maskedsun.tsx.json',
     } do
         local tileset = tiledmap.TiledTileset(tspath, nil, resource_manager)
         resource_manager:add(tspath, tileset)

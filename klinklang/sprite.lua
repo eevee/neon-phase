@@ -125,6 +125,11 @@ function Sprite:set_scale(scale)
     self.scale = scale
 end
 
+function Sprite:getDimensions()
+    local w, h = self.anim:getDimensions()
+    return w * self.scale, h * self.scale
+end
+
 function Sprite:update(dt)
     if self._pending_pose then
         self:_set_pose(self._pending_pose)
