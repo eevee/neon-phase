@@ -551,8 +551,8 @@ function Anise:on_use(activator)
                 label = 'buying options',
                 speaker = 'anise',
                 menu = {
-                    { 'ringy bell', "ringy bell - makes cool noise when hit over and over" },
-                    { 'broken star', "broken star - makes cool noise when hit over and over" },
+                    { 'ringy bell', "ringy bell - makes a cool noise when I bat it" },
+                    { 'broken star', "broken star - makes a cool noise when I bat it" },
                     { 'floor kibble', "floor kibble - tasty and easy to eat", condition = function()
                         return not game.progress.flags['anise: floor kibble']
                     end },
@@ -684,7 +684,7 @@ function Purrl:on_use(activator)
                         return not game.progress.flags['pearl: seen living situation']
                             and not game.progress.flags['pearl: seen living situation 2']
                     end},
-                    { 'living situation 2', "Species? Living situation?", condition = function()
+                    { 'living situation 2', "Species?", condition = function()
                         return game.progress.flags['pearl: seen living situation']
                             and not game.progress.flags['pearl: seen living situation 2']
                     end},
