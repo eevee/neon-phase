@@ -13,6 +13,10 @@ local Glowmeleon = actors_base.Actor:extend{
     name = 'glowmeleon',
     sprite_name = 'glowmeleon',
 }
+local TV = actors_base.Actor:extend{
+    name = 'tv',
+    sprite_name = 'tv',
+}
 
 
 local DustBunny = actors_base.MobileActor:extend{
