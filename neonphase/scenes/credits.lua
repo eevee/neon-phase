@@ -265,7 +265,7 @@ function CreditsScene:draw()
     y = y + self.font:getHeight() * 4 + margin * 4
 
     love.graphics.setColor(128, 128, 128)
-    love.graphics.printf("Built with LÖVE\nand Daniel Linssen's sweet m5x7 font\nSource code: github.com/eevee/neonphase\nSoundtrack, etc.: eevee.itch.io/neon-phase", margin, y, textwidth, "center")
+    love.graphics.printf("Built with LÖVE\nand Daniel Linssen's sweet m5x7 font\nSource code: github.com/eevee/neon-phase\nSoundtrack, etc.: eevee.itch.io/neon-phase", margin, y, textwidth, "center")
     y = y + self.font:getHeight() * 4 + margin * 8
 
     love.graphics.setColor(255, 255, 255)
