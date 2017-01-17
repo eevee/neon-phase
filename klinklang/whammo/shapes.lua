@@ -467,6 +467,11 @@ function MultiShape:move(dx, dy)
     end
 end
 
+function MultiShape:flipx()
+    -- FIXME i'm just hacking this to work for this one object, don't really care otherwise
+    return self:clone()
+end
+
 function MultiShape:draw(...)
     for _, subshape in ipairs(self.subshapes) do
         subshape:draw(...)

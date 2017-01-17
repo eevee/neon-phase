@@ -22,6 +22,16 @@ local function _find_actor_by_type_name(name)
 end
 
 
+local PlotCover = actors_base.Actor:extend{
+    name = 'plot cover shh',
+    sprite_name = 'plot cover shh',
+}
+
+function PlotCover:blocks()
+    return true
+end
+
+
 local function _graveyard_convo(player)
     Gamestate.push(DialogueScene({
         kidneon = player,
@@ -31,7 +41,7 @@ local function _graveyard_convo(player)
         { "BZZT. GOOD MORNING.", speaker = 'chip' },
         { "What? ", speaker = 'kidneon' },
         { "What?! Where are we?", speaker = 'kidneon' },
-        { "SECTOR 5 OF TESLIC YARD'S OUTER RING.", speaker = 'chip' },
+        { "SECTOR TY-045F.", speaker = 'chip' },
         { "I don't recognize this place. How'd we get here?", speaker = 'kidneon' },
         { "YOU WALKED HERE AND I FOLLOWED.", speaker = 'chip' },
         {
@@ -139,6 +149,7 @@ function VoidPlayer:update(...)
                             worldscene.player:move_to(Vector(96, 1872))
                             worldscene.player.chip:teleport_to_shoulder(worldscene.player)
                             worldscene:load_map(game.resource_manager:get("data/maps/map.tmx.json"))
+                            worldscene:remove_actor(_find_actor_by_type_name('plot cover shh'))
                             worldscene:add_actor(worldscene.player)
                             worldscene:update_camera()
                             -- A zero update fixes state (like whether the
