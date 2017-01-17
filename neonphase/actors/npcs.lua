@@ -41,7 +41,7 @@ local function _graveyard_convo(player)
         { "BZZT. GOOD MORNING.", speaker = 'chip' },
         { "What? ", speaker = 'kidneon' },
         { "What?! Where are we?", speaker = 'kidneon' },
-        { "SECTOR TY-045F.", speaker = 'chip' },
+        { "SECTOR TY-045F. TESLIC YARD'S OUTER RING.", speaker = 'chip' },
         { "I don't recognize this place. How'd we get here?", speaker = 'kidneon' },
         { "YOU WALKED HERE AND I FOLLOWED.", speaker = 'chip' },
         {
