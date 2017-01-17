@@ -1,11 +1,11 @@
-{ "columns":7,
- "image":"..\/..\/assets\/images\/batterysideways.png",
+{ "columns":14,
+ "image":"..\/..\/assets\/images\/newbattery.png",
  "imageheight":16,
- "imagewidth":224,
+ "imagewidth":448,
  "margin":0,
  "name":"batterysideways",
  "spacing":0,
- "tilecount":7,
+ "tilecount":14,
  "tileheight":16,
  "tileproperties":
     {
@@ -14,7 +14,7 @@
          "actor":"small battery",
          "sprite name":"small battery\/off"
         },
-     "1":
+     "7":
         {
          "sprite name":"small battery\/on"
         }
@@ -26,7 +26,7 @@
          "actor":"string",
          "sprite name":"string"
         },
-     "1":
+     "7":
         {
          "sprite name":"string"
         }
@@ -35,6 +35,35 @@
     {
      "0":
         {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":0
+                }, 
+                {
+                 "duration":100,
+                 "tileid":1
+                }, 
+                {
+                 "duration":100,
+                 "tileid":2
+                }, 
+                {
+                 "duration":100,
+                 "tileid":3
+                }, 
+                {
+                 "duration":100,
+                 "tileid":4
+                }, 
+                {
+                 "duration":100,
+                 "tileid":5
+                }, 
+                {
+                 "duration":100,
+                 "tileid":6
+                }],
          "objectgroup":
             {
              "draworder":"index",
@@ -74,30 +103,50 @@
         },
      "1":
         {
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "7":
+        {
          "animation":[
                 {
                  "duration":100,
-                 "tileid":1
+                 "tileid":7
                 }, 
                 {
                  "duration":100,
-                 "tileid":2
+                 "tileid":8
                 }, 
                 {
                  "duration":100,
-                 "tileid":3
+                 "tileid":9
                 }, 
                 {
                  "duration":100,
-                 "tileid":4
+                 "tileid":10
                 }, 
                 {
                  "duration":100,
-                 "tileid":5
+                 "tileid":11
                 }, 
                 {
                  "duration":100,
-                 "tileid":6
+                 "tileid":12
+                }, 
+                {
+                 "duration":100,
+                 "tileid":13
                 }],
          "objectgroup":
             {
