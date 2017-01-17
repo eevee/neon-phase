@@ -119,8 +119,6 @@ function love.load(args)
     Gamestate.registerEvents()
     local TitleScene = require('neonphase.scenes.title')
     Gamestate.switch(TitleScene(worldscene, "data/maps/map.tmx.json"))
-    --local CreditsScene = require('neonphase.scenes.credits')
-    --Gamestate.switch(CreditsScene())
 end
 
 function love.update(dt)

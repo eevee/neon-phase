@@ -1030,7 +1030,7 @@ function Iridd:on_use(activator)
                 speaker = 'iridd',
             },
             { "Oh. Yeah, sure.", speaker = 'kidneon' },
-            { execute = function() worldscene:add_actor(Nectar(Vector(1216, 1575))) end },
+            { execute = function() worldscene:add_actor(Nectar(Vector(1212, 1576))) end },
             { bail = true },
 
             -- (Talk again before picking the bottle up)

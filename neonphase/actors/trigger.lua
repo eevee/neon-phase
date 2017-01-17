@@ -99,7 +99,7 @@ function TriggerZone:on_use(activator)
         -- FIXME ugh
         local anise
         for _, actor in ipairs(worldscene.actors) do
-            if actor.name == 'anise' and not actor.has_moved then
+            if actor.name == 'anise' then
                 anise = actor
                 break
             end

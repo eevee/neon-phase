@@ -580,7 +580,7 @@ function WorldScene:enter_submap(name)
     self:_create_actors(self.submap)
 
     -- FIXME this is also invasive
-    for _, layer in pairs(map.layers) do
+    for _, layer in pairs(self.map.layers) do
         if layer.type == 'objectgroup' and layer.submap == self.submap then
             for _, object in ipairs(layer.objects) do
                 if object.type == 'trigger' then
