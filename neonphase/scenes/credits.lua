@@ -8,9 +8,8 @@ local CreditsScene = BaseScene:extend{
 }
 
 function CreditsScene:init()
-    local music = game.resource_manager:load('assets/music/credits.ogg')
-    music:setLooping(true)
-    music:play()
+    self.music = game.resource_manager:load('assets/music/credits.ogg')
+    self.music:setLooping(true)
 
     self.credits = {
         {
@@ -139,6 +138,10 @@ function CreditsScene:init()
     self.glitchier:play_credits_glitch_effect()
     self.canvas = love.graphics.newCanvas(w, h)
     self.neon_canvas = love.graphics.newCanvas(w, h)
+end
+
+function CreditsScene:enter()
+    self.music:play()
 end
 
 function CreditsScene:update(dt)
