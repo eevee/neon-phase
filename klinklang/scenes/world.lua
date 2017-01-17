@@ -139,17 +139,6 @@ function WorldScene:update(dt)
         self.player.ptrs.chip:decide_fire(chip_fire)
     end
 
-    if love.keyboard.isDown(',') then
-        local Gamestate = require 'vendor.hump.gamestate'
-        Gamestate.switch(self)
-    end
-    if self.inventory_switch then
-        self.inventory_switch.progress = self.inventory_switch.progress + dt * 3
-        if self.inventory_switch.progress >= 2 then
-            self.inventory_switch = nil
-        end
-    end
-
     self.fluct:update(dt)
     self.tick:update(dt)
 
