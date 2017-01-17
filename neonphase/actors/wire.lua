@@ -461,6 +461,17 @@ function SlidingDoor:on_power_change(active)
             shape:move_to(self.pos:unpack())
             self:set_shape(shape)
         end
+    else
+        self.sprite:set_pose('closing')
+        self.sprite:update(0)
+        local oldonloop = self.sprite.anim.onLoop
+        self.sprite.anim.onLoop = function()
+            self.sprite:set_pose('closed')
+            self.sprite:update(0)
+            local shape = self.sprite.shape:clone()
+            shape:move_to(self.pos:unpack())
+            self:set_shape(shape)
+        end
     end
 end
 

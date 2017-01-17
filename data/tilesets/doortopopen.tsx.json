@@ -18,6 +18,10 @@
         {
          "sprite name":"sliding door\/opening"
         },
+     "5":
+        {
+         "sprite name":"sliding door\/closing"
+        },
      "6":
         {
          "sprite name":"sliding door\/open"
@@ -31,6 +35,10 @@
          "sprite name":"string"
         },
      "1":
+        {
+         "sprite name":"string"
+        },
+     "5":
         {
          "sprite name":"string"
         },
@@ -102,6 +110,59 @@
                 {
                  "duration":100,
                  "tileid":5
+                }],
+         "objectgroup":
+            {
+             "draworder":"index",
+             "height":0,
+             "name":"",
+             "objects":[
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":1,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":16,
+                     "y":64
+                    }],
+             "opacity":1,
+             "type":"objectgroup",
+             "visible":true,
+             "width":0,
+             "x":0,
+             "y":0
+            }
+        },
+     "5":
+        {
+         "animation":[
+                {
+                 "duration":100,
+                 "tileid":5
+                }, 
+                {
+                 "duration":100,
+                 "tileid":4
+                }, 
+                {
+                 "duration":100,
+                 "tileid":3
+                }, 
+                {
+                 "duration":100,
+                 "tileid":2
+                }, 
+                {
+                 "duration":100,
+                 "tileid":1
+                }, 
+                {
+                 "duration":100,
+                 "tileid":0
                 }],
          "objectgroup":
             {
