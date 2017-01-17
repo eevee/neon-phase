@@ -696,9 +696,10 @@ function Purrl:on_use(activator)
                     { 'fish 2', "Fish...?", condition = function() return game.progress.flags['pearl: seen fish'] end },
                     {
                         'cat talking permissions',
-                        "Do you know anything about the cat with the twig sticking out of their helmet?",
+                        "Twig... the cat near the spaceship?",
                         condition = function()
                             return game.progress.flags['spoken to twig']
+                                and game.progress.flags['pearl: seen living situation 2']
                                 and not game.progress.flags['pearl: seen cat talking permissions']
                                 and not game.progress.flags['pearl: seen fixing the ship']
                         end,
@@ -741,7 +742,7 @@ function Purrl:on_use(activator)
             { "All right, look. I've never seen a species quite like you. Before today, I mean. If you're not from here, then can I ask where you ARE from? None of my wikkying is turning anything up, and it's been driving me up the wall.", speaker = 'kidneon' },
             { "I'm from the moon!", speaker = 'purrl' },
             { "You -- what. You're what? What?", speaker = 'kidneon' },
-            { "We all got real tired of the systemic oppression lunekos face on Lil Luna, so we banded together and escaped! Now we're space rebels. Mweooo!", speaker = 'purrl' },
+            { "We all got real tired of the systemic oppression lunekos face on Lil Luna, so me and my uncle Twig got a couple of our friends, banded together, and escaped! Now we're space rebels. Mweooo!", speaker = 'purrl' },
             { "...I... want... no, I NEED... to know... more... about...", speaker = 'kidneon' },
             { "A FULL INVESTIGATION OF LUNEKOS ESTIMATED TO TAKE SEVERAL DAYS. UNWISE USAGE OF TIME, AS THE NEXT FREQUENCY SHIFT IS--", speaker = 'chip' },
             { "I know, I know... Damn it! Maybe later.", speaker = 'kidneon' },
@@ -786,7 +787,7 @@ function Purrl:on_use(activator)
             -- ( 4- Cat talking permissions?)
             { label = 'cat talking permissions' },
             { set = 'pearl: seen cat talking permissions' },
-            { "Myep! That's my uncle, Branch Commander Twig!", speaker = 'purrl' },
+            { "Myep! My uncle, Branch Commander Twig!", speaker = 'purrl' },
             { "Do you have any idea what kind of permission I need in order to get him to speak with me? ", speaker = 'kidneon' },
             { "He just says that to anyone he thinks is annoying.", speaker = 'purrl' },
             { "...", speaker = 'kidneon' },
