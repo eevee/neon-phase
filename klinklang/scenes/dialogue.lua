@@ -154,6 +154,23 @@ function DialogueScene:enter(previous_scene)
 end
 
 function DialogueScene:update(dt)
+    -- Let the player hold the B button for max dialogue speed, but stop at
+    -- menus
+    -- FIXME this causes a character or two to show while trying to execute a
+    -- scenefade
+    local holding_b = love.keyboard.isScancodeDown('d')
+    for i, joystick in ipairs(love.joystick.getJoysticks()) do
+        if joystick:isGamepad() then
+            if joystick:isGamepadDown('b') then
+                holding_b = true
+                break
+            end
+        end
+    end
+    if holding_b then
+        self:_advance_script()
+    end
+
     for _, speaker in pairs(self.speakers) do
         if speaker.sprite then
             speaker.sprite:update(dt)
@@ -316,6 +333,7 @@ function DialogueScene:_advance_script()
             end
             break
         elseif step.jump then
+            -- FIXME would be nice to scan the script for bad jumps upfront
             if _evaluate_condition(step.condition) then
                 -- FIXME fuck this -1
                 self.script_index = self.labels[step.jump] - 1
@@ -496,7 +514,7 @@ function DialogueScene:draw()
     for _, text in ipairs(texts) do
         -- Draw the text, twice: once for a drop shadow, then the text itself
         love.graphics.setColor(0, 0, 0, 128)
-        love.graphics.draw(text, x - 2, y + 2)
+        love.graphics.draw(text, x, y + 2)
 
         love.graphics.setColor(self.phrase_speaker.color or self.default_color)
         love.graphics.draw(text, x, y)
@@ -535,21 +553,30 @@ function DialogueScene:draw()
 end
 
 function DialogueScene:keypressed(key, scancode, isrepeat)
-    if key == 'space' then
-        self:_advance_script()
+    if key == 'space' or key == 'e' then
+        if self.state == 'menu' then
+            self:_cursor_accept()
+        else
+            self:_advance_script()
+        end
     elseif key == 'up' then
         self:_cursor_up()
     elseif key == 'down' then
         self:_cursor_down()
-    elseif key == 'return' then
-        self:_cursor_accept()
     end
 end
 
 function DialogueScene:gamepadpressed(joystick, button)
-    if button == 'a' then
-        self:_advance_script()
-    -- FIXME other buttons too
+    if button == 'a' or button == 'x' then
+        if self.state == 'menu' then
+            self:_cursor_accept()
+        else
+            self:_advance_script()
+        end
+    elseif button == 'dpup' then
+        self:_cursor_up()
+    elseif button == 'dpdown' then
+        self:_cursor_down()
     end
 end
 

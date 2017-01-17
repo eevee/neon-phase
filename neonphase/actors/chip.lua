@@ -341,12 +341,12 @@ local UpgradeChip = actors_base.Actor:extend{
         { "Nice.  This upgrade chip will let me, ah, upgrade Chip.", speaker = 'kidneon' },
         { "BZZT.  I UPGRADED MYSELF WHILE YOU WERE TALKING.", speaker = 'chip' },
         { "I CAN NOW FIRE AN ENERGY BALL THAT WILL RECHARGE DEVICES AND DESTROY SOME KINDS OF RUBBLE.", speaker = 'chip' },
-        -- FIXME not if you're using a controller, champ
         { "\"Some\" kinds of rubble?", speaker = 'kidneon' },
         { "CORRECT.  SPECIFICALLY, CRACKED ORANGE BLOCKS.", speaker = 'chip' },
         { "That's... very specific.", speaker = 'kidneon' },
         { "I DON'T MAKE THE RULES.", speaker = 'chip' },
         { "I see.  Well, I'll bind this to my [D] key.", speaker = 'kidneon' },
+        -- FIXME not if you're using a controller, champ
         { "[D] for...  devastating.", speaker = 'kidneon' },
         { "BZZT.  IT REALLY ISN'T.", speaker = 'chip' },
     },
@@ -378,8 +378,9 @@ local UpgradeChip2 = UpgradeChip:extend{
         { "So what does the upgrade do?", speaker = 'kidneon' },
         { "I AM NOW CAPABLE OF CARRYING A SMALL SQUARE PURPLE OBJECT.", speaker = 'chip' },
         { "That's all?  Couldn't you carry, say, me?", speaker = 'kidneon' },
-        { "ERROR.  YOU DO NOT FIT ANY OF THE REQUIREMENTS.", speaker = 'chip' },
+        { "ERROR.  YOU DO NOT FIT ANY OF THE GIVEN PARAMETERS.", speaker = 'chip' },
         { "AT MAXIMUM POWER, I COULD ONLY PERFORM A GLIDE.", speaker = 'chip' },
+        -- FIXME not if you're using a controller, champ
         { "That still sounds useful.  I'll bind it to [S].", speaker = 'kidneon' },
     },
 }

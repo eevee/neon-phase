@@ -124,6 +124,7 @@
         },
      "80":
         {
+         "actor":"vacuum",
          "sprite name":"vacuum\/default"
         },
      "88":
@@ -253,6 +254,7 @@
         },
      "80":
         {
+         "actor":"string",
          "sprite name":"string"
         },
      "88":
@@ -1077,6 +1079,18 @@
                      "width":16,
                      "x":0,
                      "y":0
+                    }, 
+                    {
+                     "ellipse":true,
+                     "height":0,
+                     "id":2,
+                     "name":"",
+                     "rotation":0,
+                     "type":"anchor",
+                     "visible":true,
+                     "width":0,
+                     "x":8,
+                     "y":16
                     }],
              "opacity":1,
              "type":"objectgroup",

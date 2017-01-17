@@ -23,8 +23,7 @@ function TriggerZone:init(pos, size, props)
         self.action = 'submap'
     end
 
-    -- FIXME should probably have a trigger...  mode
-    if self.action == 'submap' or self.action == 'summon anise' then
+    if self.action == 'submap' or self.action == 'summon anise' or self.action == 'anise wrong bell' then
         self.is_usable = true
     end
 
@@ -77,6 +76,10 @@ function TriggerZone:on_collide(other, direction)
 end
 
 function TriggerZone:on_use(activator)
+    if not activator.is_player then
+        return
+    end
+
     -- FIXME my map has props for this stuff, which i should probably be using here
     if self.action == 'submap' then
         if worldscene.submap then
@@ -84,7 +87,7 @@ function TriggerZone:on_use(activator)
         else
             worldscene:enter_submap('inside house 1')
         end
-    elseif self.action == 'summon anise' then
+    elseif self.action == 'summon anise' or self.action == 'anise wrong bell' then
         worldscene:remove_actor(self)
 
         -- FIXME ugh
@@ -96,7 +99,11 @@ function TriggerZone:on_use(activator)
             end
         end
         if anise then
-            anise:move_to_stall()
+            if self.action == 'summon anise' then
+                anise:move_to_stall()
+            else
+                anise:wrong_bell(activator)
+            end
         end
     end
 end

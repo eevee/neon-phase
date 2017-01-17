@@ -113,6 +113,8 @@ function TiledTileset:init(path, data, resource_manager)
     -- me get rid of _all_sprites)
     -- FIXME this scheme is nice, except, there's no way to use the same frame
     -- for two poses?
+    -- FIXME if the same spriteset name appears in two tilesets, the latter
+    -- will silently overwrite the former
     local spritesets = {}
     local grid = anim8.newGrid(tw, th, iw, ih, data.margin, data.margin, data.spacing)
     for id = 0, self.tilecount - 1 do
