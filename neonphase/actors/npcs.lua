@@ -365,7 +365,6 @@ function Twig:on_use(activator)
         }, {
             -- Script
             -- First time
-            { jump = 'just fix the ship' },
             { jump = 'second time', condition = 'spoken to twig' },
             { set = 'spoken to twig' },
             { "Greetings. ", speaker = 'kidneon' },
