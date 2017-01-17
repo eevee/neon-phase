@@ -35,7 +35,7 @@ game = {
     end,
 
     getDimensions = function(self)
-        return love.graphics.getWidth() / self.scale, love.graphics.getHeight() / self.scale
+        return math.ceil(love.graphics.getWidth() / self.scale), math.ceil(love.graphics.getHeight() / self.scale)
     end,
 }
 
@@ -128,7 +128,7 @@ end
 function love.draw()
 end
 
-local _previous_mode
+local _previous_size
 
 function love.resize(w, h)
     game:_determine_scale()
@@ -137,12 +137,15 @@ end
 function love.keypressed(key, scancode, isrepeat)
     if key == 'return' and not isrepeat and love.keyboard.isDown('lalt', 'ralt') then
         if love.window.getFullscreen() then
-            love.window.setMode(unpack(_previous_mode))
+            love.window.setFullscreen(false)
+            -- FIXME this freezes X for me until i ssh in and killall love, so.
+            --love.window.setMode(_previous_size[1], _previous_size[2])
             -- This isn't called for resizes caused by code, but worldscene
             -- etc. sort of rely on knowing this
             love.resize(love.graphics.getDimensions())
         else
-            _previous_mode = {love.window.getMode()}
+            -- LOVE claims to do this for me, but it lies
+            _previous_size = {love.window.getMode()}
             love.window.setFullscreen(true)
         end
     end
