@@ -174,8 +174,9 @@ function DialogueScene:update(dt)
         end
     end
     if holding_b then
-        if self.wait_delay then
-            self.wait_delay:stop()
+        if self.hesitate_delay then
+            self.hesitate_delay:stop()
+            self.hesitating = false
         end
         self:_advance_script()
     end
@@ -255,12 +256,12 @@ function DialogueScene:_hesitate(time)
     -- brief time before allowing a button press to go through.
     time = time or 0.1
     self.hesitating = true
-    if self.wait_delay then
-        self.wait_delay:stop()
+    if self.hesitate_delay then
+        self.hesitate_delay:stop()
     end
-    self.wait_delay = self.tick:delay(function()
+    self.hesitate_delay = self.tick:delay(function()
         self.hesitating = false
-        self.wait_delay = nil
+        self.hesitate_delay = nil
     end, time)
 end
 
