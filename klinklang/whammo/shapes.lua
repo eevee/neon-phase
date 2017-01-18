@@ -319,7 +319,7 @@ function Polygon:slide_towards(other, movement)
     if maxdist < 0 then
         -- Shapes are already colliding
         -- FIXME should have /some/ kind of gentle rejection here
-        --print("ALREADY COLLIDING", maxdist, worldscene.collider:get_owner(other))
+        --print("ALREADY COLLIDING", maxdist, worldscene and worldscene.collider:get_owner(other))
         --error("seem to be inside something!!  stopping so you can debug buddy  <3")
         return Vector.zero, -1, util.ClockRange(util.ClockRange.ZERO, util.ClockRange.ZERO)
         --return

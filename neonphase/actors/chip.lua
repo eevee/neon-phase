@@ -22,12 +22,12 @@ function ChipLaser:init(owner, ...)
     actors_base.Actor.init(self, ...)
 
     self.ptrs.owner = owner
-    self.velocity = Vector(self.constant_velocity, 0)
+    self.direction = Vector(1, 0)
     -- FIXME probably chip should pass this in
     if owner.sprite.facing == 'left' then
         self.facing_left = true
         self.sprite:set_facing_right(false)
-        self.velocity.x = -self.velocity.x
+        self.direction.x = -1
     end
 end
 
@@ -41,6 +41,7 @@ function ChipLaser:update(dt)
         return
     end
 
+    self.velocity = self.constant_velocity * self.direction
     actors_base.MobileActor.update(self, dt)
     local x0, y0, x1, y1 = self.shape:bbox()
     if x0 <= 0 or y0 <= 0 or x1 >= worldscene.map.width or y1 >= worldscene.map.height then
@@ -53,6 +54,11 @@ function ChipLaser:update(dt)
         -- FIXME seems to be a recurring problem of having certain individual
         -- objects ignore collision with certain other individual objects;
         -- maybe the collider itself should know about this
+        -- FIXME so it's possible for a ball to get exactly wedged between two
+        -- bolts and come to a halt without actually colliding with anything.
+        -- i fixed this by making constant_velocity not rely on knowing the
+        -- previous velocity, but it's another symptom of something wrong with
+        -- the clock model (or maybe of clocks in general)
         local obstacle = worldscene.collider:get_owner(shape)
         if touchtype > 0 and obstacle ~= self.ptrs.owner and obstacle ~= self.ptrs.owner.ptrs.owner then
             if obstacle then

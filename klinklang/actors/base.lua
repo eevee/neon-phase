@@ -206,7 +206,6 @@ local MobileActor = Actor:extend{
     max_slope = Vector(1, 1),
     gravity_multiplier = 1,
     gravity_multiplier_down = 1,
-    constant_velocity = nil,
 
     -- Active physics parameters
     -- TODO these are a little goofy because friction works differently; may be
@@ -280,9 +279,6 @@ function MobileActor:_do_physics(dt)
         self.velocity = self.velocity + gravity * mult * dt
         self.velocity.y = math.min(self.velocity.y, terminal_velocity)
         --print("velocity after gravity:", self.velocity)
-    end
-    if self.constant_velocity ~= nil then
-        self.velocity = self.velocity:normalized() * self.constant_velocity
     end
 
     -- Fudge the movement to try ending up aligned to the pixel grid.
