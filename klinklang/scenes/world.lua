@@ -13,6 +13,11 @@ local tiledmap = require 'klinklang.tiledmap'
 local Glitch = require 'neonphase.glitch'
 
 local CAMERA_MARGIN = 0.4
+-- Sets the maximum length of an actor update.
+-- 50~60 fps should only do one update, of course; 30fps should do two.
+local MIN_FRAMERATE = 45
+-- Don't do more than this many updates at once
+local MAX_UPDATES = 10
 
 -- FIXME game-specific...  but maybe it doesn't need to be
 local TriggerZone = require 'neonphase.actors.trigger'
@@ -173,8 +178,19 @@ function WorldScene:update(dt)
         self.music = new_music
     end
 
-    for _, actor in ipairs(self.actors) do
-        actor:update(dt)
+    -- If the framerate drops significantly below 60fps, do multiple updates.
+    -- This avoids objects completely missing each other, as well as subtler
+    -- problems like the player's jump height being massively different due to
+    -- large acceleration steps.
+    -- TODO if the slowdown is due to the updates, not the draw, then this is
+    -- not going to help!  might be worth timing this and giving up if it takes
+    -- more time than it's trying to simulate
+    local updatect = math.min(MAX_UPDATES, math.ceil(dt * MIN_FRAMERATE))
+    local subdt = dt / updatect
+    for i = 1, updatect do
+        for _, actor in ipairs(self.actors) do
+            actor:update(subdt)
+        end
     end
 
     self:update_camera()

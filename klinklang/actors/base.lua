@@ -240,6 +240,9 @@ function MobileActor:_do_physics(dt)
     -- Include the dt factor from the beginning, to make capping easier.
     -- Also, doing this before anything else ensures that it only considers
     -- deliberate movement and momentum, not gravity.
+    -- FIXME doing this before actual movement has the same problem as the
+    -- interaction of gravity and jump height -- you walk very very slowly when
+    -- the framerate is low
     local vellen = self.velocity:len()
     if vellen > 1e-8 then
         local vel1 = self.velocity / vellen

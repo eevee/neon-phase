@@ -132,8 +132,18 @@ function Player:update(dt)
             if self.velocity.y > -self.jumpvel then
                 self.velocity.y = -self.jumpvel
                 self.on_ground = false
-                -- FIXME kinda game-specific
-                --game.resource_manager:get('assets/sounds/jump.ogg'):play()
+                -- FIXME gravity is applied after this and before you actually
+                -- move, which means that if the framerate is too low, your
+                -- initial jump velocity will be cut so much that you can't
+                -- reach the maximum jump height.
+                -- currently this is worked around by slicing updates in the
+                -- world scene, which is probably a good idea anyway, but i
+                -- think my whole ordering of actions vs passive forces needs a
+                -- little tweaking.
+                -- btw, walking has the same kind of problem -- friction is
+                -- applied after the speed cap but before actual movement, so
+                -- at a very low framerate, you move very slowly.  a real fix
+                -- may need some comprehensive rearrangement of stuff
             end
         end
     elseif self.decision_jump_mode == 0 then
