@@ -1,5 +1,6 @@
 local utf8 = require 'utf8'
 
+local tick = require 'vendor.tick'
 local Gamestate = require 'vendor.hump.gamestate'
 local Vector = require 'vendor.hump.vector'
 
@@ -40,6 +41,7 @@ function DialogueScene:init(speakers, script)
     BaseScene.init(self)
 
     self.wrapped = nil
+    self.tick = tick.group()
 
     -- FIXME unhardcode some more of this, adjust it on resize
     local w, h = game:getDimensions()
@@ -143,6 +145,7 @@ function DialogueScene:init(speakers, script)
     self.phrase_timer = nil  -- counts in time * SCROLL_RATE; every time it goes up by 1, a new character should appear
 
     self.state = 'start'
+    self.hesitating = false
 
     -- TODO magic numbers
     self.wraplimit = w - TEXT_MARGIN_X * 2
@@ -171,8 +174,13 @@ function DialogueScene:update(dt)
         end
     end
     if holding_b then
+        if self.wait_delay then
+            self.wait_delay:stop()
+        end
         self:_advance_script()
     end
+
+    self.tick:update(dt)
 
     for _, speaker in pairs(self.speakers) do
         if speaker.sprite then
@@ -205,6 +213,7 @@ function DialogueScene:update(dt)
                 if self.curline == #self.phrase_lines + 1 then
                     self.state = 'waiting'
                     self.phrase_timer = 0
+                    self:_hesitate()
                     if self.phrase_speaker.sprite then
                         self.phrase_speaker.sprite:set_pose(self.phrase_speaker.sprite.spriteset.default_pose)
                     end
@@ -217,6 +226,7 @@ function DialogueScene:update(dt)
                 if self.curline > 3 then
                     self.state = 'waiting'
                     self.phrase_timer = 0
+                    self:_hesitate()
                     break
                 end
             end
@@ -239,7 +249,26 @@ function DialogueScene:update(dt)
     end
 end
 
+function DialogueScene:_hesitate(time)
+    -- Just in case this is a very short phrase, or the player tried to fill
+    -- out the box just before it finished naturally (and missed), wait for a
+    -- brief time before allowing a button press to go through.
+    time = time or 0.1
+    self.hesitating = true
+    if self.wait_delay then
+        self.wait_delay:stop()
+    end
+    self.wait_delay = self.tick:delay(function()
+        self.hesitating = false
+        self.wait_delay = nil
+    end, time)
+end
+
 function DialogueScene:_advance_script()
+    if self.hesitating then
+        return
+    end
+
     -- Fill the textbox
     if self.state == 'speaking' then
         -- FIXME hardcoding max lines again
@@ -256,6 +285,7 @@ function DialogueScene:_advance_script()
         self.curline = lastline + 1
         self.curchar = 0
         self.state = 'waiting'
+        self:_hesitate()
         return
     elseif self.state == 'menu' then
         return
@@ -314,6 +344,7 @@ function DialogueScene:_advance_script()
             break
         elseif step.menu then
             self.state = 'menu'
+            self:_hesitate(0.25)
             self.phrase_speaker = self.speakers[step.speaker]
             self.menu_items = {}
             self.menu_cursor = 1
@@ -556,6 +587,13 @@ function DialogueScene:draw()
 end
 
 function DialogueScene:keypressed(key, scancode, isrepeat)
+    if isrepeat then
+        return
+    end
+    if self.hesitating then
+        return
+    end
+
     if scancode == 'space' or scancode == 'e' then
         if self.state == 'menu' then
             self:_cursor_accept()
@@ -570,6 +608,10 @@ function DialogueScene:keypressed(key, scancode, isrepeat)
 end
 
 function DialogueScene:gamepadpressed(joystick, button)
+    if self.hesitating then
+        return
+    end
+
     if button == 'a' or button == 'x' then
         if self.state == 'menu' then
             self:_cursor_accept()
