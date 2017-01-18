@@ -130,6 +130,23 @@ function TriggerZone:on_use(activator)
             { bail = true },
 
             { label = 'all keys' },
+            { "Looks like we found all the key data.", speaker = 'kidneon' },
+            { "BZZT.  WITH TIME TO SPARE.", speaker = 'chip' },
+            { "Is there anything we forgot to do?  We won't be coming back here.", speaker = 'kidneon' },
+            {
+                speaker = 'kidneon',
+                menu = {
+                    { 'leave', "(Nah, let's go.)" },
+                    { 'hesitate', "(Maybe one more look around.)" },
+                },
+            },
+            { label = 'hesitate' },
+            { "If we have the time, there's no harm in hanging back for a little while.", speaker = 'kidneon' },
+            { "NOT TOO LONG.  EARLY IS PREFERABLE TO LATE, BZZT.", speaker = 'chip' },
+            { bail = true },
+            { label = 'leave' },
+            { "DOES IT MATTER?", speaker = 'chip' },
+            { "I guess not.", speaker = 'kidneon' },
             {
                 "Here we go...",
                 "And...",
