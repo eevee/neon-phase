@@ -31,7 +31,7 @@ function CreditsScene:init()
             portrait = game.sprites['nyapo-ion portrait']:instantiate(),
             illus = love.graphics.newImage('assets/images/creditsnapoleon.png'),
             name = 'NYAPO-ION',
-            quip = "Nyap time",
+            quip = "Enjoying his nyap",
         },
         {
             sprite = game.sprites['twig']:instantiate(),
@@ -63,7 +63,7 @@ function CreditsScene:init()
             portrait2 = game.sprites['smiley portrait']:instantiate(),
             illus = love.graphics.newImage('assets/images/creditssmileyiridd.png'),
             name = 'IRIDD +\nSMILEY',
-            quip = "Mostly harmless",
+            quip = "Mostly harmless?",
         },
         {
             sprite = game.sprites['radio goat']:instantiate(),
@@ -71,13 +71,6 @@ function CreditsScene:init()
             illus = love.graphics.newImage('assets/images/creditsradiogoat.png'),
             name = 'STATIC',
             quip = "...",
-        },
-        {
-            sprite = game.sprites['masked sun']:instantiate(),
-            portrait = game.sprites['masked sun portrait']:instantiate(),
-            illus = love.graphics.newImage('assets/images/creditsmaskedsun.png'),
-            name = 'THE MASKED SUN',
-            quip = "[error: string not found]",
         },
         {
             sprite = game.sprites['kid neon']:instantiate(),
@@ -95,14 +88,26 @@ function CreditsScene:init()
         self.credits[4].illus = love.graphics.newImage('assets/images/creditstwig2.png')
         self.credits[4].quip = "Dreaming of home"
     end
+    -- Only show the masked sun if you, uh, met them
+    if game.progress.flags['bunker: visited weird place'] then
+        local credit = {
+            sprite = game.sprites['masked sun']:instantiate(),
+            portrait = game.sprites['masked sun portrait']:instantiate(),
+            illus = love.graphics.newImage('assets/images/creditsmaskedsun.png'),
+            name = 'THE MASKED SUN',
+            quip = "[error: string not found]",
+        }
+        -- Masked sun is not symmetrical, so un-flip
+        credit.portrait:set_facing_right(false)
+    end
+
     -- Fix some flipped sprites, oof
     self.credits[4].sprite:set_facing_right(false)
     self.credits[6].sprite2:set_facing_right(false)
-    self.credits[9].portrait:set_facing_right(false)
-    self.credits[10].sprite:set_facing_right(false)
+    self.credits[9].sprite:set_facing_right(false)
     -- Give Kid Neon and Chip actual poses
-    self.credits[10].sprite:set_pose('walk')
-    self.credits[10].sprite2:set_pose('jump')
+    self.credits[9].sprite:set_pose('walk')
+    self.credits[9].sprite2:set_pose('jump')
 
     for _, credit in ipairs(self.credits) do
         credit.sprite:set_scale(2)
