@@ -173,7 +173,7 @@ function DialogueScene:update(dt)
             end
         end
     end
-    if holding_b then
+    if game.debug and holding_b then
         if self.hesitate_delay then
             self.hesitate_delay:stop()
             self.hesitating = false
