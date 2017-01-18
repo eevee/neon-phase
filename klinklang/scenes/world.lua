@@ -308,10 +308,12 @@ function WorldScene:draw()
                 love.graphics.setColor(255, 255, 0, 192)
                 actor.shape:draw('line')
             end
-            love.graphics.setColor(255, 0, 0)
-            love.graphics.circle('fill', actor.pos.x, actor.pos.y, 2)
-            love.graphics.setColor(255, 255, 255)
-            love.graphics.circle('line', actor.pos.x, actor.pos.y, 2)
+            if actor.pos then
+                love.graphics.setColor(255, 0, 0)
+                love.graphics.circle('fill', actor.pos.x, actor.pos.y, 2)
+                love.graphics.setColor(255, 255, 255)
+                love.graphics.circle('line', actor.pos.x, actor.pos.y, 2)
+            end
         end
 
         if debug_hits then
