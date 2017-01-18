@@ -169,7 +169,7 @@ function CreditsScene:update(dt)
                 reverse_rate = -4
             end
             local axis = joystick:getGamepadAxis('lefty')
-            if axis < -0.05 then
+            if axis < -0.25 then
                 reverse_rate = axis * 16
                 break
             end
