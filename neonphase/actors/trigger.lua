@@ -136,8 +136,8 @@ function TriggerZone:on_use(activator)
             {
                 speaker = 'kidneon',
                 menu = {
-                    { 'leave', "(Nah, let's go.)" },
                     { 'hesitate', "(Maybe one more look around.)" },
+                    { 'leave', "(Nah, let's go.)" },
                 },
             },
             { label = 'hesitate' },
