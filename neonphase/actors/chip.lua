@@ -204,8 +204,6 @@ function Chip:_move_towards(goal, dt)
 
         local old_pos = self.pos
         self.pos = self.pos + separation / distance * self.scalar_velocity * dt
-        self.pos.x = math.floor(self.pos.x + 0.5)
-        self.pos.y = math.floor(self.pos.y + 0.5)
         self.last_move = self.pos - old_pos
         if math.abs(separation.x) > 1 then
             self.sprite:set_facing_right(separation.x > 0)

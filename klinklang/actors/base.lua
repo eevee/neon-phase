@@ -322,10 +322,11 @@ function MobileActor:_do_physics(dt)
     -- FIXME this is turning this method into a "deliberate actor" method,
     -- which i'm fine with, but it should be separate
     if self.on_ground then
-        -- FIXME how far should we try this?
+        -- FIXME how far should we try this?  128 is arbitrary, but works out
+        -- to 2 pixels at 60fps, which...  i don't know what that means
         -- FIXME again, don't do this off the edges of the map...  depending on map behavior...  sigh
         --print("/// doing drop")
-        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, 0, 2, true)
+        local drop_movement, drop_hits, drop_clock = worldscene.collider:slide(self.shape, 0, 128 * dt, true)
         --print("\\\\\\ end drop")
         local any_hit = false
         for shape, touchtype in pairs(drop_hits) do
