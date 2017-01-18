@@ -934,6 +934,7 @@ function NyapoIon:on_use(activator)
 
             -- (arrive to nyapo with the old pizza box)
             { label = 'found pizza' },
+            { jump = 'asleep', condition = 'nyapo-ion: asleep' },
             { "Hey, I found out what happened to your pizza.", speaker = 'kidneon' },
             { "(You give the cat the empty box...)", speaker = 'kidneon' },
             { "Oh my dog! I knew you were lying!", speaker = 'nyapoion' },
@@ -945,6 +946,8 @@ function NyapoIon:on_use(activator)
             { "Everything to do with...", speaker = 'kidneon' },
             { "Uh, don't worry about it. Enjoy your empty box.", speaker = 'kidneon' },
             { "Oh man, I can't wait to test drive this baby! Thanks!", speaker = 'nyapoion' },
+            { set = 'nyapo-ion: asleep' },
+            { label = 'asleep' },
             { "(The cat's already fast asleep on their new bed.)", speaker = 'kidneon' },
             { "All... right. ", speaker = 'kidneon' },
             { "Guess all's well that ends well, huh, Chip?", speaker = 'kidneon' },
