@@ -177,6 +177,11 @@ function VoidPlayer:update(...)
                             worldscene.tick:delay(function()
                                 _graveyard_convo(worldscene.player)
                             end, 0)
+                            -- And this is just embarrassing
+                            if worldscene._xxx_lol_was_playing_sfx then
+                                local sfx = game.resource_manager:get('assets/sounds/chippickup2.ogg')
+                                sfx:play()
+                            end
                         end)
                         if worldscene.music then
                             fader:fade_out_music(worldscene.music)
@@ -280,6 +285,15 @@ function Bunker:on_use(activator)
                 if worldscene.music then
                     fader:fade_out_music(worldscene.music)
                 end
+                -- HAHAHA this is the worst thing I have ever done.  If Chip is
+                -- carrying you while you use the bunker, the carry sound will
+                -- continue to play the entire time you're in the weird place.
+                -- That's bad, probably!
+                -- But I don't want to fuck around with Chip's state, so
+                -- instead...  I mute that specific sound effect.
+                local sfx = game.resource_manager:get('assets/sounds/chippickup2.ogg')
+                worldscene._xxx_lol_was_playing_sfx = sfx:isPlaying()
+                fader:fade_out_music(sfx)
                 Gamestate.switch(fader)
             end },
             -- FIXME the execute doesn't seem to execute without this lmao
