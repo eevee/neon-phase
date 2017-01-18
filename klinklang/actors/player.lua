@@ -61,6 +61,16 @@ function Player:blocks(other, d)
     return true
 end
 
+function Player:move_to(...)
+    Player.__super.move_to(self, ...)
+
+    -- Nuke the player's touched object after an external movement, since
+    -- chances are, we're not touching it any more
+    -- This is vaguely hacky, but it gets rid of the dang use prompt after
+    -- teleporting to the graveyard
+    self.touching_mechanism = nil
+end
+
 -- "Thinking" API
 -- Totally not sure about this yet, but it seems handy for critter AI.
 
@@ -178,6 +188,7 @@ function Player:update(dt)
     -- check current touches anyway.  would be nice if it could hook into the
     -- physics system so i don't have to ask twice
     local hits = self._stupid_hits_hack
+    -- FIXME this should really really be a ptr
     self.touching_mechanism = nil
     debug_hits = hits
     for shape in pairs(hits) do
