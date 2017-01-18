@@ -1,3 +1,4 @@
+local tick = require 'vendor.tick'
 local Vector = require 'vendor.hump.vector'
 
 local BaseScene = require 'klinklang.scenes.base'
@@ -143,6 +144,9 @@ function CreditsScene:init()
     self.glitchier:play_credits_glitch_effect()
     self.canvas = love.graphics.newCanvas(w, h)
     self.neon_canvas = love.graphics.newCanvas(w, h)
+    self.tfp_state = 0
+    self.using_gamepad = worldscene.using_gamepad
+    self.tick = tick.group()
 end
 
 function CreditsScene:enter()
@@ -181,6 +185,21 @@ function CreditsScene:update(dt)
         end
     end
     self.y0 = math.min(self.y00, self.y0 - self.scroll_rate * dt * reverse_rate)
+
+    self.tick:update(dt)
+
+    if self.done and not self.ever_done then
+        self.ever_done = true
+        self.tick:delay(function()
+            self.tfp_state = 1
+        end, 5)
+    end
+    if self.tfp_state == 1 and self.glitchier.active then
+        self.tfp_state = 2
+        self.tick:delay(function()
+            self.tfp_state = 3
+        end, 1)
+    end
 end
 
 function CreditsScene:draw()
@@ -274,8 +293,24 @@ function CreditsScene:draw()
     y = y + self.font:getHeight() * 4 + margin * 8
 
     love.graphics.setColor(255, 255, 255)
-    love.graphics.printf("Thanks for playing!\n\nMade for Eevee's harebrained\nGames Made Quick jam 2017", margin, y, textwidth, "center")
-    y = y + self.font:getHeight() * 5
+    love.graphics.printf("Thanks for playing!", margin, y, textwidth, "center")
+    y = y + self.font:getHeight() * 2
+    if self.tfp_state == 1 or self.tfp_state == 2 then
+        love.graphics.setCanvas(self.neon_canvas)
+    end
+    if self.tfp_state < 2 then
+        love.graphics.printf("Made for Eevee's harebrained\nGames Made Quick jam 2017", margin, y, textwidth, "center")
+    else
+        local key
+        if self.using_gamepad then
+            key = "(Y)"
+        else
+            key = "[Q]"
+        end
+        love.graphics.printf(("That's it!  There's no more game.\nPress %s to quit.  Or scroll up."):format(key), margin, y, textwidth, "center")
+    end
+    love.graphics.setCanvas(self.canvas)
+    y = y + self.font:getHeight() * 3
     love.graphics.setColor(128, 192, 255)
     love.graphics.printf("floraverse.com", margin, y, textwidth, "center")
     y = y + self.font:getHeight() + margin * 4
@@ -303,6 +338,26 @@ function CreditsScene:resize(w, h)
     local w, h = game:getDimensions()
     self.canvas = love.graphics.newCanvas(w, h)
     self.neon_canvas = love.graphics.newCanvas(w, h)
+end
+
+function CreditsScene:keypressed(key, scancode, isrepeat)
+    self.using_gamepad = false
+    if self.done and self.tfp_state == 3 and key == 'q' then
+        love.event.quit()
+    end
+end
+
+function CreditsScene:gamepadpressed(joystick, button)
+    self.using_gamepad = true
+    if self.done and self.tfp_state == 3 and button == 'y' then
+        love.event.quit()
+    end
+end
+
+function CreditsScene:gamepadaxis(joystick, axis, value)
+    if math.abs(value) > 0.25 then
+        self.using_gamepad = true
+    end
 end
 
 return CreditsScene
