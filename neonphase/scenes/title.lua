@@ -71,6 +71,10 @@ function TitleScene:draw()
         self.glitch:apply()
         love.graphics.draw(self.logo, (w - siw) / 2, (h - sih) / 2, 0, scale)
         love.graphics.setShader()
+        local c = self.opacity * 192
+        love.graphics.setColor(c, c, c)
+        love.graphics.setFont(m5x7small)
+        love.graphics.printf("v" .. game.VERSION, 0, h - m5x7small:getHeight() - 4, w - 4, "right")
     else
         love.graphics.scale(game.scale, game.scale)
 
