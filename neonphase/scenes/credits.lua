@@ -100,6 +100,7 @@ function CreditsScene:init()
         }
         -- Masked sun is not symmetrical, so un-flip
         credit.portrait:set_facing_right(false)
+        table.insert(self.credits, credit)
     end
 
     -- Fix some flipped sprites, oof
