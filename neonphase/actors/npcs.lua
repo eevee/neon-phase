@@ -228,10 +228,15 @@ end
 
 
 local Bunker = actors_base.BareActor:extend{
+    name = 'bunker',
     shape = whammo_shapes.Box(646, 714, 76, 6),
 
     is_usable = true,
 }
+
+function Bunker:init(pos)
+    self.pos = pos
+end
 
 function Bunker:on_use(activator)
     if activator.is_player then
@@ -391,6 +396,7 @@ function Twig:on_use(activator)
             { "...", speaker = 'twig' },
             { "Hellooo?", speaker = 'kidneon' },
             { "(The cat's motionless. You're not sure whether they're sleeping or ignoring you.)", speaker = 'kidneon' },
+            { "Maybe someone else around here knows how to get through to them...", speaker = 'kidneon' },
             { bail = true },
 
             -- (Talk to twig before getting all the items you need, but after the reveal that the ship can be fixed via the pearl convo)
