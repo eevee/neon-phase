@@ -319,6 +319,7 @@ end
 local MouseAlert = actors_base.Actor:extend{
     name = 'mouse alert',
     sprite_name = 'mouse alert',
+    z = 1,  -- in front of twigs
 }
 
 function MouseAlert:launch()
