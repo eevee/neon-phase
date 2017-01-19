@@ -115,6 +115,8 @@ function love.load(args)
     love.graphics.setFont(m5x7)
     m5x7small = love.graphics.newFont('assets/fonts/m5x7.ttf', 16 * 1)
 
+    love.joystick.loadGamepadMappings("vendor/gamecontrollerdb.txt")
+
     worldscene = WorldScene()
 
     Gamestate.registerEvents()
