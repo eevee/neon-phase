@@ -29,7 +29,7 @@ local function clamp(n, min, max)
 end
 
 local function divmod(n, b)
-    return math.floor(n / b), math.mod(n, b)
+    return math.floor(n / b), n % b
 end
 
 
