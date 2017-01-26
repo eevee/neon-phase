@@ -185,7 +185,8 @@ function WorldScene:update(dt)
     -- TODO if the slowdown is due to the updates, not the draw, then this is
     -- not going to help!  might be worth timing this and giving up if it takes
     -- more time than it's trying to simulate
-    local updatect = math.min(MAX_UPDATES, math.ceil(dt * MIN_FRAMERATE))
+    local updatect = math.max(1, math.min(MAX_UPDATES,
+        math.ceil(dt * MIN_FRAMERATE)))
     local subdt = dt / updatect
     for i = 1, updatect do
         for _, actor in ipairs(self.actors) do
