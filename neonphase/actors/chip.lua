@@ -434,7 +434,7 @@ function UpgradeChip2:get_script()
         { "That's all?  Couldn't you carry, say, me?", speaker = 'kidneon' },
         { "ERROR.  YOU DO NOT FIT ANY OF THE GIVEN PARAMETERS.", speaker = 'chip' },
         { "AT MAXIMUM POWER, I COULD ONLY PERFORM A GLIDE.", speaker = 'chip' },
-        { ("That still sounds useful.  I'll bind it to %s."):format(binding), speaker = 'kidneon' },
+        { ("That still sounds useful.  Come carry me whenever I hold %s."):format(binding), speaker = 'kidneon' },
     }
 end
 
