@@ -20,7 +20,6 @@ function TitleScene:init(next_scene, map_path)
 
     self.music = love.audio.newSource('assets/music/title.ogg')
     self.music:setLooping(true)
-    self.music:play()
 
     self.logo = love.graphics.newImage('assets/images/FLORAVERSE.png')
     self.logo:setFilter('linear', 'linear')
@@ -37,6 +36,10 @@ function TitleScene:init(next_scene, map_path)
 
     self.map_path = map_path
     self.load_state = 0
+end
+
+function TitleScene:enter()
+    self.music:play()
 end
 
 function TitleScene:update(dt)
