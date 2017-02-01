@@ -40,6 +40,8 @@ function WorldScene:init(...)
     BaseScene.init(self, ...)
 
     self.camera = Vector()
+    -- FIXME? i'd rather rely on enter() for this, but the world is drawn via
+    -- SceneFader /before/ enter() is called for the first time
     self:_refresh_canvas()
 
     -- FIXME well, i guess, don't actually fix me, but, this is used to stash
@@ -49,8 +51,26 @@ function WorldScene:init(...)
     self.glitch = Glitch()
 end
 
+function WorldScene:enter()
+    self:_refresh_canvas()
+end
+
+function WorldScene:resume()
+    -- Just in case, whenever we become the current scene, double-check the
+    -- canvas size
+    self:_refresh_canvas()
+end
+
 function WorldScene:_refresh_canvas()
     local w, h = game:getDimensions()
+
+    if self.canvas then
+        local cw, ch = self.canvas:getDimensions()
+        if w == cw and h == ch then
+            return
+        end
+    end
+
     self.canvas = love.graphics.newCanvas(w, h)
 end
 
