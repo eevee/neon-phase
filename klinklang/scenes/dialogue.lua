@@ -627,7 +627,13 @@ function DialogueScene:gamepadpressed(joystick, button)
 end
 
 function DialogueScene:resize(w, h)
-    -- FIXME redo stuff
+    -- FIXME adjust wrap width, reflow current text, etc.
+
+    -- FIXME maybe should have a wrapperscene base class that automatically
+    -- passes resize events along?
+    if self.wrapped.resize then
+        self.wrapped:resize(w, h)
+    end
 end
 
 return DialogueScene
