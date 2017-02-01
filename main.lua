@@ -11,7 +11,7 @@ local tiledmap = require 'klinklang.tiledmap'
 
 
 game = {
-    VERSION = '1.1',
+    VERSION = '1.2',
     TILE_SIZE = 16,
 
     progress = {
