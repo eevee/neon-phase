@@ -2,7 +2,7 @@
 
 This is a video game, created along with [GlitchedPuppet](http://glitchedpuppet.com/), set in their [Flora](http://floraverse.com/) world.  It was made in a week — err, nineish days — for the [Games Made Quick](https://itch.io/jam/games-made-quick) jam.  It's based on the code from my (incomplete as of this writing) game, [Isaac's Descent: HD Remix](https://github.com/eevee/isaacs-descent).
 
-It requires [LÖVE](https://love2d.org/) 0.10 and nothing else.
+It requires [LÖVE](https://love2d.org/) 0.10.2 and nothing else.
 
 
 ## Running
