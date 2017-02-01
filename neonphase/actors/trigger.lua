@@ -96,8 +96,6 @@ function TriggerZone:on_use(activator)
             worldscene:enter_submap('inside house 1')
         end
     elseif self.action == 'summon anise' or self.action == 'anise wrong bell' then
-        worldscene:remove_actor(self)
-
         -- FIXME ugh
         local anise
         for _, actor in ipairs(worldscene.actors) do
@@ -108,6 +106,7 @@ function TriggerZone:on_use(activator)
         end
         if anise then
             if self.action == 'summon anise' then
+                worldscene:remove_actor(self)
                 anise:move_to_stall()
             else
                 anise:wrong_bell(activator)
