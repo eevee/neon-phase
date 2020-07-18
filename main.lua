@@ -60,7 +60,7 @@ function love.load(args)
         local dir = package .. '/actors'
         for _, filename in ipairs(love.filesystem.getDirectoryItems(dir)) do
             -- FIXME this should recurse, but i can't be assed right now
-            if filename:match("%.lua$") and love.filesystem.isFile(dir .. '/' .. filename) then
+            if filename:match("%.lua$") and love.filesystem.getInfo(dir .. '/' .. filename, "file") then
                 module = package .. '.actors.' .. filename:sub(1, #filename - 4)
                 require(module)
             end
@@ -77,7 +77,7 @@ function love.load(args)
     for _, filename in ipairs(love.filesystem.getDirectoryItems(sounddir)) do
         -- FIXME recurse?
         local path = sounddir .. '/' .. filename
-        if love.filesystem.isFile(path) then
+        if love.filesystem.getInfo(path, "file") then
             resource_manager:load(path)
         end
     end

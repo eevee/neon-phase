@@ -18,7 +18,7 @@ function TitleScene:init(next_scene, map_path)
     TitleScene.__super.init(self)
     self.next_scene = next_scene
 
-    self.music = love.audio.newSource('assets/music/title.ogg')
+    self.music = love.audio.newSource('assets/music/title.ogg', "stream")
     self.music:setLooping(true)
 
     self.logo = love.graphics.newImage('assets/images/FLORAVERSE.png')
