@@ -206,7 +206,7 @@ function Player:update(dt)
     if self.is_floating and math.random() < dt * 8 then
         worldscene:add_actor(actors_misc.Particle(
             self.pos + Vector(math.random(-16, 16), 0), Vector(0, -32), Vector(0, 0),
-            {255, 255, 255}, 1.5, true))
+            {1, 1, 1}, 1.5, true))
     end
 end
 
@@ -215,17 +215,17 @@ function Player:draw()
 
     do return end
     if self.touching_mechanism then
-        love.graphics.setColor(0, 64, 255, 128)
+        love.graphics.setColor(0, 0.25, 1, 0.5)
         self.touching_mechanism.shape:draw('fill')
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(1, 1, 1)
     end
     if self.on_ground then
-        love.graphics.setColor(255, 0, 0, 128)
+        love.graphics.setColor(1, 0, 0, 0.5)
     else
-        love.graphics.setColor(0, 192, 0, 128)
+        love.graphics.setColor(0, 1, 0, 0.5)
     end
     self.shape:draw('fill')
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
 end
 
 function Player:damage(source, amount)

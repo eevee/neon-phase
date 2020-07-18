@@ -456,9 +456,9 @@ function DialogueScene:draw()
 
     love.graphics.push('all')
     love.graphics.scale(game.scale, game.scale)
-    love.graphics.setColor(0, 0, 0, 64)
+    love.graphics.setColor(0, 0, 0, 0.25)
     love.graphics.rectangle('fill', 0, 0, game:getDimensions())
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
 
     -- Draw the dialogue box, which is slightly complicated because it involves
     -- drawing the ends and then repeating the middle bit to fit the screen
@@ -497,7 +497,7 @@ function DialogueScene:draw()
             for l = start_line, #item.lines do
                 table.insert(texts, item.texts[l])
                 if m == self.menu_cursor then
-                    love.graphics.setColor(255, 255, 255, 64)
+                    love.graphics.setColor(1, 1, 1, 0.25)
                     love.graphics.rectangle('fill', TEXT_MARGIN_X * 3/4, boxtop + TEXT_MARGIN_Y + self.font:getHeight() * lines, boxwidth - TEXT_MARGIN_X * 6/4, self.font:getHeight())
                 end
                 if m == #self.menu_items and l == #item.lines then
@@ -515,7 +515,7 @@ function DialogueScene:draw()
 
         -- Draw little triangles to indicate scrollability
         -- FIXME magic numbers here...  should use sprites?  ugh
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(1, 1, 1)
         if not (self.menu_top == 1 and self.menu_top_line == 1) then
             local x = TEXT_MARGIN_X
             local y = boxtop + TEXT_MARGIN_Y
@@ -548,7 +548,7 @@ function DialogueScene:draw()
     local x, y = TEXT_MARGIN_X, boxtop + TEXT_MARGIN_Y
     for _, text in ipairs(texts) do
         -- Draw the text, twice: once for a drop shadow, then the text itself
-        love.graphics.setColor(0, 0, 0, 128)
+        love.graphics.setColor(0, 0, 0, 0.5)
         love.graphics.draw(text, x, y + 2)
 
         love.graphics.setColor(self.phrase_speaker.color or self.default_color)
@@ -576,9 +576,9 @@ function DialogueScene:draw()
             end
             local pos = Vector(x - sw * self.speaker_scale / 2, boxtop - sh * self.speaker_scale)
             if speaker == self.phrase_speaker then
-                love.graphics.setColor(255, 255, 255)
+                love.graphics.setColor(1, 1, 1)
             else
-                love.graphics.setColor(128, 128, 128)
+                love.graphics.setColor(0.5, 0.5, 0.5)
             end
             sprite:draw_at(pos)
         end

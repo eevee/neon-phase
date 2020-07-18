@@ -18,7 +18,7 @@ function TitleScene:init(next_scene, map_path)
     TitleScene.__super.init(self)
     self.next_scene = next_scene
 
-    self.music = love.audio.newSource('assets/music/title.ogg')
+    self.music = love.audio.newSource('assets/music/title.ogg', "stream")
     self.music:setLooping(true)
 
     self.logo = love.graphics.newImage('assets/images/FLORAVERSE.png')
@@ -62,7 +62,7 @@ function TitleScene:draw()
     end
 
     love.graphics.push('all')
-    local n = self.opacity * 255
+    local n = self.opacity
     love.graphics.setColor(n, n, n)
     if self.showing_logo then
         local w, h = love.graphics.getDimensions()
@@ -74,7 +74,7 @@ function TitleScene:draw()
         self.glitch:apply()
         love.graphics.draw(self.logo, (w - siw) / 2, (h - sih) / 2, 0, scale)
         love.graphics.setShader()
-        local c = self.opacity * 192
+        local c = self.opacity * 0.75
         love.graphics.setColor(c, c, c)
         love.graphics.setFont(m5x7small)
         love.graphics.printf("v" .. game.VERSION, 0, h - m5x7small:getHeight() - 4, w - 4, "right")

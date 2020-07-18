@@ -22,9 +22,9 @@ function PauseScene:draw()
     --[[
     local w, h = love.graphics.getDimensions()
     love.graphics.push('all')
-    love.graphics.setColor(0, 0, 0, 128)
+    love.graphics.setColor(0, 0, 0, 0.5)
     love.graphics.rectangle('fill', 0, 0, w, h)
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
     love.graphics.printf('* p a u s e d *', math.floor(w / 2), 
     love.graphics.pop()
     ]]

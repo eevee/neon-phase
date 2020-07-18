@@ -162,31 +162,31 @@ function Wirable:draw()
     actors_base.Actor.draw(self)
 
     --[[
-    love.graphics.setColor(255, 0, 255)
+    love.graphics.setColor(1, 0, 1)
     for _, node in ipairs(self.nodes) do
         local xy = self.pos + node
         love.graphics.circle('fill', xy.x, xy.y, 2)
     end
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
 
     if self.powered > 0 and self.shape then
-        love.graphics.setColor(255, 255, 0, 128)
+        love.graphics.setColor(1, 1, 0, 0.5)
         self.shape:draw('fill')
     end
     for connection, state in pairs(self.live_connections) do
         local direction = connection.pos - self.pos
         if state == -1 then
-            love.graphics.setColor(0, 255, 0)
+            love.graphics.setColor(0, 1, 0)
         elseif state == 1 then
-            love.graphics.setColor(255, 0, 0)
+            love.graphics.setColor(1, 0, 0)
         else
-            love.graphics.setColor(255, 255, 0)
+            love.graphics.setColor(1, 1, 0)
         end
         local midpoint = self.pos + direction / 4
         local perp = direction:perpendicular() / 4
         love.graphics.line(self.pos.x, self.pos.y, midpoint.x, midpoint.y)
     end
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
     ]]
 end
             
