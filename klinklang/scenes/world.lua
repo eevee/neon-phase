@@ -288,9 +288,9 @@ function WorldScene:draw()
     self.map:draw('wiring', self.camera, w, h)
 
     if self.pushed_actors then
-        love.graphics.setColor(0, 0, 0, 192)
+        love.graphics.setColor(0, 0, 0, 0.75)
         love.graphics.rectangle('fill', self.camera.x, self.camera.y, w, h)
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(1, 1, 1)
         -- FIXME stop hardcoding fuckin layer names
         self.map:draw(self.submap, self.camera, w, h)
         self:_draw_actors(self.actors)
@@ -326,13 +326,13 @@ function WorldScene:draw()
         ]]
         for _, actor in ipairs(self.actors) do
             if actor.shape then
-                love.graphics.setColor(255, 255, 0, 192)
+                love.graphics.setColor(1, 1, 0, 0.75)
                 actor.shape:draw('line')
             end
             if actor.pos then
-                love.graphics.setColor(255, 0, 0)
+                love.graphics.setColor(1, 0, 0)
                 love.graphics.circle('fill', actor.pos.x, actor.pos.y, 2)
-                love.graphics.setColor(255, 255, 255)
+                love.graphics.setColor(1, 1, 1)
                 love.graphics.circle('line', actor.pos.x, actor.pos.y, 2)
             end
         end
@@ -341,16 +341,16 @@ function WorldScene:draw()
             for hit, touchtype in pairs(debug_hits) do
                 if touchtype > 0 then
                     -- Collision: red
-                    love.graphics.setColor(255, 0, 0, 128)
+                    love.graphics.setColor(1, 0, 0, 0.5)
                 elseif touchtype < 0 then
                     -- Overlap: blue
-                    love.graphics.setColor(0, 64, 255, 128)
+                    love.graphics.setColor(0, 0.25, 1, 0.5)
                 else
                     -- Touch: green
-                    love.graphics.setColor(0, 192, 0, 128)
+                    love.graphics.setColor(0, 0.75, 0, 0.5)
                 end
                 hit:draw('fill')
-                --love.graphics.setColor(255, 255, 0)
+                --love.graphics.setColor(1, 1, 0)
                 --local x, y = hit:bbox()
                 --love.graphics.print(("%0.2f"):format(d), x, y)
             end
@@ -386,7 +386,7 @@ end
 
 function WorldScene:_draw_blockmap()
     love.graphics.push('all')
-    love.graphics.setColor(255, 255, 255, 64)
+    love.graphics.setColor(1, 1, 1, 0.25)
     love.graphics.scale(game.scale, game.scale)
 
     local blockmap = self.collider.blockmap

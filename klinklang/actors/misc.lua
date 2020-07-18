@@ -34,7 +34,7 @@ function Particle:draw()
     if self.fadeout then
         local r, g, b, a = unpack(self.color)
         if a == nil then
-            a = 255
+            a = 1
         end
         a = a * (self.ttl / self.original_ttl)
         love.graphics.setColor(r, g, b, a)
