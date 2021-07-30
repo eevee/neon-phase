@@ -146,7 +146,7 @@ function MemoKey:on_collide(other, direction)
         Gamestate.push(DialogueScene({
             -- Speakers
             memo = {
-                color = {255, 191, 81},
+                color = {1, 0.749, 0.318},
             },
             kidneon = other,
             chip = other.ptrs.chip,

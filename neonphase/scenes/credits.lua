@@ -238,7 +238,7 @@ function CreditsScene:draw()
             quip_align = "center"
         end
 
-        love.graphics.setColor(255, 255, 255, 128)
+        love.graphics.setColor(1, 1, 1, 0.5)
         local portrait = credit.portrait
         local pw, ph = portrait:getDimensions()
         portrait:draw_at(Vector(margin * 2 + iw, y + ih - ph) + portrait.anchor)
@@ -248,7 +248,7 @@ function CreditsScene:draw()
             local p2w, p2h = credit.portrait2:getDimensions()
             portrait2:draw_at(Vector(w - p2w, y + ih - p2h) + portrait.anchor)
         end
-        love.graphics.setColor(255, 255, 255)
+        love.graphics.setColor(1, 1, 1)
 
         local sprite = credit.sprite
         local sw, sh = sprite:getDimensions()
@@ -284,16 +284,16 @@ function CreditsScene:draw()
     love.graphics.printf("Eevee", margin, y, textwidth, "left")
     love.graphics.printf("GlitchedPuppet", margin, y, textwidth, "right")
     y = y + self.font:getHeight()
-    love.graphics.setColor(192, 192, 192)
+    love.graphics.setColor(0.75, 0.75, 0.75)
     love.graphics.printf("Code\nPolish\nYelling", margin, y, textwidth, "left")
     love.graphics.printf("Art\nConcept\nMusic", margin, y, textwidth, "right")
     y = y + self.font:getHeight() * 4 + margin * 4
 
-    love.graphics.setColor(128, 128, 128)
+    love.graphics.setColor(0.5, 0.5, 0.5)
     love.graphics.printf("Built with LÖVE\nand Daniel Linssen's sweet m5x7 font\nSource code: github.com/eevee/neon-phase\nSoundtrack, etc.: eevee.itch.io/neon-phase", margin, y, textwidth, "center")
     y = y + self.font:getHeight() * 4 + margin * 8
 
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
     love.graphics.printf("Thanks for playing!", margin, y, textwidth, "center")
     y = y + self.font:getHeight() * 2
     if self.tfp_state == 1 or self.tfp_state == 2 then
@@ -312,14 +312,14 @@ function CreditsScene:draw()
     end
     love.graphics.setCanvas(self.canvas)
     y = y + self.font:getHeight() * 3
-    love.graphics.setColor(128, 192, 255)
+    love.graphics.setColor(0.5, 0.75, 2)
     love.graphics.printf("floraverse.com", margin, y, textwidth, "center")
     y = y + self.font:getHeight() + margin * 4
 
     love.graphics.printf("@eevee\neev.ee", 32 + margin * 2, y, w - (32 + margin * 2) * 2, "left")
     love.graphics.printf("@glitchedpuppet\nglitchedpuppet.com", 32 + margin * 2, y, w - (32 + margin * 2) * 2, "right")
     y = y + self.font:getHeight() * 2 + margin
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
     love.graphics.draw(self.us_sprites, self.lexy_sprite, margin + 32, y - margin - 32, 0, -1, 1)
     love.graphics.draw(self.us_sprites, self.papaya_sprite, w - margin, y - margin - 32, 0, -1, 1)
 

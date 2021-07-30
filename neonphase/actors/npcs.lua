@@ -158,7 +158,7 @@ function VoidPlayer:update(...)
                 execute = function()
                     worldscene.glitch:play_extreme_glitch_transition()
                     worldscene.tick:delay(function()
-                        local fader = SceneFader(worldscene, true, 3.75, {255, 255, 255}, function()
+                        local fader = SceneFader(worldscene, true, 3.75, {1, 1, 1}, function()
                             worldscene:remove_actor(worldscene.player)
                             worldscene.player = worldscene.stashed_player
                             worldscene.player:move_to(Vector(96, 1872))
@@ -218,7 +218,7 @@ function VoidPlayer:draw()
 
     if t < text_duration - 1 then
         love.graphics.push('all')
-        local alpha = 255
+        local alpha = 1
         if t < 0.5 then
             alpha = alpha * t
         elseif t > text_duration - 1.5 then
@@ -278,7 +278,7 @@ function Bunker:on_use(activator)
                     worldscene.player = VoidPlayer(worldscene.player.pos)
                     worldscene:load_map(map)
                     worldscene.glitch:play_very_glitch_effect()
-                    worldscene.music = love.audio.newSource('assets/music/weirdplace.ogg')
+                    worldscene.music = love.audio.newSource('assets/music/weirdplace.ogg', "stream")
                     worldscene.music:setLooping(true)
                     worldscene.music:play()
                 end)
